@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "outDir": "dist/script",
+        "rootDir": "src/script",
+        "module": "commonjs",
+        "target": "es5",
+        "noImplicitAny": false,
+        "sourceMap": false,
+        "jsx": true
+    },
+    "exclude": [
+        "node_modules"
+    ],
+    "files": [
+        "./src/script/refs.d.ts",
+        "./src/script/CachePicker.ts",
+        "./src/script/component/NavIconComponent.tsx"
+    ],
+    "filesGlob": [
+        "./src/script/**/*.ts",
+        "./src/script/**/*.tsx"
+    ],
+    "atom": {
+        "rewriteTsconfig": true
+    }
+}

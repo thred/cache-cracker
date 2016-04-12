@@ -1,0 +1,131 @@
+body {
+  margin: 0;
+  background: #131119;
+  font-family: sans-serif;
+}
+
+nav {
+  width: 106px;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 20px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  overflow-X: hidden;
+  overflow-Y: hidden;
+  background: #242128;
+  border-right: 12px solid #542088;
+  transition: all 0.5s;
+}
+nav > span {
+  display: block;
+  padding: 2em;
+  font-size: 14px;
+  margin: 0 0;
+  color: rgba(255,255,255,0);
+  font-weight: 600;
+  transition: all 0.5s;
+}
+nav .navitem {
+  color: rgba(0,0,0,0);
+  display: block;
+  position: relative;
+  text-decoration: none;
+  font-size: 24px;
+  padding: 0.5em 2em;
+  transition: all 0.5s;
+}
+nav .navitem:hover {
+  color: #fff;
+}
+nav .navitem:hover i {
+  color: #fff;
+}
+nav .navitem i {
+  font-size: 32px;
+  vertical-align: middle;
+  margin-left: 0;
+  color: rgba(255,255,255,0.5);
+  padding: 8px;
+  border: 4px solid;
+  border-radius: 100%;
+  transform: translateX(-50%);
+  transition: all 0.2s 0.5s;
+}
+nav:hover {
+  width: 360px;
+  overflow-X: auto;
+  overflow-Y: auto;
+}
+nav:hover span {
+  color: rgba(255,255,255,0.5);
+  transition: all 1s 0.25s;
+}
+nav:hover .navitem {
+  color: rgba(255,255,255,0.8);
+}
+nav:hover .navitem i {
+  margin-left: 0;
+}
+nav:hover .navitem:nth-of-type(1) {
+  transition: all 0.2s, color 1s 0.275s;
+}
+nav:hover .navitem:nth-of-type(1) i {
+  transition: all 0.2s, margin-left 0.2s 0.275s;
+}
+nav:hover .navitem:nth-of-type(2) {
+  transition: all 0.2s, color 1s 0.3s;
+}
+nav:hover .navitem:nth-of-type(2) i {
+  transition: all 0.2s, margin-left 0.2s 0.3s;
+}
+nav:hover .navitem:nth-of-type(3) {
+  transition: all 0.2s, color 1s 0.325s;
+}
+nav:hover .navitem:nth-of-type(3) i {
+  transition: all 0.2s, margin-left 0.2s 0.325s;
+}
+nav:hover .navitem:nth-of-type(4) {
+  transition: all 0.2s, color 1s 0.35s;
+}
+nav:hover .navitem:nth-of-type(4) i {
+  transition: all 0.2s, margin-left 0.2s 0.35s;
+}
+nav:hover .navitem:nth-of-type(5) {
+  transition: all 0.2s, color 1s 0.375s;
+}
+nav:hover .navitem:nth-of-type(5) i {
+  transition: all 0.2s, margin-left 0.2s 0.375s;
+}
+nav:hover .navitem:nth-of-type(6) {
+  transition: all 0.2s, color 1s 0.4s;
+}
+nav:hover .navitem:nth-of-type(6) i {
+  transition: all 0.2s, margin-left 0.2s 0.4s;
+}
+nav:hover .navitem:nth-of-type(7) {
+  transition: all 0.2s, color 1s 0.425s;
+}
+nav:hover .navitem:nth-of-type(7) i {
+  transition: all 0.2s, margin-left 0.2s 0.425s;
+}
+nav:hover .navitem:nth-of-type(8) {
+  transition: all 0.2s, color 1s 0.45s;
+}
+nav:hover .navitem:nth-of-type(8) i {
+  transition: all 0.2s, margin-left 0.2s 0.45s;
+}
+nav:hover .navitem:nth-of-type(9) {
+  transition: all 0.2s, color 1s 0.475s;
+}
+nav:hover .navitem:nth-of-type(9) i {
+  transition: all 0.2s, margin-left 0.2s 0.475s;
+}
+nav:hover .navitem:nth-of-type(10) {
+  transition: all 0.2s, color 1s 0.5s;
+}
+nav:hover .navitem:nth-of-type(10) i {
+  transition: all 0.2s, margin-left 0.2s 0.5s;
+}

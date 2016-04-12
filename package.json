@@ -1,0 +1,37 @@
+{
+  "name": "cache-picker",
+  "version": "1.0.0",
+  "description": "A collection of handy tools for solving geocaching riddles.",
+  "main": "index.js",
+  "scripts": {
+    "start": "gulp watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "typings install"
+  },
+  "keywords": [
+    "angularjs",
+    "typescript",
+    "react",
+    "geocaching"
+  ],
+  "author": "Manfred Hantschel",
+  "license": "ISC",
+  "devDependencies": {
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-connect": "^3.2.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-typescript": "^2.12.2",
+    "merge-stream": "^1.0.0",
+    "tsconfig-glob": "^0.4.3",
+    "typescript": "^1.8.9",
+    "typings": "^0.7.12"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "jquery": "^2.2.3",
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1"
+  }
+}
