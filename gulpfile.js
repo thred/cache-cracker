@@ -9,9 +9,7 @@ var ts = require("gulp-typescript");
 var tsGlob = require("tsconfig-glob");
 
 var tsconfig = require("./tsconfig.json");
-var tsProject = ts.createProject("./tsconfig.json", {
-    sortOutput: true
-});
+
 
 var cssLibs = [
     "./node_modules/bootstrap/dist/css/bootstrap.min.css"
@@ -31,7 +29,7 @@ var jsLibs = [
 gulp.task("build", ["html", "lib", "ts"]);
 
 gulp.task("clean", function() {
-    return del("dist/**/*");
+    return del(["./dist/**/*", "./target/**/*"]);
 });
 
 gulp.task("connect", function() {
@@ -41,14 +39,16 @@ gulp.task("connect", function() {
     });
 });
 
+gulp.task("default", ["watch"]);
+
 gulp.task("html", function() {
-    return gulp.src("./src/index.html").pipe(gulp.dest("./dist"));
+    return gulp.src("./src/**/*.html").pipe(gulp.dest("./dist"));
 });
 
 gulp.task("lib", function() {
     var cssLibsStream = gulp.src(cssLibs)
         .pipe(concat("libs.css"))
-        .pipe(gulp.dest("./dist/css"));
+        .pipe(gulp.dest("./dist/style"));
 
     var fontLibsStream = gulp.src(fontLibs)
         .pipe(gulp.dest("./dist/fonts"));
@@ -59,12 +59,21 @@ gulp.task("lib", function() {
         }))
         .pipe(concat("libs.js"))
         .pipe(sourcemaps.write("."))
-        .pipe(gulp.dest(tsconfig.compilerOptions.outDir));
+        .pipe(gulp.dest("./dist/script"));
 
     return merge(cssLibsStream, fontLibsStream, jsLibsStream);
 });
 
-gulp.task("ts", ["ts-glob"], function() {
+gulp.task("ts", function() {
+    tsGlob({
+        configPath: ".",
+        indent: 4
+    });
+    
+    var tsProject = ts.createProject("./tsconfig.json", {
+        sortOutput: true
+    });
+
     var tsSources = tsProject.src()
         .pipe(ts(tsProject)).js;
 
@@ -74,14 +83,7 @@ gulp.task("ts", ["ts-glob"], function() {
         }))
         .pipe(concat("cache-picker.js"))
         .pipe(sourcemaps.write("."))
-        .pipe(gulp.dest(tsconfig.compilerOptions.outDir));
-});
-
-gulp.task("ts-glob", function() {
-    return tsGlob({
-        configPath: ".",
-        indent: 4
-    });
+        .pipe(gulp.dest("./dist/script"));
 });
 
 gulp.task("watch", ["build", "connect"], function() {

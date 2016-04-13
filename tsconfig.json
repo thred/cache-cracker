@@ -1,20 +1,24 @@
 {
     "compilerOptions": {
-        "outDir": "dist/script",
-        "rootDir": "src/script",
+        "outDir": "./target/script",
+        "rootDir": "./src/script",
         "module": "commonjs",
         "target": "es5",
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "sourceMap": false,
-        "jsx": true
+        "jsx": "react",
+        "noEmitHelpers": true
     },
     "exclude": [
-        "node_modules"
+        "dist",
+        "node_modules",
+        "target",
+        "typings"
     ],
     "files": [
-        "./src/script/refs.d.ts",
-        "./src/script/CachePicker.ts",
-        "./src/script/component/NavIconComponent.tsx"
+        "./src/script/cache-picker.d.ts",
+        "./src/script/component/Page.tsx",
+        "./src/script/Main.tsx"
     ],
     "filesGlob": [
         "./src/script/**/*.ts",

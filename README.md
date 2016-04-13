@@ -1,6 +1,6 @@
 # cache-picker
 
-> A collection of tools handy for solving geocaching riddles and a sample for writing AngularJS/TypeScript apps.
+> A collection of tools handy for solving geocaching riddles.
 
 ## Development
 

@@ -59,7 +59,7 @@ Add the local development dependency, too: `npm install typescript --save-dev`.
 
 First create a file to compile. Create the file `src/script/cache-picker.ts`: 
 
-    namespace geocachingtoolbox {
+    namespace cachepicker {
         window.console.log("cache-picker");
     }
     

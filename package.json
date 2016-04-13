@@ -16,6 +16,8 @@
   ],
   "author": "Manfred Hantschel",
   "license": "ISC",
+  "homepage": "https://github.com/thred",
+  "repository": "https://github.com/thred/cache-picker.git",
   "devDependencies": {
     "del": "^2.2.0",
     "gulp": "^3.9.1",
