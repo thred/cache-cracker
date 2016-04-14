@@ -4,27 +4,14 @@
         "rootDir": "./src/script",
         "module": "commonjs",
         "target": "es5",
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "sourceMap": false,
-        "jsx": "react",
-        "noEmitHelpers": true
+        "jsx": "react"
     },
     "exclude": [
         "dist",
         "node_modules",
         "target",
         "typings"
-    ],
-    "files": [
-        "./src/script/cache-picker.d.ts",
-        "./src/script/component/Page.tsx",
-        "./src/script/Main.tsx"
-    ],
-    "filesGlob": [
-        "./src/script/**/*.ts",
-        "./src/script/**/*.tsx"
-    ],
-    "atom": {
-        "rewriteTsconfig": true
-    }
+    ]
 }

@@ -6,10 +6,8 @@ var gulp = require("gulp");
 var merge = require('merge-stream');
 var sourcemaps = require("gulp-sourcemaps");
 var ts = require("gulp-typescript");
-var tsGlob = require("tsconfig-glob");
 
 var tsconfig = require("./tsconfig.json");
-
 
 var cssLibs = [
     "./node_modules/bootstrap/dist/css/bootstrap.min.css"
@@ -20,10 +18,10 @@ var fontLibs = [
 ];
 
 var jsLibs = [
-    "./node_modules/jquery/dist/jquery.min.js",
-    "./node_modules/bootstrap/dist/js/bootstrap.min.js",
-    "./node_modules/react/dist/react.min.js",
-    "./node_modules/react/dist/react-dom.min.js"
+    "./node_modules/jquery/dist/jquery.js",
+    "./node_modules/bootstrap/dist/js/bootstrap.js",
+    "./node_modules/react/dist/react-with-addons.js",
+    "./node_modules/react-dom/dist/react-dom.js"
 ];
 
 gulp.task("build", ["html", "lib", "ts"]);
@@ -65,11 +63,6 @@ gulp.task("lib", function() {
 });
 
 gulp.task("ts", function() {
-    tsGlob({
-        configPath: ".",
-        indent: 4
-    });
-    
     var tsProject = ts.createProject("./tsconfig.json", {
         sortOutput: true
     });
@@ -81,13 +74,13 @@ gulp.task("ts", function() {
         .pipe(sourcemaps.init({
             loadMaps: true
         }))
-        .pipe(concat("cache-picker.js"))
+        .pipe(concat('cache-picker.js'))
         .pipe(sourcemaps.write("."))
         .pipe(gulp.dest("./dist/script"));
 });
 
 gulp.task("watch", ["build", "connect"], function() {
     gulp.watch("./src/**/*.html", ["html"]);
-    gulp.watch(tsconfig.filesGlob, ["ts"]);
+    gulp.watch(["./src/script/**/*.ts", "./src/script/**/*.tsx"] , ["ts"]);
 });
 

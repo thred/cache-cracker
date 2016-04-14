@@ -1,12 +1,12 @@
-/// <reference path="./cache-picker.d.ts" />
-
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+/// <reference path="refs.d.ts" />
 
 namespace CachePicker {
 
-    let a = new Page();
-    
-    ReactDOM.render(<Page></Page>, document.body);
+    export function main() {
 
-} 
+        ReactDOM.render(<h1>cache-picker</h1>, document.body);
+
+        console.log(<h1>cache-picker</h1>);
+    }
+
+}
