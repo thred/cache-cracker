@@ -4,9 +4,8 @@ namespace CachePicker {
 
     export function main() {
 
-        ReactDOM.render(<h1>cache-picker</h1>, document.body);
+        ReactDOM.render(<h1>cache-picker</h1>, document.getElementById("main"));
 
-        console.log(<h1>cache-picker</h1>);
     }
 
 }
