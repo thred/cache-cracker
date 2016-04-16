@@ -1,3 +1,9 @@
-/// <reference path="imports.d.ts" />
+/// <reference path="./imports.d.ts" />
 
-/// <reference path="Main.tsx" />
+declare namespace CachePicker {
+
+}
+
+/// <reference path="./command/StringCommand.tsx" />
+
+/// <reference path="./Main.tsx" />

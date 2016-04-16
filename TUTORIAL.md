@@ -220,66 +220,8 @@ And reference the file in all other files:
 
 
 
+I HATE MODULES!
 
 
 
-
-
-
-Next, we need the type definitions for TypeScript.
-
-
-
-
-
-> If you are using Chrome as your development browser, you may wish to install 
-> [React developer tools extension](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en).
-
-
-
-
-Before starting with Angular, you'll need the library.
-
-If you haven't done so, install the [TypeScript Definition Manager](https://github.com/typings/typings)
-with `npm install typings --global` (as root/admin). Add de local development dependency, too:
-`npm install typings --save-dev`.
-
-Install some ambient dependencies:
-
-* `typings install es6-shim --ambient --save` - This makes JavaScript engines compatible with ES6.
-* `typings install jasmine --ambient --save` - For testing you code.
-
-And don't forget to add the the `typings` directory to the `.gitignore` and add `typings install` to the
-build instructions in the readme. And you can add the `typings install` as `postinstall` script in the 
-`package.json` (you can execute it with `npm run postinstall`).
-
-Next, install the Node modules:
-
-* Angular 2: `npm install angular2 --save`
-
-When executing this command, it will list some peer dependencies, you have to install, too. 
-This may change in future, check for the exact versions.
-
-* es6-shim: `npm install es6-shim --save` - This makes JavaScript engines compatible with ES6.
-* reflect-metadata: `npm install reflect-metadata@0.1.2 --save` - Need by TypeScript itself.
-* rxjs: `npm install rxjs@5.0.0-beta.2 --save`- Observables, a future ES enhancement.
-* zone.js: `npm install zone.js --save` - Zones, a future ES enhancement.
-
-Additonal install following dependencies:
-
-* system.js: `npm install systemjs --save` - A dynamic module loader compatible with the ES6 module specification
-
-Angular 2 needs some special compile options, check the `tsconfig.json` to add/fix them:
-
-    "module": "system",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "removeComments": false,
-    "noImplicitAny": false
-
-And add the `typings` directory to the excluded files.
-
-
-
+... TO BE CONTINUED
