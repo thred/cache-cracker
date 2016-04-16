@@ -1,4 +1,3 @@
 /// <reference path="../../typings/browser.d.ts" />
+/// <reference path="react-materialize.d.ts" />
 
-import React = __React;
-import ReactDOM = __React.__DOM;

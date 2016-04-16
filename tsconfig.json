@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "outDir": "./target/script",
+        "outDir": "./build/src/script",
         "rootDir": "./src/script",
         "module": "commonjs",
-        "target": "es5",
+        "target": "es2015",
         "noImplicitAny": false,
         "sourceMap": false,
         "jsx": "react"
