@@ -12,11 +12,11 @@ var webpack = require('webpack-stream');
 var tsconfig = require("./tsconfig.json");
 
 var css = [
-    "./src/style/material-design-icons.css",
     "./src/style/cache-picker.css"
 ];
 
 var cssLibs = [
+    "./src/style/material-design-icons.css",
     "./node_modules/materialize-css/dist/css/materialize.css"
 ];
 
@@ -25,13 +25,10 @@ var fontLibs = [
     "./node_modules/material-design-icons/iconfont/MaterialIcons-*"
 ];
 
-// var javascriptLibs = [
-//     "./node_modules/jquery/dist/jquery.js",
-//     "./node_modules/materialize-css/dist/js/materialize.js",
-//     "./node_modules/react/dist/react-with-addons.js",
-//     "./node_modules/react-dom/dist/react-dom.js",
-//     "./build/lib/react-materialize.js"
-// ];
+var javascriptLibs = [
+    "./node_modules/jquery/dist/jquery.min.js",
+    "./node_modules/materialize-css/dist/js/materialize.min.js"
+];
 
 var typescriptProject = gulpTypeScript.createProject(require('./tsconfig.json').compilerOptions);
 
@@ -96,11 +93,10 @@ gulp.task("build:webpack", ["build:typescript"], function () {
         .pipe(gulp.dest("./dist/script"));
 });
 
-gulp.task("lib", ["lib:css", "lib:font"]);
+gulp.task("lib", ["lib:css", "lib:font", "lib:javascript"]);
 
 gulp.task("lib:css", function () {
     return gulp.src(cssLibs)
-        .pipe(gulpConcat("libs.css"))
         .pipe(gulp.dest("./dist/style"));
 });
 
@@ -109,15 +105,10 @@ gulp.task("lib:font", function () {
         .pipe(gulp.dest("./dist/fonts"));
 });
 
-// gulp.task("lib:javascript", function () {
-//     return gulp.src(javascriptLibs)
-//         .pipe(gulpSourceMaps.init({
-//             loadMaps: true
-//         }))
-//         .pipe(gulpConcat("libs.js"))
-//         .pipe(gulpSourceMaps.write("."))
-//         .pipe(gulp.dest("./dist/script"));
-// });
+gulp.task("lib:javascript", function () {
+    return gulp.src(javascriptLibs)
+        .pipe(gulp.dest("./dist/script"));
+});
 
 gulp.task("server", function () {
     gulpConnect.server({
