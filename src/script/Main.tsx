@@ -6,34 +6,13 @@ import {Button, Col, Input, Row} from "react-materialize";
 
 import * as Command from "./command/Command";
 import * as SheetModel from "./sheet/Model";
-import * as SheetUI from "./sheet/UI";
+import * as Sheet from "./sheet/Sheet";
 
 import * as StringCommand from "./command/StringCommand";
 
 function init() {
 
-    Command.register({
-        key: "String",
-        category: "Input",
-        resultType: Command.Type.String,
-        componentFactory: (instruction) => <div>lala</div>
-    });
-
-    Command.register({
-        key: "Number",
-        category: "Input",
-        resultType: Command.Type.Number,
-        componentFactory: null
-    });
-
-    Command.register({
-        key: "Boolean",
-        category: "Input",
-        resultType: Command.Type.Boolean,
-        componentFactory: null
-    });
-
-    let sheet: SheetModel.Sheet = SheetModel.ensureIdentableSheet({
+    let sheet: SheetModel.Sheet = SheetModel.ensureIdentable({
         name: "Test Sheet",
         image: "media/sheet-title-schober.jpg",
         author: "Thred",
@@ -47,7 +26,7 @@ function init() {
         }]
     });
 
-    ReactDOM.render(<SheetUI.SheetComponent sheet={sheet} onAction={(action) => console.log(action) }/>, document.getElementById("main"));
+    ReactDOM.render(<Sheet.Component defaultSheet={sheet}/>, document.getElementById("main"));
 
 }
 

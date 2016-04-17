@@ -1,10 +1,15 @@
 let msgs: { [key: string]: { [language: string]: string } } =
     {
+        "Sheet.defaultName": {
+            "": "My Cache-Picker Sheet",
+            "de": "Mein Cache-Picker Zettel"
+        },
+        
         "Sheet.defaultComment": {
             "": "No commentary available.",
             "de": "Keine Beschreibung verfügbar."
         },
-        
+
         "Instruction.function": {
             "": "Selected Function",
             "de": "Ausgewählte Funktion"

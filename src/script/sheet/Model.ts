@@ -1,8 +1,4 @@
-export interface Identable {
-
-    id?: number;
-
-}
+import {Identable} from "./../Utils";
 
 export interface Sheet extends Identable {
 
@@ -42,44 +38,102 @@ export type Argument = boolean | number | string | Instruction;
 
 let globalId: number = 1;
 
-export function ensureIdentableSheet(sheet: Sheet): Sheet {
-    if (!sheet.id) {
-        sheet.id = globalId++;
+export function findIdentable(sheet: Sheet, id: number): Sheet | Line | Instruction {
+    if (id === sheet.$id) {
+        return sheet;
     }
 
     for (let line of sheet.lines) {
         if (line) {
-            ensureIdentableLine(line);
+            let identable = findIdentableInLine(line, id);
+
+            if (identable) {
+                return identable;
+            }
+        }
+    }
+
+    return null;
+}
+
+function findIdentableInLine(line: Line, id: number): Line | Instruction {
+    if (id === line.$id) {
+        return line;
+    }
+
+    if (line.instruction) {
+        let identable = findIdentableInArgument(line.instruction, id);
+
+        if (identable) {
+            return identable;
+        }
+    }
+
+    return null;
+}
+
+function findIdentableInArgument(argument: Argument, id: number): Instruction {
+    if (typeof argument !== "object") {
+        return;
+    }
+
+    return findIdentableInInstruction(argument as Instruction, id);
+}
+
+function findIdentableInInstruction(instruction: Instruction, id: number): Instruction {
+    if (id === instruction.$id) {
+        return instruction;
+    }
+
+    for (let key in instruction) {
+        let identable = findIdentableInArgument(instruction[key], id);
+
+        if (identable) {
+            return identable;
+        }
+    }
+
+    return null;
+}
+
+export function ensureIdentable(sheet: Sheet): Sheet {
+    if (!sheet.$id) {
+        sheet.$id = globalId++;
+    }
+
+    for (let line of sheet.lines) {
+        if (line) {
+            ensureIdentableInLine(line);
         }
     }
 
     return sheet;
 }
 
-function ensureIdentableLine(line: Line): void {
-    if (!line.id) {
-        line.id = globalId++;
+function ensureIdentableInLine(line: Line): void {
+    if (!line.$id) {
+        line.$id = globalId++;
     }
 
     if (line.instruction) {
-        ensureIdentableArgument(line.instruction);
+        ensureIdentableInArgument(line.instruction);
     }
 }
 
-function ensureIdentableArgument(argument: Argument): void {
+function ensureIdentableInArgument(argument: Argument): void {
     if (typeof argument !== "object") {
         return;
     }
 
-    ensureIdentableInstruction(argument as Instruction);
+    ensureIdentableInInstruction(argument as Instruction);
 }
 
-function ensureIdentableInstruction(instruction: Instruction): void {
-    if (!(instruction.id)) {
-        instruction.id = globalId++;
+function ensureIdentableInInstruction(instruction: Instruction): void {
+    if (!(instruction.$id)) {
+        instruction.$id = globalId++;
     }
 
     for (let key in instruction) {
-        ensureIdentableArgument(instruction[key]);
+        ensureIdentableInArgument(instruction[key]);
     }
 }

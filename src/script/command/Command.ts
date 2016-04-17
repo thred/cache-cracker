@@ -60,3 +60,24 @@ export function categories(filter?: (definition: Definition) => boolean): { [cat
 
     return results;
 }
+
+register({
+    key: "String",
+    category: "Input",
+    resultType: Type.String,
+    componentFactory: null //(instruction) => <div>lala < /div>
+});
+
+register({
+    key: "Number",
+    category: "Input",
+    resultType: Type.Number,
+    componentFactory: null
+});
+
+register({
+    key: "Boolean",
+    category: "Input",
+    resultType: Type.Boolean,
+    componentFactory: null
+});

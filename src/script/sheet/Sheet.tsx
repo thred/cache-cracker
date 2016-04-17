@@ -2,7 +2,7 @@ import * as React from "react";
 import {Button, Card, CardTitle, Col, Input, Row} from "react-materialize";
 // import * as JSX from "JSX";
 
-import * as Controller from "./Controller";
+import * as Sheet from "./Sheet";
 import * as Model from "./Model";
 
 import * as Command from "./../command/Command";
@@ -10,22 +10,60 @@ import * as Command from "./../command/Command";
 import {msg} from "./../Msg";
 import * as Utils from "./../Utils";
 
+export interface Action extends Utils.Identable {
 
-export interface SheetProps {
-    sheet: Model.Sheet
+    updates?: { [key: string]: any };
 
-    onAction: (action: Controller.Action) => any;
 }
 
-export class SheetComponent extends React.Component<SheetProps, {}> {
+export interface Props {
+    defaultSheet?: Model.Sheet;
+}
+
+export interface State {
+    sheet?: Model.Sheet;
+}
+
+export class Component extends React.Component<Props, State> {
+
+    constructor(props: Props, context: any) {
+        super(props, context);
+
+        this.state = {
+            sheet: props.defaultSheet || {
+                name: msg("Sheet.defaultName"),
+                lines: []
+            }
+        };
+    }
+
+    onAction(action: Action): void {
+        if (action.updates) {
+            let sheet = this.state.sheet;
+            let object: any = Model.findIdentable(sheet, action.$id);
+
+            if (object) {
+                for (let key in action.updates) {
+                    object[key] = action.updates[key];
+                }
+
+                this.setState({ sheet: sheet });
+            }
+            else {
+                console.error("Identable with $id=" + action.$id + " not found in %o", sheet);
+            }
+        }
+    }
 
     render() {
-        let sheet = this.props.sheet;
+
+        console.log(this.state.sheet);
+        let sheet = this.state.sheet;
 
         return <div className="container">
             <Row>
                 <Col s={12}>
-                    <SheetTitleComponent sheet={sheet} onAction={(action) => this.props.onAction(action) }/>
+                    <TitleComponent sheet={sheet} onAction={(action) => this.onAction(action) }/>
                 </Col>
             </Row>
 
@@ -35,14 +73,20 @@ export class SheetComponent extends React.Component<SheetProps, {}> {
 
     renderLine(line: Model.Line, index: number) {
         return <div className="section" key={line.key} >
-            <LineComponent line={line} index={index + 1} onAction={(action) => this.props.onAction(action) } />
+            <LineComponent line={line} index={index + 1} onAction={(action) => this.onAction(action) } />
             <div className="divider" />
         </div>;
     }
 
 }
 
-class SheetTitleComponent extends React.Component<SheetProps, {}> {
+interface TitleProps {
+    sheet: Model.Sheet;
+
+    onAction: (action: Sheet.Action) => any;
+}
+
+class TitleComponent extends React.Component<TitleProps, {}> {
 
     render() {
         let sheet = this.props.sheet;
@@ -63,7 +107,7 @@ interface LineComponentProps {
 
     line: Model.Line;
 
-    onAction: (action: Controller.Action) => any;
+    onAction: (action: Sheet.Action) => any;
 }
 
 export class LineComponent extends React.Component<LineComponentProps, {}> {
@@ -91,7 +135,7 @@ export class LineComponent extends React.Component<LineComponentProps, {}> {
 interface InstructionComponentProps {
     instruction: Model.Instruction;
 
-    onAction: (action: Controller.Action) => any;
+    onAction: (action: Sheet.Action) => any;
 }
 
 export class InstructionComponent extends React.Component<InstructionComponentProps, {}> {
@@ -116,7 +160,7 @@ export class InstructionComponent extends React.Component<InstructionComponentPr
             </Row>
             <Row>
                 <Col s={12}>
-                    {component}
+                    {commandKey}
                 </Col>
             </Row>
         </div>;
@@ -127,13 +171,13 @@ export class InstructionComponent extends React.Component<InstructionComponentPr
 class InstructionSelectComponent extends React.Component<InstructionComponentProps, {}> {
 
     changed(event: React.SyntheticEvent) {
-        let action: Controller.UpdateAction = {
-            id: this.props.instruction.id,
+        let action: Sheet.Action = {
+            $id: this.props.instruction.$id,
             updates: {
-                definitionkey: (event.target as HTMLInputElement).value
+                definitionKey: (event.target as HTMLInputElement).value
             }
         }
-        
+
         this.props.onAction(action);
     }
 
