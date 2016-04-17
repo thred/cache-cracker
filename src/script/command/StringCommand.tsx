@@ -1,22 +1,15 @@
-/// <reference path="../refs.d.ts" />
-
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Button, Col, Input, Row} from "react-materialize";
 
-interface StringCommandProps {
-    comment?: string;
-}
+import * as Model from "./../Model";
 
-export default class StringCommand extends React.Component<StringCommandProps, {}> {
-
+export class Component extends React.Component<Model.Instruction, {}> {
     render() {
-        let label = "String";
-
-        return <div>
+        return <div className="command">
             <Row>
                 <Col>
-                    <Input label={label} />
+                    <Input type="text" label="Value" />
                 </Col>
             </Row>
         </div>;

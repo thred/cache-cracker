@@ -41,7 +41,7 @@ gulp.task("default", ["lib", "build"]);
 gulp.task("build", ["build:static", "build:css", "build:webpack"]);
 
 gulp.task("build:static", function () {
-    return gulp.src("./src/**/*.html")
+    return gulp.src(["./src/**/*.html", "./src/**/*.jpg"])
         .pipe(gulp.dest("./dist"));
 });
 

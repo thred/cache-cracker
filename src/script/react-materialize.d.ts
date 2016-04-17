@@ -1,4 +1,3 @@
-
 declare namespace __React {
 
     namespace __Materialize {
@@ -117,6 +116,35 @@ declare namespace __React {
             tooltip?: string;
 
             waves?: Waves
+        }
+
+        export class Card extends Component<CardProps, {}> {
+        }
+
+        export interface CardProps extends Props<Card>, ChildrenProps, AnyProps {
+            title?: string;
+
+            textClassName?: string;
+
+            reveal?: JSX.Element;
+
+            header?: JSX.Element;
+
+            actions?: JSX.Element[];
+        }
+
+        export class CardTitle extends Component<CardTitleProps, {}> {
+        }
+
+        export interface CardTitleProps extends Props<CardTitle>, ChildrenProps, AnyProps {
+            // Whether the image serves as activator for the reveal
+            reveal?: boolean;
+
+            // the waves effect
+            waves?: Waves;
+
+            // The path to the image
+            image: string
         }
 
         export class Col extends Component<ColProps, {}> {
