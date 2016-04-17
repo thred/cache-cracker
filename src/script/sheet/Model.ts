@@ -1,5 +1,11 @@
 import {Identable} from "./../Utils";
 
+export interface Action extends Identable {
+
+    updates?: { [key: string]: any };
+
+}
+
 export interface Sheet extends Identable {
 
     name: string;

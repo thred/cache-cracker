@@ -10,17 +10,11 @@ import * as Command from "./../command/Command";
 import {msg} from "./../Msg";
 import * as Utils from "./../Utils";
 
-export interface Action extends Utils.Identable {
-
-    updates?: { [key: string]: any };
-
-}
-
-export interface Props {
+interface Props {
     defaultSheet?: Model.Sheet;
 }
 
-export interface State {
+interface State {
     sheet?: Model.Sheet;
 }
 
@@ -37,7 +31,9 @@ export class Component extends React.Component<Props, State> {
         };
     }
 
-    onAction(action: Action): void {
+    onAction(action: Model.Action): void {
+        console.log(action);
+
         if (action.updates) {
             let sheet = this.state.sheet;
             let object: any = Model.findIdentable(sheet, action.$id);
@@ -56,8 +52,6 @@ export class Component extends React.Component<Props, State> {
     }
 
     render() {
-
-        console.log(this.state.sheet);
         let sheet = this.state.sheet;
 
         return <div className="container">
@@ -83,7 +77,7 @@ export class Component extends React.Component<Props, State> {
 interface TitleProps {
     sheet: Model.Sheet;
 
-    onAction: (action: Sheet.Action) => any;
+    onAction: (action: Model.Action) => any;
 }
 
 class TitleComponent extends React.Component<TitleProps, {}> {
@@ -107,7 +101,7 @@ interface LineComponentProps {
 
     line: Model.Line;
 
-    onAction: (action: Sheet.Action) => any;
+    onAction: (action: Model.Action) => any;
 }
 
 export class LineComponent extends React.Component<LineComponentProps, {}> {
@@ -135,7 +129,7 @@ export class LineComponent extends React.Component<LineComponentProps, {}> {
 interface InstructionComponentProps {
     instruction: Model.Instruction;
 
-    onAction: (action: Sheet.Action) => any;
+    onAction: (action: Model.Action) => any;
 }
 
 export class InstructionComponent extends React.Component<InstructionComponentProps, {}> {
@@ -148,21 +142,15 @@ export class InstructionComponent extends React.Component<InstructionComponentPr
 
         if (definition) {
             if (definition.componentFactory) {
-                component = definition.componentFactory(instruction);
+                component = definition.componentFactory(instruction, (action) => this.props.onAction(action));
             }
         }
 
         return <div>
             <Row>
-                <Col s={12}>
-                    <InstructionSelectComponent instruction={instruction} onAction={(action) => this.props.onAction(action) }/>
-                </Col>
+                <InstructionSelectComponent instruction={instruction} onAction={(action) => this.props.onAction(action) }/>
             </Row>
-            <Row>
-                <Col s={12}>
-                    {commandKey}
-                </Col>
-            </Row>
+            {component}
         </div>;
     }
 
@@ -170,8 +158,8 @@ export class InstructionComponent extends React.Component<InstructionComponentPr
 
 class InstructionSelectComponent extends React.Component<InstructionComponentProps, {}> {
 
-    changed(event: React.SyntheticEvent) {
-        let action: Sheet.Action = {
+    onChange(event: React.SyntheticEvent) {
+        let action: Model.Action = {
             $id: this.props.instruction.$id,
             updates: {
                 definitionKey: (event.target as HTMLInputElement).value
@@ -197,7 +185,7 @@ class InstructionSelectComponent extends React.Component<InstructionComponentPro
                 </optgroup>);
         }
 
-        return <Input s={12} type="select" label={msg("Instruction.function") } onChange={(event) => this.changed(event) }>
+        return <Input s={12} type="select" label={msg("Instruction.function") } onChange={(event) => this.onChange(event) }>
             {options}
         </Input>;
     }

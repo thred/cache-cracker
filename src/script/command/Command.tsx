@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import * as Input from "./Input";
+
 import * as SheetModel from "../sheet/Model";
 
 import * as Utils from "../Utils";
@@ -26,11 +28,16 @@ export interface Definition {
 
     resultType: Type;
 
-    componentFactory: (instruction: SheetModel.Instruction) => JSX.Element;
+    componentFactory: (instruction: SheetModel.Instruction, onChange: (action: SheetModel.Action) => any) => any;
 }
 
-
 const DEFINITIONS: Definition[] = [];
+
+export interface Props {
+    instruction: SheetModel.Instruction
+
+    onAction: (action: SheetModel.Action) => any;
+}
 
 export function register(definition: Definition): void {
     DEFINITIONS.push(definition);
@@ -61,23 +68,4 @@ export function categories(filter?: (definition: Definition) => boolean): { [cat
     return results;
 }
 
-register({
-    key: "String",
-    category: "Input",
-    resultType: Type.String,
-    componentFactory: null //(instruction) => <div>lala < /div>
-});
-
-register({
-    key: "Number",
-    category: "Input",
-    resultType: Type.Number,
-    componentFactory: null
-});
-
-register({
-    key: "Boolean",
-    category: "Input",
-    resultType: Type.Boolean,
-    componentFactory: null
-});
+Input.initialize();

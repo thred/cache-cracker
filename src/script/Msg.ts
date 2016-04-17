@@ -4,7 +4,7 @@ let msgs: { [key: string]: { [language: string]: string } } =
             "": "My Cache-Picker Sheet",
             "de": "Mein Cache-Picker Zettel"
         },
-        
+
         "Sheet.defaultComment": {
             "": "No commentary available.",
             "de": "Keine Beschreibung verfügbar."
@@ -17,7 +17,12 @@ let msgs: { [key: string]: { [language: string]: string } } =
 
         "Command.String.title": {
             "": "Enter a Character, Word or a Sentence",
-            "de": "Ein Zeiche, Wort oder einen Satz eingeben"
+            "de": "Ein Zeichen, Wort oder einen Satz eingeben"
+        },
+
+        "Command.String.label": {
+            "": "The Character, Word or Sentence",
+            "de": "Das Zeichen, das Wort oder der Satz"
         },
 
         "Command.Number.title": {
@@ -25,9 +30,19 @@ let msgs: { [key: string]: { [language: string]: string } } =
             "de": "Eine Zahl eingeben"
         },
 
+        "Command.Number.label": {
+            "": "The Number",
+            "de": "Die Zahl"
+        },
+
         "Command.Boolean.title": {
             "": "Enter a Logical Value",
             "de": "Einen Wahrheitswert eingeben"
+        },
+
+        "Command.Boolean.label": {
+            "": "The Logical Value",
+            "de": "Der Wahrheitswert"
         },
 
         "Command.category.Input.title": {

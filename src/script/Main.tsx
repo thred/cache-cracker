@@ -8,8 +8,6 @@ import * as Command from "./command/Command";
 import * as SheetModel from "./sheet/Model";
 import * as Sheet from "./sheet/Sheet";
 
-import * as StringCommand from "./command/StringCommand";
-
 function init() {
 
     let sheet: SheetModel.Sheet = SheetModel.ensureIdentable({
@@ -21,7 +19,7 @@ function init() {
             comment: "Wie lautet das gesuchte Wort?",
             instruction: {
                 definitionKey: "String",
-                value: "Blahbliblahbliblups"
+                stringValue: "Blahbliblahbliblups"
             }
         }]
     });
