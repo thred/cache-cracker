@@ -41,7 +41,7 @@ gulp.task("default", ["lib", "build"]);
 gulp.task("build", ["build:static", "build:css", "build:webpack"]);
 
 gulp.task("build:static", function () {
-    return gulp.src(["./src/**/*.html", "./src/**/*.jpg"])
+    return gulp.src(["./src/**/*.html", "./src/**/*.jpg", "./src/**/*.png"])
         .pipe(gulp.dest("./dist"));
 });
 
@@ -113,7 +113,7 @@ gulp.task("lib:javascript", function () {
 gulp.task("server", function () {
     gulpConnect.server({
         root: "dist",
-        port: 8080
+        port: 80
     });
 });
 

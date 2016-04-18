@@ -1,3 +1,33 @@
+nav,
+.side-nav .collapsible-body li.active,
+.side-nav.fixed .collapsible-body li.active,
+footer.page-footer {
+    background: #532c25;
+}
+
+#nav-mobile li.search {
+    position: static
+}
+
+#logo-container {
+    height: 160px
+}
+
+ul.side-nav.fixed li.logo {
+    height: 160px;
+    margin-top: 0;
+    margin-bottom: 0
+}
+
+ul.side-nav.fixed li.logo img {
+    max-height: 100%
+}
+
+.category-line {
+    background: url("category-line.png") right 18px top repeat-y;
+}
+
+
 /*body {
   margin: 0;
   background: #131119;

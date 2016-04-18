@@ -21,7 +21,12 @@ function init() {
                 definitionKey: "String",
                 stringValue: "Blahbliblahbliblups"
             }
-        }]
+        },
+            {
+                instruction: {
+                    definitionKey: "String"
+                }
+            }]
     });
 
     ReactDOM.render(<Sheet.Component defaultSheet={sheet}/>, document.getElementById("main"));

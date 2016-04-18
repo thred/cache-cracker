@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Card, CardTitle, Col, Input, Row} from "react-materialize";
+import {Button, Card, CardTitle, Col, Input, Navbar, NavItem, Row} from "react-materialize";
 // import * as JSX from "JSX";
 
 import * as Sheet from "./Sheet";
@@ -49,6 +49,10 @@ export class Component extends React.Component<Props, State> {
                 console.error("Identable with $id=" + action.$id + " not found in %o", sheet);
             }
         }
+    }
+
+    componentDidMount() {
+        ($(".dropdown-button") as any).dropdown();
     }
 
     render() {
@@ -115,15 +119,51 @@ export class LineComponent extends React.Component<LineComponentProps, {}> {
             comment = <p>{line.comment}</p>
         }
 
-        return <Row>
-            <Col s={2}><h2>{key}</h2></Col>
-            <Col s={10}>
-                {comment}
-                <InstructionComponent instruction={line.instruction} onAction={(action) => this.props.onAction(action) }/>
-            </Col>
-        </Row>;
-    }
+        return <div>
+            <LineHeaderComponent index={this.props.index} line={line} onAction={(action) => this.props.onAction(action) }/>
+            <Row>
+                <Col s={2}><h2>{key}</h2></Col>
+                <Col s={10}>
+                    {comment}
+                    <InstructionComponent instruction={line.instruction} onAction={(action) => this.props.onAction(action) }/>
 
+                    <Button floating medium className="red right" waves="light" icon="add" />
+                    <Button floating medium className="red right" waves="light" icon="add" />
+                    <Button floating medium className="red right" waves="light" icon="add" />
+                    <Button floating medium className="red right" waves="light" icon="add" />
+                    <p>
+                        Result of {key}:
+                    </p>
+                </Col>
+            </Row>
+        </div>;
+    }
+}
+
+export class LineHeaderComponent extends React.Component<LineComponentProps, {}> {
+    render() {
+        let line = this.props.line;
+        let key = line.key || "#" + this.props.index;
+
+        return <div>
+            <ul id={"dropdown" + this.props.index} className="dropdown-content">
+                <li><a href="#!">one</a></li>
+                <li><a href="#!">two</a></li>
+                <li className="divider"></li>
+                <li><a href="#!">three</a></li>
+            </ul>
+            <nav>
+                <div className="nav-wrapper">
+                    <a href="#" className="brand-logo">Logo</a>
+                    <ul id="nav-mobile" className="right hide-on-med-and-down">
+                        <li>
+                            <a class="dropdown-button" href="#!" data-activates={"dropdown" + this.props.index}>Dropdown<i className="material-icons right">arrow_drop_down</i></a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>;
+    }
 }
 
 interface InstructionComponentProps {
@@ -146,11 +186,14 @@ export class InstructionComponent extends React.Component<InstructionComponentPr
             }
         }
 
-        return <div>
+        return <div className="category-line">
+            <Button style={{ marginTop: "18px" }} floating medium className="red right" waves="light" icon="edit" />
+            <InstructionSelectComponent instruction={instruction} onAction={(action) => this.props.onAction(action) }/>
             <Row>
-                <InstructionSelectComponent instruction={instruction} onAction={(action) => this.props.onAction(action) }/>
+                <Col s={10}>
+                    {component}
+                </Col>
             </Row>
-            {component}
         </div>;
     }
 
@@ -185,8 +228,10 @@ class InstructionSelectComponent extends React.Component<InstructionComponentPro
                 </optgroup>);
         }
 
-        return <Input s={12} type="select" label={msg("Instruction.function") } onChange={(event) => this.onChange(event) }>
-            {options}
-        </Input>;
+        return <Row>
+            <Input s={10} type="select" label={msg("Instruction.function") } onChange={(event) => this.onChange(event) }>
+                {options}
+            </Input>
+        </Row>;
     }
 }

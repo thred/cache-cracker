@@ -218,9 +218,9 @@ declare namespace __React {
         }
 
         export interface NavItemProps extends Props<NavItem>, ChildrenProps, AnyProps {
-            href: string;
+            href?: string;
 
-            divider: boolean;
+            divider?: boolean;
         }
 
         export class Row extends Component<RowProps, {}> {
