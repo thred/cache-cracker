@@ -21,10 +21,10 @@ First create a page to serve. Create a `src` folder and a basic `src/index.html`
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>cache-picker</title>
+        <title>cache-cracker</title>
     </head>
     <body>
-        <h1>cache-picker</h1>
+        <h1>cache-cracker</h1>
     </body>
     </html>
 
@@ -57,15 +57,15 @@ Create the basic `gulpfile.js`:
 If you haven't done so, install TypeScript globally with `npm install --global typescript`.
 Add the local development dependency, too: `npm install typescript --save-dev`.
 
-First create a file to compile. Create the file `src/script/cache-picker.ts`: 
+First create a file to compile. Create the file `src/script/cache-cracker.ts`: 
 
-    namespace cachepicker {
-        window.console.log("cache-picker");
+    namespace cachecracker {
+        window.console.log("cache-cracker");
     }
     
-Create a `tsconfig.json` by executing `tsc --init --outDir dist/script --rootDir src/script src/script/cache-picker.ts`.
+Create a `tsconfig.json` by executing `tsc --init --outDir dist/script --rootDir src/script src/script/cache-cracker.ts`.
 
-**Try it:** Execute `tsc`. It should create the file `dist/script/cache-picker.js`.
+**Try it:** Execute `tsc`. It should create the file `dist/script/cache-cracker.js`.
 
 You may wish to add the `dist` directory to the .gitignore, but this is no necessarity.
 
@@ -111,7 +111,7 @@ Add the TypeScrpt task:
             .pipe(sourcemaps.init({
                 loadMaps: true
             }))
-            .pipe(concat("cache-picker.js"))
+            .pipe(concat("cache-cracker.js"))
             .pipe(sourcemaps.write("."))
             .pipe(gulp.dest(tsconfig.compilerOptions.outDir));
     });
@@ -144,9 +144,9 @@ run it with `npm start`).
 
 Start `gulp watch` now. It will build the project. Add the following line to the `head` element in the `index.html`:
 
-    <script src="script/cache-picker.js"></script>
+    <script src="script/cache-cracker.js"></script>
 
-**Try it:** Start a browser to https://localhost:8080 and check the browsers console. It should write: `cache-picker`.
+**Try it:** Start a browser to https://localhost:8080 and check the browsers console. It should write: `cache-cracker`.
 
 ## JQuery, Bootstrap and React 
 
@@ -183,7 +183,7 @@ And add a task to concat these files:
 
     gulp.task("build", ["html", "lib", "ts"]); 
 
-Finally reference the file in the `index.html`, before the `cache-picker.js`:
+Finally reference the file in the `index.html`, before the `cache-cracker.js`:
 
     <script src="script/libs.js"></script>
 
@@ -208,9 +208,9 @@ To use these typings, create a `refs.d.ts` in you script folder and the referenc
 
     /// <reference path="../../typings/browser.d.ts" />
     
-We will use this file for sorting the typescript files, too. So let's add the `cache-picker.ts`:
+We will use this file for sorting the typescript files, too. So let's add the `cache-cracker.ts`:
 
-    /// <reference path="cache-picker.ts" />
+    /// <reference path="cache-cracker.ts" />
 
 And reference the file in all other files:
 

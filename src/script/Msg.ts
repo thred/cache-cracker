@@ -1,8 +1,8 @@
 let msgs: { [key: string]: { [language: string]: string } } =
     {
         "Sheet.defaultName": {
-            "": "My Cache-Picker Sheet",
-            "de": "Mein Cache-Picker Zettel"
+            "": "My Cache-Cracker Sheet",
+            "de": "Mein Cache-Cracker Zettel"
         },
 
         "Sheet.defaultComment": {

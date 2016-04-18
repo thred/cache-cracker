@@ -12,7 +12,7 @@ var webpack = require('webpack-stream');
 var tsconfig = require("./tsconfig.json");
 
 var css = [
-    "./src/style/cache-picker.css"
+    "./src/style/cache-cracker.css"
 ];
 
 var cssLibs = [
@@ -47,7 +47,7 @@ gulp.task("build:static", function () {
 
 gulp.task("build:css", function () {
     return gulp.src(css)
-        .pipe(gulpConcat('cache-picker.css'))
+        .pipe(gulpConcat('cache-cracker.css'))
         .pipe(gulp.dest("./dist/style"));
 });
 
@@ -77,7 +77,7 @@ gulp.task("build:webpack", ["build:typescript"], function () {
     return gulp.src("./build/script/Main.js")
         .pipe(webpack({
             output: {
-                filename: 'cache-picker.js'
+                filename: 'cache-cracker.js'
             },
             module: {
                 loaders: [

@@ -1,4 +1,4 @@
-# cache-picker
+# cache-cracker
 
 > A collection of tools handy for solving geocaching riddles.
 

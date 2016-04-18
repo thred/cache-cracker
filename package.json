@@ -1,5 +1,5 @@
 {
-  "name": "cache-picker",
+  "name": "cache-cracker",
   "version": "1.0.0",
   "description": "A collection of handy tools for solving geocaching riddles.",
   "main": "index.js",
@@ -17,7 +17,7 @@
   "author": "Manfred Hantschel",
   "license": "ISC",
   "homepage": "https://github.com/thred",
-  "repository": "https://github.com/thred/cache-picker.git",
+  "repository": "https://github.com/thred/cache-cracker.git",
   "devDependencies": {
     "babel": "^6.5.2",
     "babel-core": "^6.7.6",
