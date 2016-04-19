@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Card, CardTitle, Col, Input, Navbar, NavItem, Row} from "react-materialize";
+import {Button, Card, CardTitle, Col, Dropdown, Icon, Input, Navbar, NavItem, Row} from "react-materialize";
 // import * as JSX from "JSX";
 
 import * as Sheet from "./Sheet";
@@ -72,7 +72,14 @@ export class Component extends React.Component<Props, State> {
     renderLine(line: Model.Line, index: number) {
         return <div className="section" key={line.key} >
             <LineComponent line={line} index={index + 1} onAction={(action) => this.onAction(action) } />
-            <div className="divider" />
+
+            <Row>
+                <Button className="red center-align" medium waves="light"><Icon left>add</Icon>Zeile einfügen</Button>
+
+                <Col s={8} style={{ paddingTop: "18px" }}>
+                    <div className="divider"/>
+                </Col>
+            </Row>
         </div>;
     }
 
@@ -127,10 +134,6 @@ export class LineComponent extends React.Component<LineComponentProps, {}> {
                     {comment}
                     <InstructionComponent instruction={line.instruction} onAction={(action) => this.props.onAction(action) }/>
 
-                    <Button floating medium className="red right" waves="light" icon="add" />
-                    <Button floating medium className="red right" waves="light" icon="add" />
-                    <Button floating medium className="red right" waves="light" icon="add" />
-                    <Button floating medium className="red right" waves="light" icon="add" />
                     <p>
                         Result of {key}:
                     </p>
@@ -146,22 +149,7 @@ export class LineHeaderComponent extends React.Component<LineComponentProps, {}>
         let key = line.key || "#" + this.props.index;
 
         return <div>
-            <ul id={"dropdown" + this.props.index} className="dropdown-content">
-                <li><a href="#!">one</a></li>
-                <li><a href="#!">two</a></li>
-                <li className="divider"></li>
-                <li><a href="#!">three</a></li>
-            </ul>
-            <nav>
-                <div className="nav-wrapper">
-                    <a href="#" className="brand-logo">Logo</a>
-                    <ul id="nav-mobile" className="right hide-on-med-and-down">
-                        <li>
-                            <a class="dropdown-button" href="#!" data-activates={"dropdown" + this.props.index}>Dropdown<i className="material-icons right">arrow_drop_down</i></a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+
         </div>;
     }
 }

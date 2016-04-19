@@ -159,6 +159,15 @@ declare namespace __React {
             offset?: string;
         }
 
+        export class Dropdown extends Component<DropdownProps, {}> {
+        }
+
+        export interface DropdownProps extends Props<Dropdown>, ChildrenProps {
+            trigger: ReactNode;
+
+            overorigin?: boolean;
+        }
+
         export class Footer extends Component<FooterProps, {}> {
         }
 
