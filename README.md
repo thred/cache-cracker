@@ -2,6 +2,31 @@
 
 > A collection of tools handy for solving geocaching riddles.
 
+**THIS IS WORK IN PROGRESS AND NOT OF ANY USE, YET!**
+
+## Language
+
+### Units 
+
+Following units are supported:
+
+#### Units of Length
+
+| m             | Meter                     | 
+| km            | Kilometer                 | 
+| dm            | Dezimeter                 | 
+| cm            | Centimeter                | 
+| mm            | Millimeter                | 
+| µm            | Micrometer                | 
+| nm            | Nanometer                 | 
+| mil           | Mile                      |
+| in            | Inch                      |
+| ft            | Foot                      |
+| yd            | Yard                      |
+
+ 
+
+
 ## Development
 
 ### Prerequisites
@@ -15,5 +40,4 @@
 ### Preparations
 
 * Install the dependencies with `npm install`.
-* Install TypeScript definitions with `typings install`.
 

@@ -4,10 +4,11 @@ var gulpChanged = require("gulp-changed");
 var gulpConcat = require("gulp-concat");
 var gulpConnect = require("gulp-connect");
 var gulpDel = require("del");
-var gulpSourceMaps = require('gulp-sourcemaps');
-var gulpTypeScript = require('gulp-typescript');
-var gulpPrint = require('gulp-print');
-var webpack = require('webpack-stream');
+var gulpMocha = require("gulp-mocha");
+var gulpSourceMaps = require("gulp-sourcemaps");
+var gulpTypeScript = require("gulp-typescript");
+var gulpPrint = require("gulp-print");
+var webpack = require("webpack-stream");
 
 var tsconfig = require("./tsconfig.json");
 
@@ -30,9 +31,9 @@ var javascriptLibs = [
     "./node_modules/materialize-css/dist/js/materialize.min.js"
 ];
 
-var typescriptProject = gulpTypeScript.createProject(require('./tsconfig.json').compilerOptions);
+var typescriptProject = gulpTypeScript.createProject(require("./tsconfig.json").compilerOptions);
 
-gulp.task("clean", function () {
+gulp.task("clean", function() {
     return gulpDel(["./dist/**/*", "./build/**/*"]);
 });
 
@@ -40,54 +41,49 @@ gulp.task("default", ["lib", "build"]);
 
 gulp.task("build", ["build:static", "build:css", "build:webpack"]);
 
-gulp.task("build:static", function () {
+gulp.task("build:static", function() {
     return gulp.src(["./src/**/*.html", "./src/**/*.jpg", "./src/**/*.png"])
         .pipe(gulp.dest("./dist"));
 });
 
-gulp.task("build:css", function () {
+gulp.task("build:css", function() {
     return gulp.src(css)
-        .pipe(gulpConcat('cache-cracker.css'))
+        .pipe(gulpConcat("cache-cracker.css"))
         .pipe(gulp.dest("./dist/style"));
 });
 
-gulp.task('build:typescript', function () {
-    console.log("");
-    console.log("Building Typescript");
-    console.log("===================");
-    console.log("");
-
-    return gulp.src(["./src/script/**/*.ts", "./src/script/**/*.tsx"])
-        .pipe(gulpChanged("./build/script", {
-            extension: '.js'
+gulp.task("build:typescript", function() {
+    return gulp.src(["./src/**/*.ts", "./src/**/*.tsx"])
+        .pipe(gulpChanged("./build", {
+            extension: ".js"
         }))
         .pipe(gulpSourceMaps.init())
         .pipe(gulpTypeScript(typescriptProject))
         .js
-        .pipe(gulpPrint(function (filepath) {
-            return "build:typescript > " + filepath;
+        .pipe(gulpPrint(function(filepath) {
+            return "  Building \'" + filepath + "\'...";
         }))
         .pipe(gulpSourceMaps.write({
-            sourceRoot: "./src/script"
+            sourceRoot: "./src"
         }))
-        .pipe(gulp.dest("./build/script"));
+        .pipe(gulp.dest("./build"));
 });
 
-gulp.task("build:webpack", ["build:typescript"], function () {
+gulp.task("build:webpack", ["build:typescript"], function() {
     return gulp.src("./build/script/Main.js")
         .pipe(webpack({
             output: {
-                filename: 'cache-cracker.js'
+                filename: "cache-cracker.js"
             },
             module: {
-                loaders: [
-                    {
-                        test: /\.js$/, exclude: /node_modules/, loader: 'babel',
-                        query: {
-                            presets: ['react', 'es2015', 'stage-0']
-                        }
+                loaders: [{
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    loader: "babel",
+                    query: {
+                        presets: ["react", "es2015", "stage-0"]
                     }
-                ]
+                }]
             }
         }))
         .pipe(gulp.dest("./dist/script"));
@@ -95,29 +91,36 @@ gulp.task("build:webpack", ["build:typescript"], function () {
 
 gulp.task("lib", ["lib:css", "lib:font", "lib:javascript"]);
 
-gulp.task("lib:css", function () {
+gulp.task("lib:css", function() {
     return gulp.src(cssLibs)
         .pipe(gulp.dest("./dist/style"));
 });
 
-gulp.task("lib:font", function () {
+gulp.task("lib:font", function() {
     return gulp.src(fontLibs)
         .pipe(gulp.dest("./dist/fonts"));
 });
 
-gulp.task("lib:javascript", function () {
+gulp.task("lib:javascript", function() {
     return gulp.src(javascriptLibs)
         .pipe(gulp.dest("./dist/script"));
 });
 
-gulp.task("server", function () {
+gulp.task("server", function() {
     gulpConnect.server({
         root: "dist",
         port: 80
     });
 });
 
-gulp.task("watch", ["build", "server"], function () {
+gulp.task("test", ["build:typescript"], function() {
+    return gulp.src("./build/test/**/*Test.js")
+        .pipe(gulpMocha({
+            require: ["source-map-support/register"]
+        }));
+});
+
+gulp.task("watch", ["build", "server"], function() {
     gulp.watch("./src/**/*.html", ["build:static"]);
     gulp.watch("./src/style/*.css", ["build:css"]);
     gulp.watch(["./src/script/**/*.ts", "./src/script/**/*.tsx"], ["build:webpack"]);

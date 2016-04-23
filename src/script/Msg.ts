@@ -48,8 +48,14 @@ let msgs: { [key: string]: { [language: string]: string } } =
         "Command.category.Input.title": {
             "": "Enter Input",
             "de": "Eingaben"
-        }
+        },
 
+
+
+
+        "Unit.m": {
+            "": "Meter"
+        },
 
     };
 
