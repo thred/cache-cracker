@@ -1,4 +1,5 @@
 export enum TypeOfMeasurement {
+    UNDEFINED,
     TIME,
     LENGTH,
     AREA,
@@ -42,4 +43,17 @@ export class Unit {
     get dimension(): number {
         return this._dimension;
     }
+
+    isUndefined() {
+        return this.typeOfMeasurement === TypeOfMeasurement.UNDEFINED;
+    }
+
+    isCompatible(unit: Unit) {
+        return (this.isUndefined()) || (unit.isUndefined()) || (this.typeOfMeasurement === unit.typeOfMeasurement);
+    }
+
+    isPreceding(unit: Unit) {
+        return (!unit.isUndefined()) && (this.isCompatible(unit)) && (unit.multiplier < this.multiplier);
+    }
+
 }

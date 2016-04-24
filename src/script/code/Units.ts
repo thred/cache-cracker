@@ -3,6 +3,10 @@ import {TypeOfMeasurement, Unit} from "./Unit";
 const UNITS: Unit[] = [];
 const UNITS_BY_SYMBOL: { [symbol: string]: Unit } = {};
 
+// Undefined
+
+export const UNDEFINED = new Unit("undefined", "Undefined", TypeOfMeasurement.UNDEFINED, 1); // not registered!
+
 // Units of length
 
 export const MICROMETER = aUnitOfLength("µm", "Micrometer", 0.0001);
@@ -93,8 +97,6 @@ export const QUBIC_YARD = aUnitOfVolume("yd³", "Qubic Yard", YARD);
 
 export const QUBIC_MILE = aUnitOfVolume("mi³", "Qubic Mile", MILE);
 
-
-
 // Angle
 
 export const SECOND_OF_ARC = aUnitOfAngle("\"", "Second of Arc", 1 / 3600);
@@ -102,64 +104,6 @@ export const SECOND_OF_ARC = aUnitOfAngle("\"", "Second of Arc", 1 / 3600);
 export const MINUTE_OF_ARC = aUnitOfAngle("\'", "Minute of Arc", 1 / 60);
 
 export const DEGREE = aUnitOfAngle("°", "Degree", 1);
-
-
-
-
-// const UNITS: Unit[] = [
-//     // Units of length
-//     MICROMETER,
-//     MILLIMETER,
-//     CENTIMETER,
-//     DECIMETER,
-//     METER,
-//     DEGAMETER,
-//     HECTOMETER,
-//     KILOMETER,
-//     THOUSANDTH_OF_AN_INCH_US,
-//     THOUSANDTH_OF_AN_INCH,
-//     INCH,
-//     FOOT,
-//     YARD,
-//     MILE,
-
-//     // Units of area
-//     SQUARE_MICROMETER,
-//     SQUARE_MILLIMETER,
-//     SQUARE_CENTIMETER,
-//     SQUARE_DECIMETER,
-//     SQUARE_METER,
-//     SQUARE_DEGAMETER,
-//     SQUARE_HECTOMETER,
-//     SQUARE_KILOMETER,
-//     SQUARE_THOUSANDTH_OF_AN_INCH_US,
-//     SQUARE_THOUSANDTH_OF_AN_INCH,
-//     SQUARE_INCH,
-//     SQUARE_FOOT,
-//     SQUARE_YARD,
-//     SQUARE_MILE,
-
-//     // Units of volume
-//     QUBIC_MICROMETER,
-//     QUBIC_MILLIMETER,
-//     QUBIC_CENTIMETER,
-//     QUBIC_DECIMETER,
-//     QUBIC_METER,
-//     QUBIC_DEGAMETER,
-//     QUBIC_HECTOMETER,
-//     QUBIC_KILOMETER,
-//     QUBIC_THOUSANDTH_OF_AN_INCH_US,
-//     QUBIC_THOUSANDTH_OF_AN_INCH,
-//     QUBIC_INCH,
-//     QUBIC_FOOT,
-//     QUBIC_YARD,
-//     QUBIC_MILE,
-
-//     // Angle
-//     SECOND_OF_ARC,
-//     MINUTE_OF_ARC,
-//     DEGREE
-// ];
 
 function register(unit: Unit): Unit {
     UNITS.push(unit);

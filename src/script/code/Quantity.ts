@@ -1,9 +1,9 @@
 import {Unit} from "./Unit";
+import * as Units from "./Units";
 
 export abstract class Quantity {
 
-    constructor(private _unit: Unit) {
-
+    constructor(private _unit: Unit = Units.UNDEFINED) {
     }
 
     get unit() {
@@ -15,15 +15,6 @@ export abstract class Quantity {
     abstract add(other: Quantity): Quantity;
 }
 
-export class QuantityError extends Error {
-
-    constructor(private _message: string) {
-        super(_message);
-    }
-
-}
-
-
 export class NumberBasedQuantity extends Quantity {
 
     constructor(private _value: number, unit?: Unit) {
@@ -34,40 +25,41 @@ export class NumberBasedQuantity extends Quantity {
         return this._value;
     }
 
-    protected create(value: number, unit: Unit): NumberBasedQuantity {
+    protected create(value: number, unit?: Unit): NumberBasedQuantity {
         return new NumberBasedQuantity(value, unit);
     }
 
     convert(unit: Unit): Quantity {
-        if (!this.unit) {
+        if ((this.unit.isUndefined()) || (unit.isUndefined())) {
             return this.create(this.value, unit);
         }
 
-        if (this.unit.typeOfMeasurement === unit.typeOfMeasurement) {
+        if (this.unit.isCompatible(unit)) {
+            console.log(`(${this.value} * ${this.unit.multiplier}) / ${unit.multiplier} = ${(this.value * this.unit.multiplier) / unit.multiplier}`)
             return this.create((this.value * this.unit.multiplier) / unit.multiplier, unit);
         }
-        //FIXME this.unit.symbol wirft NPE wenn undefined
-        throw new QuantityError(`Conversion of unit ${this.unit.symbol} in unit ${unit.symbol} not supported`);
+
+        throw new Error(`Conversion of unit "${this.unit.symbol}" to unit "${unit.symbol}" not supported`);
     }
 
     add(other: Quantity): Quantity {
         if (other instanceof NumberBasedQuantity) {
             let otherValue = (other as NumberBasedQuantity).value;
 
-            if ((!this.unit) || (!other.unit)) {
+            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
                 return this.create(this.value + otherValue, this.unit);
             }
 
-            if (this.unit.typeOfMeasurement === other.unit.typeOfMeasurement) {
+            if (this.unit.isCompatible(other.unit)) {
                 return this.create((this.value * this.unit.multiplier + otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
             }
         }
 
-        throw new QuantityError(`Addition of units ${this.unit.symbol} and ${other.unit.symbol} not supported`);
+        throw new Error(`Addition of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
     }
 
     toString(): string {
-        if (!this.unit) {
+        if (this.unit.isUndefined()) {
             return `${this.value}`;
         }
 

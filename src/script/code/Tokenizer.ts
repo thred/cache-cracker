@@ -265,6 +265,8 @@ export class Tokenizer {
         if (ch === "\"") {
             token.type = "string-delimiter";
 
+            this.scanner.next();
+
             return token;
         }
 
@@ -295,7 +297,7 @@ export class Tokenizer {
             token.type = "brackets";
             token.s = ch;
 
-            ch = this.scanner.next();
+            this.scanner.next();
 
             return token;
         }

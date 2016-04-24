@@ -7,6 +7,7 @@ import * as Operations from "./Operations";
 import {Quantity, NumberBasedQuantity} from "./Quantity";
 import {Unit} from "./Unit";
 import * as Units from "./Units";
+import * as Utils from "./Utils";
 
 export class Context {
 
@@ -18,39 +19,6 @@ export class Context {
         return false;
     }
 
-}
-
-export class ParseError extends Error {
-
-    constructor(private _line: number, private _column: number, private _message: string, private _cause?: any) {
-        super(ParseError.format(_line, _column, _message, _cause));
-    }
-
-    get line(): number {
-        return this._line;
-    }
-
-    get column(): number {
-        return this._column;
-    }
-
-    get message(): string {
-        return this._message;
-    }
-
-    get cause(): any {
-        return this._cause;
-    }
-
-    static format(line: number, column: number, message: string, cause?: any) {
-        let result = `[Ln ${line}, Col ${column}] ${message}`;
-
-        if (cause) {
-            result += `\nCaused by ${cause}`;
-        }
-
-        return result;
-    }
 }
 
 export function scan(source: string): Scanner {
@@ -76,73 +44,20 @@ class Parser {
     }
 
     /**
-     *  Expression = ( ( UnaryOperator Expression) | ( "(" Expression ")" ) | Reference | Call | Constant ) { Unit [ Expression] } { Operator Expression }. 
+     *  Expression = SingleExpression { Operator Expression }. 
      */
     private parseExpression(context: Context): Expression {
         let token = this.tokenizer.get();
 
         if (!this.isExpression(token)) {
-            throw new ParseError(token.line, token.column, `Expected expression, but got: ${token.s}`);
+            throw new Error(Utils.formatError(token.line, token.column, `Expected expression, but got: ${token.s}`));
         }
 
-        let expression: Expression;
+        let expression = this.parseSingleExpression(context);
 
-        if (this.isUnaryOperator(token)) {
-            this.tokenizer.nextExpressionToken();
+        token = this.tokenizer.get();
 
-            let argument = this.parseExpression(context);
-
-            if (token.s === "+") {
-                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.positive, argument);
-            }
-            else if (token.s === "-") {
-                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.negative, argument);
-            }
-            else {
-                throw new ParseError(token.line, token.column, "Unsupported unary operation: " + token.s);
-            }
-
-            token = this.tokenizer.get();
-        }
-        else if (this.isOpeningParentheses(token)) {
-            this.tokenizer.nextExpressionToken();
-
-            let argument = this.parseExpression(context);
-            let closingToken = this.tokenizer.nextExpressionToken();
-
-            if (!this.isClosingParentheses(token)) {
-                throw new ParseError(token.line, token.column, "Expected closing parentheses, but got: " + token.s);
-            }
-
-            token = this.tokenizer.get();
-        }
-        else if (this.isConstant(token)) {
-            expression = this.parseConstant(context);
-
-            token = this.tokenizer.get();
-        }
-        else {
-            throw new ParseError(token.line, token.column, `Implementation missing for expression: ${token.s}`);
-        }
-
-        if (this.isUnit(token)) {
-            let startToken = token;
-            let unit = this.parseUnit(context);
-
-// FIXME das geht da jetzt einfach nimmer...gehirn ist aus
-//            expression = new Expressions.UnitExpression(startToken.line, startToken.column, unit, expression);
-
-// FIXME the unit has to be smaller than the previous unit and of the same type of measurement
-            token = this.tokenizer.nextExpressionToken();
-
-            if ((!this.isOperator(token)) && (this.isExpression(token))) {
-                expression = new Expressions.UnitExpression(startToken.line, startToken.column, unit, expression);
-            }
-
-            token = this.tokenizer.get();
-        }
-
-        // TODO operator precedence
+        // FIXME operator precedence
 
         while (this.isOperator(token)) {
             let startToken = token;
@@ -160,24 +75,89 @@ class Parser {
     }
 
     /**
+     *  SingleExpression = ( ( UnaryOperator SingleExpression) | ( "(" Expression ")" ) | Reference | Call | Constant ) [ Unit [ SingleExpression] ]. 
+     */
+    private parseSingleExpression(context: Context): Expression {
+        let token = this.tokenizer.get();
+
+        if (!this.isSingleExpression(token)) {
+            throw new Error(Utils.formatError(token.line, token.column, `Expected single expression, but got: ${token.s}`));
+        }
+
+        let expression: Expression;
+
+        if (this.isUnaryOperator(token)) {
+            this.tokenizer.nextExpressionToken();
+
+            let argument = this.parseSingleExpression(context);
+
+            if (token.s === "+") {
+                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.positive, argument);
+            }
+            else if (token.s === "-") {
+                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.negative, argument);
+            }
+            else {
+                throw new Error(Utils.formatError(token.line, token.column, "Unsupported unary operation: " + token.s));
+            }
+
+            token = this.tokenizer.get();
+        }
+        else if (this.isOpeningParentheses(token)) {
+            this.tokenizer.nextExpressionToken();
+
+            let argument = this.parseExpression(context);
+            let closingToken = this.tokenizer.nextExpressionToken();
+
+            if (!this.isClosingParentheses(token)) {
+                throw new Error(Utils.formatError(token.line, token.column, "Expected closing parentheses, but got: " + token.s));
+            }
+
+            token = this.tokenizer.get();
+        }
+        else if (this.isConstant(token)) {
+            expression = this.parseConstant(context);
+            token = this.tokenizer.get();
+        }
+        else {
+            throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for expression: ${token.s}`));
+        }
+
+        if (this.isUnit(token)) {
+            let unit = this.parseUnit(context);
+
+            expression = new Expressions.UnitExpression(token.line, token.column, unit, expression);
+            token = this.tokenizer.get();
+
+            if ((!this.isOperator(token)) && (this.isExpression(token))) {
+                expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseSingleExpression(context));
+            }
+
+            token = this.tokenizer.get();
+        }
+
+        return expression;
+    }
+
+    /**
      * Constant = Number | String. 
      */
     parseConstant(context: Context): Expression {
         let token = this.tokenizer.get();
 
         if (!this.isConstant(token)) {
-            throw new ParseError(token.line, token.column, `Expected constant, but got: ${token.s}`);
+            throw new Error(Utils.formatError(token.line, token.column, `Expected constant, but got: ${token.s}`));
         }
 
         if (this.isNumber(token)) {
             return this.parseNumber(context);
         }
-        else if (this.isString(token)) {
+
+        if (this.isString(token)) {
             return this.parseString(context);
         }
-        else {
-            throw new ParseError(token.line, token.column, `Implementation missing for constant: ${token.s}`);
-        }
+
+        throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for constant: ${token.s}`));
     }
 
     /**
@@ -187,7 +167,7 @@ class Parser {
         let token = this.tokenizer.get();
 
         if (!this.isNumber(token)) {
-            throw new ParseError(token.line, token.column, `Expected number, but got: ${token.s}`);
+            throw new Error(Utils.formatError(token.line, token.column, `Expected number, but got: ${token.s}`));
         }
 
         this.tokenizer.nextExpressionToken();
@@ -202,7 +182,7 @@ class Parser {
         let startToken = this.tokenizer.get();
 
         if (!this.isString(startToken)) {
-            throw new ParseError(startToken.line, startToken.column, `Expected string-delimiter, but got: ${startToken.s}`);
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected string-delimiter, but got: ${startToken.s}`));
         }
 
         let expressions: Expression[] = [];
@@ -210,10 +190,12 @@ class Parser {
 
         while (true) {
             if (this.isEnd(token)) {
-                throw new ParseError(startToken.line, startToken.column, "Unclosed string");
+                throw new Error(Utils.formatError(startToken.line, startToken.column, "Unclosed string"));
             }
 
             if (token.type === "string-delimiter") {
+                token = this.tokenizer.nextExpressionToken();
+
                 break;
             }
 
@@ -229,7 +211,7 @@ class Parser {
                 let name = token.s;
 
                 if (!context.isReferenceDefined(name)) {
-                    throw new ParseError(token.line, token.column, `Unknown reference: ${name}`);
+                    throw new Error(Utils.formatError(token.line, token.column, `Unknown reference: ${name}`));
                 }
 
                 expressions.push(new Expressions.ReferenceExpression(token.line, token.column, token.s))
@@ -243,7 +225,7 @@ class Parser {
                 let blockToken = this.tokenizer.nextExpressionToken();
 
                 if (this.isEnd(blockToken)) {
-                    throw new ParseError(token.line, token.column, "Unclosed block");
+                    throw new Error(Utils.formatError(token.line, token.column, "Unclosed block"));
                 }
 
                 expressions.push(new Expressions.PlaceholderExpression(token.line, token.column, this.parseExpression(context)));
@@ -251,7 +233,7 @@ class Parser {
                 token = this.tokenizer.get();
 
                 if (!this.isClosingPlaceholder(token)) {
-                    throw new ParseError(token.line, token.column, `Expected closing placeholder, but got: ${token.s}`);
+                    throw new Error(Utils.formatError(token.line, token.column, `Expected closing placeholder, but got: ${token.s}`));
                 }
 
                 token = this.tokenizer.nextStringToken();
@@ -259,10 +241,8 @@ class Parser {
                 continue;
             }
 
-            throw new ParseError(token.line, token.column, `Expected string content, but got: ${token.s}`);
+            throw new Error(Utils.formatError(token.line, token.column, `Expected string content, but got: ${token.s}`));
         }
-
-        this.tokenizer.nextExpressionToken();
 
         return new Expressions.StringExpression(startToken.line, startToken.column, expressions);
     }
@@ -274,7 +254,7 @@ class Parser {
         let token = this.tokenizer.get();
 
         if (!this.isUnit(token)) {
-            throw new ParseError(token.line, token.column, `Expected unit, but got: ${token.s}`);
+            throw new Error(Utils.formatError(token.line, token.column, `Expected unit, but got: ${token.s}`));
         }
 
         this.tokenizer.nextExpressionToken();
@@ -284,6 +264,10 @@ class Parser {
 
 
     isExpression(token: Token): boolean {
+        return this.isSingleExpression(token);
+    }
+
+    isSingleExpression(token: Token): boolean {
         return this.isUnaryOperator(token) || this.isOpeningParentheses(token) || this.isConstant(token);
     }
 

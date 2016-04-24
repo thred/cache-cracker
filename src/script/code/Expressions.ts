@@ -52,6 +52,18 @@ export class QuantityExpression extends Expression {
     }
 }
 
+export class ChainedQuantitiesExpression extends Expression {
+    constructor(line: number, column: number, private left: Expression, private right: Expression) {
+        super(line, column,
+            (scope) => Operations.add(left.invoke(scope), right.invoke(scope)),
+            () => `${left.describe()} ${right.describe()}`);
+    }
+
+    toString(): string {
+        return `ChainQuantities(${this.left}, ${this.right})`;
+    }
+}
+
 export class StringExpression extends Expression {
     constructor(line: number, column: number, private segments: Expression[]) {
         super(line, column,

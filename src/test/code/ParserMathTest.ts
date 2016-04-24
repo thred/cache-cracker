@@ -16,14 +16,5 @@ describe("Parser", () => {
         assert.equal(result, 3);
     });
 
-    it("add two lengths: 1 m + 50 cm", () => {
-        let expression = Parser.parseExpression(Parser.scan("1 m + 50 cm"));
-
-        assert.equal(expression.describe(), "1 m + 50 cm");
-
-        let result = expression.invoke();
-
-        assert.equal(result, "1.5 m");
-    });
-
+    
 });

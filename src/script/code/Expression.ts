@@ -1,40 +1,9 @@
+import * as Utils from "./Utils";
+
 export interface Scope {
 
     get(name: string): any;
 
-}
-
-export class InvokeError extends Error {
-
-    constructor(private _line: number, private _column: number, private _message: string, private _cause?: any) {
-        super(InvokeError.format(_line, _column, _message, _cause));
-    }
-
-    get line(): number {
-        return this._line;
-    }
-
-    get column(): number {
-        return this._column;
-    }
-
-    get message(): string {
-        return this._message;
-    }
-
-    get cause(): any {
-        return this._cause;
-    }
-
-    static format(line: number, column: number, message: string, cause?: any) {
-        let result = `[Ln ${line}, Col ${column}] ${message}`;
-
-        if (cause) {
-            result += `\nCaused by ${cause}`;
-        }
-
-        return result;
-    }
 }
 
 export class Expression {
@@ -55,7 +24,7 @@ export class Expression {
             return this._invoke(scope);
         }
         catch (error) {
-            throw new InvokeError(this._line, this._column, this.describe(), error);
+            throw new Error(Utils.formatError(this._line, this._column, `Invocation failed: ${this.describe()}`, error));
         }
     }
 
