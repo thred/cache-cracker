@@ -64,4 +64,11 @@ describe("Parser", () => {
         assert.equal(expression.invoke(), "0.005 m³");
     });
 
+    it("divide an area and a length: 0.5 m² / 50 cm", () => {
+        let expression = Parser.parseExpression(Parser.scan("0.5 m² / 50 cm"));
+
+        assert.equal(expression.describe(), "0.5 m² / 50 cm");
+        assert.equal(expression.invoke(), "1 m");
+    });
+
 });

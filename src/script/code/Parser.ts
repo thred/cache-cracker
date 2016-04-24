@@ -77,6 +77,11 @@ class Parser {
 
                 token = this.tokenizer.get();
             }
+            else if (token.s === "/") {
+                expression = new Expressions.OperationExpression(token.line, token.column, "/", Operations.divide, expression, this.parseExpression(context));
+
+                token = this.tokenizer.get();
+            }
             else {
                 throw new Error(Utils.formatError(token.line, token.column, `Unsupported operation: ${token.s}`));
             }

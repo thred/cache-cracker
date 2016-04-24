@@ -27,5 +27,11 @@ describe("Parser", () => {
         assert.equal(expression.invoke(), 6);
     });
 
-    
+    it("divide two numbers: 6 / 3", () => {
+        let expression = Parser.parseExpression(Parser.scan("6 / 3"));
+
+        assert.equal(expression.describe(), "6 / 3");
+        assert.equal(expression.invoke(), 2);
+    });
+
 });

@@ -17,6 +17,8 @@ export abstract class Quantity {
     abstract subtract(other: Quantity): Quantity;
 
     abstract multiply(other: Quantity): Quantity;
+
+    abstract divide(other: Quantity): Quantity;
 }
 
 export class NumberBasedQuantity extends Quantity {
@@ -100,7 +102,32 @@ export class NumberBasedQuantity extends Quantity {
             return this.create((this.value * this.unit.multiplier * otherValue * other.unit.multiplier) / unit.multiplier, unit);
         }
 
-        throw new Error(`Addition of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+        throw new Error(`Multiplication of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+    }
+
+    divide(other: Quantity): Quantity {
+        if (other instanceof NumberBasedQuantity) {
+            let otherValue = (other as NumberBasedQuantity).value;
+
+            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
+                return this.create(this.value / otherValue, this.unit);
+            }
+
+            if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
+                throw new Error(`Division of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+            }
+
+            let dimension = this.unit.dimension - other.unit.dimension;
+            let unit = Units.find((unit) => (unit.baseUnit === this.unit.baseUnit) && (unit.dimension === dimension));
+
+            if (!unit) {
+                throw new Error(`Unit "${this.unit.symbol}" with dimension ${dimension} not defined`);
+            }
+
+            return this.create(((this.value * this.unit.multiplier) / (otherValue * other.unit.multiplier)) / unit.multiplier, unit);
+        }
+
+        throw new Error(`Division of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
     }
 
     toString(): string {

@@ -28,7 +28,7 @@ export function add(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Add not supported: ${left} + ${right}`);
+    throw new Error(`Addition not supported: ${left} + ${right}`);
 }
 
 export function subtract(left: any, right: any): any {
@@ -38,7 +38,7 @@ export function subtract(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Subtract not supporte: ${left} - ${right}`);
+    throw new Error(`Subtraction not supporte: ${left} - ${right}`);
 }
 
 export function multiply(left: any, right: any): any {
@@ -48,11 +48,17 @@ export function multiply(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Subtract not supporte: ${left} * ${right}`);
+    throw new Error(`Multiplication not supporte: ${left} * ${right}`);
 }
 
 export function divide(left: any, right: any): any {
+    if (left instanceof Quantity) {
+        if (right instanceof Quantity) {
+            return (left as Quantity).divide(right);
+        }
+    }
 
+    throw new Error(`Division not supporte: ${left} / ${right}`);
 }
 
 export function modulo(left: any, right: any): any {
