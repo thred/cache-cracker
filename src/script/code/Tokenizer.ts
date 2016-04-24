@@ -7,6 +7,10 @@ const SYMBOL: string = ",:;";
 const RESERVED: string = "~?\\^&|<>!=";
 const DELIMITER: string = WHITESPACE + OPERATOR + BRACKETS + SYMBOL + RESERVED;
 
+const PRECEDENCE: {[operator: string]: number} = {
+    
+}
+
 export interface Token {
     type: "string-delimiter" | "string" | "number" | "operator" | "brackets" | "reference" | "comment" | "symbol" | "identifier" | "end";
 

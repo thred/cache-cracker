@@ -5,7 +5,7 @@ const UNITS_BY_SYMBOL: { [symbol: string]: Unit } = {};
 
 // Undefined
 
-export const UNDEFINED = new Unit("undefined", "Undefined", TypeOfMeasurement.UNDEFINED, 1); // not registered!
+export const UNDEFINED = new Unit("undefined", "Undefined", TypeOfMeasurement.Undefined, 1); // not registered!
 
 // Units of length
 
@@ -131,19 +131,19 @@ export function exists(symbol: string): boolean {
 }
 
 function aUnitOfLength(symbol: string, name: string, inMetersMultiplier: number, subUnit?: Unit): Unit {
-    return register(new Unit(symbol, name, TypeOfMeasurement.LENGTH, inMetersMultiplier, subUnit));
+    return register(new Unit(symbol, name, TypeOfMeasurement.Length, inMetersMultiplier, subUnit));
 }
 
 function aUnitOfArea(symbol: string, name: string, baseUnit: Unit): Unit {
-    return register(new Unit(symbol, name, TypeOfMeasurement.AREA, baseUnit.multiplier * baseUnit.multiplier,
+    return register(new Unit(symbol, name, TypeOfMeasurement.Area, baseUnit.multiplier * baseUnit.multiplier,
         find((unit) => (unit.dimension === 2) && (unit.baseUnit === baseUnit.subUnit)), baseUnit, 2));
 }
 
 function aUnitOfVolume(symbol: string, name: string, baseUnit: Unit): Unit {
-    return register(new Unit(symbol, name, TypeOfMeasurement.VOLUME, baseUnit.multiplier * baseUnit.multiplier * baseUnit.multiplier,
+    return register(new Unit(symbol, name, TypeOfMeasurement.Volume, baseUnit.multiplier * baseUnit.multiplier * baseUnit.multiplier,
         find((unit) => (unit.dimension === 3) && (unit.baseUnit === baseUnit.subUnit)), baseUnit, 3));
 }
 
 function aUnitOfAngle(symbol: string, name: string, inDegreesMultiplier: number, subUnit?: Unit): Unit {
-    return register(new Unit(symbol, name, TypeOfMeasurement.ANGLE, inDegreesMultiplier, subUnit));
+    return register(new Unit(symbol, name, TypeOfMeasurement.Angle, inDegreesMultiplier, subUnit));
 }

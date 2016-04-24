@@ -1,12 +1,12 @@
 export enum TypeOfMeasurement {
-    UNDEFINED,
-    TIME,
-    LENGTH,
-    AREA,
-    VOLUME,
-    MASS,
-    TEMPERATURE,
-    ANGLE
+    Undefined,
+    Time,
+    Length,
+    Area,
+    Volume,
+    Mass,
+    Temperature,
+    Angle
 };
 
 export class Unit {
@@ -48,7 +48,7 @@ export class Unit {
     }
 
     isUndefined() {
-        return this.typeOfMeasurement === TypeOfMeasurement.UNDEFINED;
+        return this.typeOfMeasurement === TypeOfMeasurement.Undefined;
     }
 
     isCompatible(unit: Unit) {

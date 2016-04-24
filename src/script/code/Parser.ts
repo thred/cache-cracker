@@ -9,6 +9,26 @@ import {Unit} from "./Unit";
 import * as Units from "./Units";
 import * as Utils from "./Utils";
 
+enum Precedence {
+    Undefined,
+    Assignment,
+    Conditional,
+    LogicalOr,
+    LogicalAnd,
+    BitwiseOr,
+    BitwiseXOr,
+    BitweiseAnd,
+    Equality,
+    Compare,
+    Shift,
+    Addition,
+    Multiplication,
+    Unary,
+    Call,
+    Access,
+    Group
+}
+
 export class Context {
 
     isReferenceDefined(reference: string): boolean {
@@ -46,7 +66,7 @@ class Parser {
     /**
      *  Expression = SingleExpression { Operator Expression }. 
      */
-    private parseExpression(context: Context): Expression {
+    private parseExpression(context: Context, minimumPrecedence: Precedence = Precedence.Undefined): Expression {
         let token = this.tokenizer.get();
 
         if (!this.isExpression(token)) {
@@ -57,34 +77,46 @@ class Parser {
 
         token = this.tokenizer.get();
 
-        // FIXME operator precedence
-
         while (this.isOperator(token)) {
+            let symbol: string = token.s;
+            let operation: (left: any, right: any) => any;
+            let precedence: Precedence;
+
+            switch (token.s) {
+                case "+":
+                    operation = Operations.add;
+                    precedence = Precedence.Addition;
+                    break;
+
+                case "-":
+                    operation = Operations.subtract;
+                    precedence = Precedence.Addition;
+                    break;
+
+                case "*":
+                    operation = Operations.multiply;
+                    precedence = Precedence.Multiplication;
+                    break;
+
+                case "/":
+                    operation = Operations.divide;
+                    precedence = Precedence.Multiplication;
+                    break;
+
+                default:
+                    throw new Error(Utils.formatError(token.line, token.column, `Unsupported operation: ${token.s}`));
+            }
+
+            if (precedence <= minimumPrecedence) {
+                break;
+            }
+
+
             this.tokenizer.nextExpressionToken();
 
-            if (token.s === "+") {
-                expression = new Expressions.OperationExpression(token.line, token.column, "+", Operations.add, expression, this.parseExpression(context));
+            expression = new Expressions.OperationExpression(token.line, token.column, symbol, operation, expression, this.parseExpression(context, precedence));
 
-                token = this.tokenizer.get();
-            }
-            else if (token.s === "-") {
-                expression = new Expressions.OperationExpression(token.line, token.column, "-", Operations.subtract, expression, this.parseExpression(context));
-
-                token = this.tokenizer.get();
-            }
-            else if (token.s === "*") {
-                expression = new Expressions.OperationExpression(token.line, token.column, "*", Operations.multiply, expression, this.parseExpression(context));
-
-                token = this.tokenizer.get();
-            }
-            else if (token.s === "/") {
-                expression = new Expressions.OperationExpression(token.line, token.column, "/", Operations.divide, expression, this.parseExpression(context));
-
-                token = this.tokenizer.get();
-            }
-            else {
-                throw new Error(Utils.formatError(token.line, token.column, `Unsupported operation: ${token.s}`));
-            }
+            token = this.tokenizer.get();
         }
 
         return expression;
