@@ -77,7 +77,7 @@ class Parser {
     /**
      *  SingleExpression = ( ( UnaryOperator SingleExpression) | ( "(" Expression ")" ) | Reference | Call | Constant ) [ Unit [ SingleExpression] ]. 
      */
-    private parseSingleExpression(context: Context): Expression {
+    private parseSingleExpression(context: Context, leadingUnit?: Unit): Expression {
         let token = this.tokenizer.get();
 
         if (!this.isSingleExpression(token)) {
@@ -130,10 +130,13 @@ class Parser {
             token = this.tokenizer.get();
 
             if ((!this.isOperator(token)) && (this.isExpression(token))) {
-                expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseSingleExpression(context));
+                expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseSingleExpression(context, unit));
             }
 
             token = this.tokenizer.get();
+        }
+        else if ((leadingUnit) && (leadingUnit.subUnit)) {
+            expression = new Expressions.UnitExpression(token.line, token.column, leadingUnit.subUnit, expression);
         }
 
         return expression;

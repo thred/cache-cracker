@@ -239,6 +239,10 @@ export class Tokenizer {
             if (DELIMITER.indexOf(ch) >= 0) {
                 break;
             }
+
+            if (isNumber(ch)) {
+                break;
+            }
         }
 
         return token;
