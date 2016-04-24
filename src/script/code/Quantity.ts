@@ -10,6 +10,10 @@ export abstract class Quantity {
         return this._unit;
     }
 
+    abstract positive(): Quantity;
+
+    abstract negative(): Quantity;
+
     abstract convert(unit: Unit): Quantity;
 
     abstract add(other: Quantity): Quantity;
@@ -33,6 +37,14 @@ export class NumberBasedQuantity extends Quantity {
 
     protected create(value: number, unit?: Unit): NumberBasedQuantity {
         return new NumberBasedQuantity(value, unit);
+    }
+
+    positive(): Quantity {
+        return this;
+    }
+
+    negative(): Quantity {
+        return this.create(-this.value, this.unit);
     }
 
     convert(unit: Unit): Quantity {

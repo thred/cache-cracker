@@ -6,11 +6,19 @@ export function concat(values: any[]): string {
 }
 
 export function positive(value: any): any {
+    if (value instanceof Quantity) {
+        return (value as Quantity).positive();
+    }
 
+    throw new Error(`Sign not supported: +${value}`);
 }
 
 export function negative(value: any): any {
+    if (value instanceof Quantity) {
+        return (value as Quantity).negative();
+    }
 
+    throw new Error(`Sign not supported: -${value}`);
 }
 
 export function convert(value: any, unit: Unit): any {
@@ -38,7 +46,7 @@ export function subtract(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Subtraction not supporte: ${left} - ${right}`);
+    throw new Error(`Subtraction not supported: ${left} - ${right}`);
 }
 
 export function multiply(left: any, right: any): any {
@@ -48,7 +56,7 @@ export function multiply(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Multiplication not supporte: ${left} * ${right}`);
+    throw new Error(`Multiplication not supported: ${left} * ${right}`);
 }
 
 export function divide(left: any, right: any): any {
@@ -58,7 +66,7 @@ export function divide(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Division not supporte: ${left} / ${right}`);
+    throw new Error(`Division not supported: ${left} / ${right}`);
 }
 
 export function modulo(left: any, right: any): any {
