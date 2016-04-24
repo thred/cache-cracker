@@ -25,6 +25,8 @@ export abstract class Quantity {
     abstract divide(other: Quantity): Quantity;
 
     abstract power(other: Quantity): Quantity;
+
+    abstract modulo(other: Quantity): Quantity;
 }
 
 export class NumberBasedQuantity extends Quantity {
@@ -59,7 +61,7 @@ export class NumberBasedQuantity extends Quantity {
             return this.create((this.value * this.unit.multiplier) / unit.multiplier, unit);
         }
 
-        throw new Error(`Converting ${this.describe()} to ${unit.symbol} not supported`);
+        throw new Error(`Conversion of ${this.describe()} in ${unit.symbol} not supported`);
     }
 
     add(other: Quantity): Quantity {
@@ -103,7 +105,7 @@ export class NumberBasedQuantity extends Quantity {
             }
 
             if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
-                throw new Error(`Multiplication of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+                throw new Error(`${this.describe()} * ${(other as NumberBasedQuantity).describe()} not supported`);
             }
 
             let dimension = this.unit.dimension + other.unit.dimension;
@@ -128,7 +130,7 @@ export class NumberBasedQuantity extends Quantity {
             }
 
             if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
-                throw new Error(`Division of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+                throw new Error(`${this.describe()} / ${(other as NumberBasedQuantity).describe()} not supported`);
             }
 
             let dimension = this.unit.dimension - other.unit.dimension;
@@ -169,6 +171,28 @@ export class NumberBasedQuantity extends Quantity {
         }
 
         throw new Error(`${this.describe()} ^ ${other} not supported`);
+    }
+
+    modulo(other: Quantity): Quantity {
+        if (other instanceof NumberBasedQuantity) {
+            let otherValue = (other as NumberBasedQuantity).value;
+
+            if ((this.unit.isUndefined()) && (other.unit.isUndefined())) {
+                return this.create(this.value % otherValue, this.unit);
+            }
+
+            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
+                throw new Error(`${this.describe()} mod ${(other as NumberBasedQuantity).describe()} not supported`);
+            }
+
+            if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
+                throw new Error(`${this.describe()} mod ${(other as NumberBasedQuantity).describe()} not supported`);
+            }
+
+            return this.create(((this.value * this.unit.multiplier) % (otherValue * other.unit.multiplier)) / this.unit.multiplier, this.unit);
+        }
+
+        throw new Error(`${this.describe()} mod ${other} not supported`);
     }
 
     describe(): string {

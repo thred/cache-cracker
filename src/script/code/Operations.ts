@@ -26,7 +26,7 @@ export function convert(value: any, unit: Unit): any {
         return (value as Quantity).convert(unit);
     }
 
-    throw new Error(`Conversion of ${value} in unit ${unit.symbol} not supported`);
+    throw new Error(`Conversion of ${value} in ${unit.symbol} not supported`);
 }
 
 export function add(left: any, right: any): any {
@@ -36,7 +36,7 @@ export function add(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Addition not supported: ${left} + ${right}`);
+    throw new Error(`${left} + ${right} not supported`);
 }
 
 export function subtract(left: any, right: any): any {
@@ -46,7 +46,7 @@ export function subtract(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Subtraction not supported: ${left} - ${right}`);
+    throw new Error(`${left} - ${right} not supported`);
 }
 
 export function multiply(left: any, right: any): any {
@@ -56,7 +56,7 @@ export function multiply(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Multiplication not supported: ${left} * ${right}`);
+    throw new Error(`${left} * ${right} not supported`);
 }
 
 export function divide(left: any, right: any): any {
@@ -66,7 +66,7 @@ export function divide(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Division not supported: ${left} / ${right}`);
+    throw new Error(`${left} / ${right} not supported`);
 }
 
 export function power(left: any, right: any): any {
@@ -76,9 +76,15 @@ export function power(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Division not supported: ${left} / ${right}`);
+    throw new Error(`${left} ^ ${right} not supported`);
 }
 
 export function modulo(left: any, right: any): any {
+    if (left instanceof Quantity) {
+        if (right instanceof Quantity) {
+            return (left as Quantity).modulo(right);
+        }
+    }
 
+    throw new Error(`${left} mod ${right} not supported`);
 }

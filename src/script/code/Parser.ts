@@ -111,6 +111,11 @@ class Parser {
                     leftAssociative = false;
                     break;
 
+                case "mod":
+                    operation = Operations.modulo;
+                    precedence = Precedence.Multiplication;
+                    break;
+
                 default:
                     throw new Error(Utils.formatError(token.line, token.column, `Unsupported operation: ${token.s}`));
             }

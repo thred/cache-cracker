@@ -7,8 +7,8 @@ const SYMBOL: string = ",:;";
 const RESERVED: string = "~?\\&|<>!=";
 const DELIMITER: string = WHITESPACE + OPERATOR + BRACKETS + SYMBOL + RESERVED;
 
-const PRECEDENCE: {[operator: string]: number} = {
-    
+const PRECEDENCE: { [operator: string]: number } = {
+
 }
 
 export interface Token {
@@ -247,6 +247,10 @@ export class Tokenizer {
             if (isNumber(ch)) {
                 break;
             }
+        }
+
+        if (token.s === "mod") {
+            token.type = "operator";
         }
 
         return token;

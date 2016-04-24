@@ -6,12 +6,12 @@ import {assert} from "chai";
 
 describe("Parser", () => {
 
-    it("power a length: 2 m ^ 3", () => {
-        let expression = Parser.parseExpression(Parser.scan("2 m ^ 3"));
+    it("modulo: 3 m mod 200 cm", () => {
+        let expression = Parser.parseExpression(Parser.scan("3 m mod 200 cm"));
 
-        assert.equal(expression.describe(), "2 m ^ 3");
+        assert.equal(expression.describe(), "3 m mod 200 cm");
         console.log(expression.invoke());
-        assert.equal(expression.invoke(), "8 m³");
+        assert.equal(expression.invoke(), "1 m");
     });
 
 });
