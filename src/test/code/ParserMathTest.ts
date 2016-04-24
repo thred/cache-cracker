@@ -20,5 +20,12 @@ describe("Parser", () => {
         assert.equal(expression.invoke(), 1);
     });
 
+    it("multiply two numbers: 2 * 3", () => {
+        let expression = Parser.parseExpression(Parser.scan("2 * 3"));
+
+        assert.equal(expression.describe(), "2 * 3");
+        assert.equal(expression.invoke(), 6);
+    });
+
     
 });

@@ -50,4 +50,18 @@ describe("Parser", () => {
         assert.equal(expression.invoke(), "0.5 m");
     });
 
+    it("multiply two lengths: 1 m * 50 cm", () => {
+        let expression = Parser.parseExpression(Parser.scan("1 m * 50 cm"));
+
+        assert.equal(expression.describe(), "1 m * 50 cm");
+        assert.equal(expression.invoke(), "0.5 m²");
+    });
+
+    it("multiply a length and an area: 1 m * 50 cm²", () => {
+        let expression = Parser.parseExpression(Parser.scan("1 m * 50 cm²"));
+
+        assert.equal(expression.describe(), "1 m * 50 cm²");
+        assert.equal(expression.invoke(), "0.005 m³");
+    });
+
 });

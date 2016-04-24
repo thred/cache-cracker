@@ -14,6 +14,9 @@ export class Unit {
     constructor(private _symbol: string, private _name: string, private _typeOfMeasurement: TypeOfMeasurement,
         private _multiplier: number, private _subUnit?: Unit, private _baseUnit?: Unit, private _dimension: number = 1) {
 
+        if (!this._baseUnit) {
+            this._baseUnit = this;
+        }
     }
 
     get symbol(): string {

@@ -42,7 +42,13 @@ export function subtract(left: any, right: any): any {
 }
 
 export function multiply(left: any, right: any): any {
+    if (left instanceof Quantity) {
+        if (right instanceof Quantity) {
+            return (left as Quantity).multiply(right);
+        }
+    }
 
+    throw new Error(`Subtract not supporte: ${left} * ${right}`);
 }
 
 export function divide(left: any, right: any): any {
