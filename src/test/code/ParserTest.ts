@@ -6,13 +6,12 @@ import {assert} from "chai";
 
 describe("Parser", () => {
 
-    it("operator precedence: 2 * 3 + 4 / 2", () => {
-        let expression = Parser.parseExpression(Parser.scan("2 * 3 + 4 / 2"));
+    it("power a length: 2 m ^ 3", () => {
+        let expression = Parser.parseExpression(Parser.scan("2 m ^ 3"));
 
-        assert.equal(expression.describe(), "2 * 3 + 4 / 2");
-
-        console.log(expression.toString());
-        assert.equal(expression.invoke(), 8);
+        assert.equal(expression.describe(), "2 m ^ 3");
+        console.log(expression.invoke());
+        assert.equal(expression.invoke(), "8 m³");
     });
 
 });

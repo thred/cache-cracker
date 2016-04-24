@@ -23,6 +23,7 @@ enum Precedence {
     Shift,
     Addition,
     Multiplication,
+    Power,
     Unary,
     Call,
     Access,
@@ -81,6 +82,7 @@ class Parser {
             let symbol: string = token.s;
             let operation: (left: any, right: any) => any;
             let precedence: Precedence;
+            let leftAssociative: boolean = true;
 
             switch (token.s) {
                 case "+":
@@ -103,14 +105,23 @@ class Parser {
                     precedence = Precedence.Multiplication;
                     break;
 
+                case "^":
+                    operation = Operations.power;
+                    precedence = Precedence.Power;
+                    leftAssociative = false;
+                    break;
+
                 default:
                     throw new Error(Utils.formatError(token.line, token.column, `Unsupported operation: ${token.s}`));
             }
 
-            if (precedence <= minimumPrecedence) {
+            if (precedence < minimumPrecedence) {
                 break;
             }
 
+            if ((precedence == minimumPrecedence) && (leftAssociative)) {
+                break;
+            }
 
             this.tokenizer.nextExpressionToken();
 

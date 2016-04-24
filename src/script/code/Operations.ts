@@ -69,6 +69,16 @@ export function divide(left: any, right: any): any {
     throw new Error(`Division not supported: ${left} / ${right}`);
 }
 
+export function power(left: any, right: any): any {
+    if (left instanceof Quantity) {
+        if (right instanceof Quantity) {
+            return (left as Quantity).power(right);
+        }
+    }
+
+    throw new Error(`Division not supported: ${left} / ${right}`);
+}
+
 export function modulo(left: any, right: any): any {
 
 }

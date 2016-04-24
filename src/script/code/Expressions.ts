@@ -12,7 +12,7 @@ export class OperationExpression extends Expression {
     }
 
     toString(): string {
-        return `Operation(${this.symbol}, ${this.leftArgument} ${this.rightArgument})`;
+        return `Operation(${this.leftArgument} ${this.symbol} ${this.rightArgument})`;
     }
 }
 

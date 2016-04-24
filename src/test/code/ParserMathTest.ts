@@ -52,9 +52,14 @@ describe("Parser", () => {
         let expression = Parser.parseExpression(Parser.scan("2 * 3 + 4 / 2"));
 
         assert.equal(expression.describe(), "2 * 3 + 4 / 2");
-        
-        console.log(expression.toString());
         assert.equal(expression.invoke(), 8);
+    });
+
+    it("operator precedence: 4 ^ 3 ^ 2", () => {
+        let expression = Parser.parseExpression(Parser.scan("4 ^ 3 ^ 2"));
+
+        assert.equal(expression.describe(), "4 ^ 3 ^ 2");
+        assert.equal(expression.invoke(), 262144);
     });
 
 });

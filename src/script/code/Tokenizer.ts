@@ -1,10 +1,10 @@
 import Scanner from "./Scanner";
 
 const WHITESPACE: string = " \n\r\t\b\f";
-const OPERATOR: string = "+-*/"
+const OPERATOR: string = "+-*/^"
 const BRACKETS: string = "(){}[]";
 const SYMBOL: string = ",:;";
-const RESERVED: string = "~?\\^&|<>!=";
+const RESERVED: string = "~?\\&|<>!=";
 const DELIMITER: string = WHITESPACE + OPERATOR + BRACKETS + SYMBOL + RESERVED;
 
 const PRECEDENCE: {[operator: string]: number} = {

@@ -71,4 +71,11 @@ describe("Parser", () => {
         assert.equal(expression.invoke(), "1 m");
     });
 
+    // it("power a length: 2 m ^ 3", () => {
+    //     let expression = Parser.parseExpression(Parser.scan("2 m ^ 3"));
+
+    //     assert.equal(expression.describe(), "2 m ^ 3");
+    //     assert.equal(expression.invoke(), "8 m³");
+    // });
+
 });

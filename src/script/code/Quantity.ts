@@ -23,6 +23,8 @@ export abstract class Quantity {
     abstract multiply(other: Quantity): Quantity;
 
     abstract divide(other: Quantity): Quantity;
+
+    abstract power(other: Quantity): Quantity;
 }
 
 export class NumberBasedQuantity extends Quantity {
@@ -57,7 +59,7 @@ export class NumberBasedQuantity extends Quantity {
             return this.create((this.value * this.unit.multiplier) / unit.multiplier, unit);
         }
 
-        throw new Error(`Conversion of unit "${this.unit.symbol}" to unit "${unit.symbol}" not supported`);
+        throw new Error(`Converting ${this.describe()} to ${unit.symbol} not supported`);
     }
 
     add(other: Quantity): Quantity {
@@ -73,7 +75,7 @@ export class NumberBasedQuantity extends Quantity {
             }
         }
 
-        throw new Error(`Addition of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+        throw new Error(`${this.describe()} + ${other} not supported`);
     }
 
     subtract(other: Quantity): Quantity {
@@ -89,7 +91,7 @@ export class NumberBasedQuantity extends Quantity {
             }
         }
 
-        throw new Error(`Subtraction of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+        throw new Error(`${this.describe()} - ${other} not supported`);
     }
 
     multiply(other: Quantity): Quantity {
@@ -114,7 +116,7 @@ export class NumberBasedQuantity extends Quantity {
             return this.create((this.value * this.unit.multiplier * otherValue * other.unit.multiplier) / unit.multiplier, unit);
         }
 
-        throw new Error(`Multiplication of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+        throw new Error(`${this.describe()} * ${other} not supported`);
     }
 
     divide(other: Quantity): Quantity {
@@ -139,15 +141,47 @@ export class NumberBasedQuantity extends Quantity {
             return this.create(((this.value * this.unit.multiplier) / (otherValue * other.unit.multiplier)) / unit.multiplier, unit);
         }
 
-        throw new Error(`Division of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+        throw new Error(`${this.describe()} / ${other} not supported`);
     }
 
-    toString(): string {
+    power(other: Quantity): Quantity {
+        if (other instanceof NumberBasedQuantity) {
+            let otherValue = (other as NumberBasedQuantity).value;
+
+            if ((this.unit.isUndefined()) && (other.unit.isUndefined())) {
+                return this.create(Math.pow(this.value, otherValue), this.unit);
+            }
+
+            if (this.unit.isUndefined()) {
+                return this.create(Math.pow(this.value, otherValue), other.unit);
+            }
+
+            if (other.unit.isUndefined()) {
+                let dimension = this.unit.dimension * otherValue;
+                let unit = Units.find((unit) => (unit.baseUnit === this.unit.baseUnit) && (unit.dimension === dimension));
+
+                if (!unit) {
+                    throw new Error(`Unit "${this.unit.symbol}" with dimension ${dimension} not defined`);
+                }
+
+                return this.create(Math.pow(this.value, otherValue), unit);
+            }
+        }
+
+        throw new Error(`${this.describe()} ^ ${other} not supported`);
+    }
+
+    describe(): string {
         if (this.unit.isUndefined()) {
             return `${this.value}`;
         }
 
         return `${this.value} ${this.unit.symbol}`;
+    }
+
+
+    toString(): string {
+        return this.describe();
     }
 
 }
