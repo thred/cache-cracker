@@ -48,11 +48,11 @@ describe("Parser", () => {
         assert.equal(expression.invoke(), 2);
     });
 
-    // it("operator precedence: 1 - -2 * 3", () => {
-    //     let expression = Parser.parseExpression(Parser.scan("1 - -2 * 3"));
+    it("operator precedence: 2 * 3 + 4 / 2", () => {
+        let expression = Parser.parseExpression(Parser.scan("2 * 3 + 4 / 2"));
 
-    //     assert.equal(expression.describe(), "1 - -2 * 3");
-    //     assert.equal(expression.invoke(), 7);
-    // });
+        assert.equal(expression.describe(), "2 * 3 + 4 / 2");
+        assert.equal(expression.invoke(), 8);
+    });
 
 });
