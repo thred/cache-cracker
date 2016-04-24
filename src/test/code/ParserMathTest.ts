@@ -13,5 +13,12 @@ describe("Parser", () => {
         assert.equal(expression.invoke(), 3);
     });
 
+    it("subtract two numbers: 3 - 2", () => {
+        let expression = Parser.parseExpression(Parser.scan("3 - 2"));
+
+        assert.equal(expression.describe(), "3 - 2");
+        assert.equal(expression.invoke(), 1);
+    });
+
     
 });

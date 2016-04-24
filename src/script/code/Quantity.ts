@@ -13,6 +13,8 @@ export abstract class Quantity {
     abstract convert(unit: Unit): Quantity;
 
     abstract add(other: Quantity): Quantity;
+
+    abstract subtract(other: Quantity): Quantity;
 }
 
 export class NumberBasedQuantity extends Quantity {
@@ -52,6 +54,22 @@ export class NumberBasedQuantity extends Quantity {
 
             if (this.unit.isCompatible(other.unit)) {
                 return this.create((this.value * this.unit.multiplier + otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
+            }
+        }
+
+        throw new Error(`Addition of units "${this.unit.symbol}" and "${other.unit.symbol}" not supported`);
+    }
+
+    subtract(other: Quantity): Quantity {
+        if (other instanceof NumberBasedQuantity) {
+            let otherValue = (other as NumberBasedQuantity).value;
+
+            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
+                return this.create(this.value - otherValue, this.unit);
+            }
+
+            if (this.unit.isCompatible(other.unit)) {
+                return this.create((this.value * this.unit.multiplier - otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
             }
         }
 

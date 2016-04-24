@@ -60,14 +60,20 @@ class Parser {
         // FIXME operator precedence
 
         while (this.isOperator(token)) {
-            let startToken = token;
-
             this.tokenizer.nextExpressionToken();
 
-            if (startToken.s === "+") {
-                expression = new Expressions.OperationExpression(startToken.line, startToken.column, "+", Operations.add, expression, this.parseExpression(context));
+            if (token.s === "+") {
+                expression = new Expressions.OperationExpression(token.line, token.column, "+", Operations.add, expression, this.parseExpression(context));
 
                 token = this.tokenizer.get();
+            }
+            else if (token.s === "-") {
+                expression = new Expressions.OperationExpression(token.line, token.column, "-", Operations.subtract, expression, this.parseExpression(context));
+
+                token = this.tokenizer.get();
+            }
+            else {
+                throw new Error(Utils.formatError(token.line, token.column, `Unsupported operation: ${token.s}`));
             }
         }
 
@@ -98,7 +104,7 @@ class Parser {
                 expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.negative, argument);
             }
             else {
-                throw new Error(Utils.formatError(token.line, token.column, "Unsupported unary operation: " + token.s));
+                throw new Error(Utils.formatError(token.line, token.column, `Unsupported unary operation: ${token.s}`));
             }
 
             token = this.tokenizer.get();

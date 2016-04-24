@@ -28,11 +28,17 @@ export function add(left: any, right: any): any {
         }
     }
 
-    throw new Error(`Add not supported for ${left} and ${right}`);
+    throw new Error(`Add not supported: ${left} + ${right}`);
 }
 
 export function subtract(left: any, right: any): any {
+    if (left instanceof Quantity) {
+        if (right instanceof Quantity) {
+            return (left as Quantity).subtract(right);
+        }
+    }
 
+    throw new Error(`Subtract not supporte: ${left} - ${right}`);
 }
 
 export function multiply(left: any, right: any): any {
