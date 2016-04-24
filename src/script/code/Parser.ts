@@ -126,6 +126,16 @@ class Parser {
         if (this.isUnit(token)) {
             let unit = this.parseUnit(context);
 
+            if (leadingUnit) {
+                if (!unit.isCompatible(leadingUnit)) {
+                    throw new Error(Utils.formatError(token.line, token.column, `Unit "${unit.symbol}" not compatible with unit "${leadingUnit.symbol}"`));
+                }
+
+                if (!unit.isPreceding(leadingUnit)) {
+                    throw new Error(Utils.formatError(token.line, token.column, `Factor of unit "${unit.symbol}" not smaller than factor of unit "${leadingUnit.symbol}"`));
+                }
+            }
+
             expression = new Expressions.UnitExpression(token.line, token.column, unit, expression);
             token = this.tokenizer.get();
 

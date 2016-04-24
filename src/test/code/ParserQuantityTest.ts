@@ -11,30 +11,29 @@ describe("Parser", () => {
 
         assert.equal(expression.describe(), "1.5 m");
         assert.equal(expression.invoke(), "1.5 m");
-
-        expression = Parser.parseExpression(Parser.scan("1.5m"));
-
-        assert.equal(expression.describe(), "1.5 m");
-        assert.equal(expression.invoke(), "1.5 m");
     });
 
-    it("read a chained quantity: 1 m 50 cm", () => {
+    it("read chained quantities: 1 m 50 cm", () => {
         let expression = Parser.parseExpression(Parser.scan("1 m 50 cm"));
 
         assert.equal(expression.describe(), "1 m 50 cm");
         assert.equal(expression.invoke(), "1.5 m");
+    });
 
-        expression = Parser.parseExpression(Parser.scan("1m50cm"));
+    it("read chained quantities guessing the unit: 1 m 50", () => {
+        let expression = Parser.parseExpression(Parser.scan("1 m 50"));
 
         assert.equal(expression.describe(), "1 m 50 cm");
         assert.equal(expression.invoke(), "1.5 m");
     });
 
-    it("read a chained quantity guessing the unit: 1 m 50", () => {
-        let expression = Parser.parseExpression(Parser.scan("1 m 50"));
-
-        assert.equal(expression.describe(), "1 m 50 cm");
-        assert.equal(expression.invoke(), "1.5 m");
+    it("fail on invalid chained quantities: 1 m 50 km", () => {
+        try {
+            Parser.parseExpression(Parser.scan("1 m 50 km"));
+            assert.fail();
+        }
+        catch (e) {
+        }
     });
 
     it("add two lengths: 1 m + 50 cm", () => {

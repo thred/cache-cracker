@@ -53,7 +53,7 @@ export class Unit {
     }
 
     isPreceding(unit: Unit) {
-        return (!unit.isUndefined()) && (this.isCompatible(unit)) && (unit.multiplier < this.multiplier);
+        return (!unit.isUndefined()) && (this.isCompatible(unit)) && (unit.multiplier > this.multiplier);
     }
 
 }

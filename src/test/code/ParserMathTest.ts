@@ -10,10 +10,7 @@ describe("Parser", () => {
         let expression = Parser.parseExpression(Parser.scan("1 + 2"));
 
         assert.equal(expression.describe(), "1 + 2");
-
-        let result = expression.invoke();
-
-        assert.equal(result, 3);
+        assert.equal(expression.invoke(), 3);
     });
 
     
