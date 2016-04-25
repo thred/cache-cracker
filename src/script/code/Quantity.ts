@@ -1,46 +1,21 @@
 import {Unit} from "./Unit";
 import * as Units from "./Units";
 
-export abstract class Quantity {
+export class Quantity {
 
-    constructor(private _unit: Unit = Units.UNDEFINED) {
-    }
-
-    get unit() {
-        return this._unit;
-    }
-
-    abstract positive(): Quantity;
-
-    abstract negative(): Quantity;
-
-    abstract convert(unit: Unit): Quantity;
-
-    abstract add(other: Quantity): Quantity;
-
-    abstract subtract(other: Quantity): Quantity;
-
-    abstract multiply(other: Quantity): Quantity;
-
-    abstract divide(other: Quantity): Quantity;
-
-    abstract power(other: Quantity): Quantity;
-
-    abstract modulo(other: Quantity): Quantity;
-}
-
-export class NumberBasedQuantity extends Quantity {
-
-    constructor(private _value: number, unit?: Unit) {
-        super(unit);
+    constructor(private _value: number, private _unit: Unit = Units.UNDEFINED) {
     }
 
     get value() {
         return this._value;
     }
 
-    protected create(value: number, unit?: Unit): NumberBasedQuantity {
-        return new NumberBasedQuantity(value, unit);
+    get unit() {
+        return this._unit;
+    }
+
+    protected create(value: number, unit?: Unit): Quantity {
+        return new Quantity(value, unit);
     }
 
     positive(): Quantity {
@@ -64,8 +39,8 @@ export class NumberBasedQuantity extends Quantity {
     }
 
     add(other: Quantity): Quantity {
-        if (other instanceof NumberBasedQuantity) {
-            let otherValue = (other as NumberBasedQuantity).value;
+        if (other instanceof Quantity) {
+            let otherValue = (other as Quantity).value;
 
             if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
                 return this.create(this.value + otherValue, this.unit);
@@ -80,8 +55,8 @@ export class NumberBasedQuantity extends Quantity {
     }
 
     subtract(other: Quantity): Quantity {
-        if (other instanceof NumberBasedQuantity) {
-            let otherValue = (other as NumberBasedQuantity).value;
+        if (other instanceof Quantity) {
+            let otherValue = (other as Quantity).value;
 
             if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
                 return this.create(this.value - otherValue, this.unit);
@@ -96,15 +71,15 @@ export class NumberBasedQuantity extends Quantity {
     }
 
     multiply(other: Quantity): Quantity {
-        if (other instanceof NumberBasedQuantity) {
-            let otherValue = (other as NumberBasedQuantity).value;
+        if (other instanceof Quantity) {
+            let otherValue = (other as Quantity).value;
 
             if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
                 return this.create(this.value * otherValue, this.unit);
             }
 
             if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
-                throw new Error(`${this.describe()} * ${(other as NumberBasedQuantity).describe()} not supported`);
+                throw new Error(`${this.describe()} * ${(other as Quantity).describe()} not supported`);
             }
 
             let dimension = this.unit.dimension + other.unit.dimension;
@@ -121,15 +96,15 @@ export class NumberBasedQuantity extends Quantity {
     }
 
     divide(other: Quantity): Quantity {
-        if (other instanceof NumberBasedQuantity) {
-            let otherValue = (other as NumberBasedQuantity).value;
+        if (other instanceof Quantity) {
+            let otherValue = (other as Quantity).value;
 
             if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
                 return this.create(this.value / otherValue, this.unit);
             }
 
             if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
-                throw new Error(`${this.describe()} / ${(other as NumberBasedQuantity).describe()} not supported`);
+                throw new Error(`${this.describe()} / ${(other as Quantity).describe()} not supported`);
             }
 
             let dimension = this.unit.dimension - other.unit.dimension;
@@ -146,8 +121,8 @@ export class NumberBasedQuantity extends Quantity {
     }
 
     power(other: Quantity): Quantity {
-        if (other instanceof NumberBasedQuantity) {
-            let otherValue = (other as NumberBasedQuantity).value;
+        if (other instanceof Quantity) {
+            let otherValue = (other as Quantity).value;
 
             if ((this.unit.isUndefined()) && (other.unit.isUndefined())) {
                 return this.create(Math.pow(this.value, otherValue), this.unit);
@@ -173,19 +148,19 @@ export class NumberBasedQuantity extends Quantity {
     }
 
     modulo(other: Quantity): Quantity {
-        if (other instanceof NumberBasedQuantity) {
-            let otherValue = (other as NumberBasedQuantity).value;
+        if (other instanceof Quantity) {
+            let otherValue = (other as Quantity).value;
 
             if ((this.unit.isUndefined()) && (other.unit.isUndefined())) {
                 return this.create(this.value % otherValue, this.unit);
             }
 
             if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
-                throw new Error(`${this.describe()} mod ${(other as NumberBasedQuantity).describe()} not supported`);
+                throw new Error(`${this.describe()} mod ${(other as Quantity).describe()} not supported`);
             }
 
             if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
-                throw new Error(`${this.describe()} mod ${(other as NumberBasedQuantity).describe()} not supported`);
+                throw new Error(`${this.describe()} mod ${(other as Quantity).describe()} not supported`);
             }
 
             return this.create(((this.value * this.unit.multiplier) % (otherValue * other.unit.multiplier)) / this.unit.multiplier, this.unit);

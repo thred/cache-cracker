@@ -4,7 +4,7 @@ import {Program, Line} from "./Program";
 import {Scope, Expression} from "./Expression";
 import * as Expressions from "./Expressions";
 import * as Operations from "./Operations";
-import {Quantity, NumberBasedQuantity} from "./Quantity";
+import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 import * as Units from "./Units";
 import * as Utils from "./Utils";
@@ -266,7 +266,7 @@ class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Expressions.QuantityExpression(token.line, token.column, new NumberBasedQuantity(token.n));
+        return new Expressions.QuantityExpression(token.line, token.column, new Quantity(token.n));
     }
 
     /**
