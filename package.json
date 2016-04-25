@@ -7,7 +7,8 @@
     "start": "gulp watch",
     "pretest": "tsc",
     "test": "mocha --require source-map-support/register --harmony_default_parameters build/src/test/**/*.js",
-    "postinstall": "typings install"
+    "postinstall": "typings install",
+    "console": "tsc && node build/src/test/code/Console.js"
   },
   "keywords": [
     "angularjs",
