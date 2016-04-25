@@ -4,7 +4,7 @@ import Scanner from "../../script/code/Scanner";
 import * as Parser from "../../script/code/Parser";
 import {assert} from "chai";
 
-describe("Parser", () => {
+describe("Parser (Basic)", () => {
 
     it("parse a number: 42.1", () => {
         let expression = Parser.parseExpression(Parser.scan("42.1"));

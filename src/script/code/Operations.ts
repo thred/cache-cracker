@@ -21,9 +21,11 @@ export function negative(value: any): any {
     throw new Error(`Sign not supported: -${value}`);
 }
 
-export function convert(value: any, unit: Unit): any {
+export function convert(value: any, unit: any): any {
     if (value instanceof Quantity) {
-        return (value as Quantity).convert(unit);
+        if (unit instanceof Unit) {
+            return (value as Quantity).convert(unit);
+        }
     }
 
     throw new Error(`Conversion of ${value} in ${unit.symbol} not supported`);

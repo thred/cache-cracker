@@ -40,6 +40,30 @@ export class UnitExpression extends Expression {
     }
 }
 
+export class UnitConversionExpression extends Expression {
+    constructor(line: number, column: number, private unit: Unit, private argument: Expression) {
+        super(line, column,
+            (scope) => Operations.convert(argument.invoke(scope), unit),
+            () => `${argument.describe()} in ${unit.symbol}`);
+    }
+
+    toString(): string {
+        return `UnitConversion(${this.unit}, ${this.argument})`;
+    }
+}
+
+export class ParenthesesExpression extends Expression {
+    constructor(line: number, column: number, private argument: Expression) {
+        super(line, column,
+            (scope) => argument.invoke(scope),
+            () => `(${argument.describe()})`);
+    }
+
+    toString(): string {
+        return `ParenthesesExpression(${this.argument})`;
+    }
+}
+
 export class QuantityExpression extends Expression {
     constructor(line: number, column: number, private quantity: Quantity) {
         super(line, column,

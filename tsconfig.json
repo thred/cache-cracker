@@ -7,7 +7,7 @@
         "noImplicitAny": true,
         "sourceMap": true,
         "jsx": "react",
-        "removeComments": true,
+        "removeComments": false,
         "preserveConstEnums": true
     },
     "exclude": [

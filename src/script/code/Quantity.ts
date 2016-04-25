@@ -57,7 +57,6 @@ export class NumberBasedQuantity extends Quantity {
         }
 
         if (this.unit.isCompatible(unit)) {
-            console.log(`(${this.value} * ${this.unit.multiplier}) / ${unit.multiplier} = ${(this.value * this.unit.multiplier) / unit.multiplier}`)
             return this.create((this.value * this.unit.multiplier) / unit.multiplier, unit);
         }
 

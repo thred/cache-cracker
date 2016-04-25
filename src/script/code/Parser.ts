@@ -25,6 +25,7 @@ enum Precedence {
     Multiplication,
     Power,
     Unary,
+    Conversion,
     Call,
     Access,
     Group
@@ -65,7 +66,7 @@ class Parser {
     }
 
     /**
-     *  Expression = SingleExpression { Operator Expression }. 
+     *  Expression = SingleExpression { "in" Unit } { Operator Expression }. 
      */
     private parseExpression(context: Context, minimumPrecedence: Precedence = Precedence.Undefined): Expression {
         let token = this.tokenizer.get();
@@ -74,10 +75,21 @@ class Parser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected expression, but got: ${token.s}`));
         }
 
+        // parse: SingleExpression
         let expression = this.parseSingleExpression(context);
 
         token = this.tokenizer.get();
 
+        // parse: { "in" Unit }
+        while (this.isIn(token)) {
+            this.tokenizer.nextExpressionToken();
+
+            expression = new Expressions.UnitConversionExpression(token.line, token.column, this.parseUnit(context), expression);
+
+            token = this.tokenizer.get();
+        }
+
+        // parse: { Operator Expression }
         while (this.isOperator(token)) {
             let symbol: string = token.s;
             let operation: (left: any, right: any) => any;
@@ -139,7 +151,7 @@ class Parser {
     }
 
     /**
-     *  SingleExpression = ( ( UnaryOperator SingleExpression) | ( "(" Expression ")" ) | Reference | Call | Constant ) [ Unit [ SingleExpression] ]. 
+     *  SingleExpression = ( ( UnaryOperator SingleExpression ) | ( "(" Expression ")" ) | Reference | Call | Constant ) [ Unit [ SingleExpression ] ]. 
      */
     private parseSingleExpression(context: Context, leadingUnit?: Unit): Expression {
         let token = this.tokenizer.get();
@@ -150,6 +162,7 @@ class Parser {
 
         let expression: Expression;
 
+        // parse: ( UnaryOperator SingleExpression )
         if (this.isUnaryOperator(token)) {
             this.tokenizer.nextExpressionToken();
 
@@ -167,18 +180,21 @@ class Parser {
 
             token = this.tokenizer.get();
         }
+        // parse: ( "(" Expression ")" )
         else if (this.isOpeningParentheses(token)) {
             this.tokenizer.nextExpressionToken();
 
-            let argument = this.parseExpression(context);
-            let closingToken = this.tokenizer.nextExpressionToken();
+            expression = new Expressions.ParenthesesExpression(token.line, token.column, this.parseExpression(context));
 
-            if (!this.isClosingParentheses(token)) {
-                throw new Error(Utils.formatError(token.line, token.column, "Expected closing parentheses, but got: " + token.s));
+            let closingToken = this.tokenizer.get();
+
+            if (!this.isClosingParentheses(closingToken)) {
+                throw new Error(Utils.formatError(closingToken.line, closingToken.column, "Expected closing parentheses, but got: " + closingToken.s));
             }
 
-            token = this.tokenizer.get();
+            token = this.tokenizer.nextExpressionToken();
         }
+        // parse: Constant
         else if (this.isConstant(token)) {
             expression = this.parseConstant(context);
             token = this.tokenizer.get();
@@ -187,7 +203,8 @@ class Parser {
             throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for expression: ${token.s}`));
         }
 
-        if (this.isUnit(token)) {
+        // parse: [ Unit [ SingleExpression ] ]
+        if ((this.isUnit(token)) && (token.s !== "in") || ((token.s === "in") && (!this.isUnit(this.tokenizer.lookAheadExpressionToken())))) {
             let unit = this.parseUnit(context);
 
             if (leadingUnit) {
@@ -356,6 +373,10 @@ class Parser {
         return (token.s === "+") || (token.s === "-");
     }
 
+    isIn(token: Token) {
+        return this.isOperator(token, "in");
+    }
+
     isOperator(token: Token, operator?: string): boolean {
         if (token.type === "operator") {
             return (!operator) || (operator === token.s);
@@ -401,7 +422,7 @@ class Parser {
     }
 
     isUnit(token: Token): boolean {
-        if ((token.type !== "identifier") && (token.type !== "string-delimiter") && (token.type !== "symbol")) {
+        if ((token.type !== "identifier") && (token.type !== "string-delimiter") && (token.type !== "symbol") && (token.type !== "operator")) {
             return false;
         }
 

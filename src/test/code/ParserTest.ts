@@ -6,12 +6,11 @@ import {assert} from "chai";
 
 describe("Parser", () => {
 
-    it("modulo: 3 m mod 200 cm", () => {
-        let expression = Parser.parseExpression(Parser.scan("3 m mod 200 cm"));
+    it("convert an inch: (1 in) in in", () => {
+        let expression = Parser.parseExpression(Parser.scan("(1 in) in in"));
 
-        assert.equal(expression.describe(), "3 m mod 200 cm");
-        console.log(expression.invoke());
-        assert.equal(expression.invoke(), "1 m");
+        assert.equal(expression.describe(), "(1 in) in in");
+        assert.equal(expression.invoke(), "1 in");
     });
 
 });

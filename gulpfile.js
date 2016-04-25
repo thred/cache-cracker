@@ -54,7 +54,7 @@ gulp.task("build:css", function() {
 
 gulp.task("build:typescript", function() {
     return gulp.src(["./src/**/*.ts", "./src/**/*.tsx"])
-        .pipe(gulpChanged("./build", {
+        .pipe(gulpChanged("./build/src", {
             extension: ".js"
         }))
         .pipe(gulpSourceMaps.init())
@@ -66,11 +66,11 @@ gulp.task("build:typescript", function() {
         .pipe(gulpSourceMaps.write({
             sourceRoot: "./src"
         }))
-        .pipe(gulp.dest("./build"));
+        .pipe(gulp.dest("./build/src"));
 });
 
 gulp.task("build:webpack", ["build:typescript"], function() {
-    return gulp.src("./build/script/Main.js")
+    return gulp.src("./build/src/script/Main.js")
         .pipe(webpack({
             output: {
                 filename: "cache-cracker.js"
@@ -114,7 +114,7 @@ gulp.task("server", function() {
 });
 
 gulp.task("test", ["build:typescript"], function() {
-    return gulp.src("./build/test/**/*Test.js")
+    return gulp.src("./build/src/test/**/*Test.js")
         .pipe(gulpMocha({
             require: ["source-map-support/register"]
         }));

@@ -66,13 +66,21 @@ export class Tokenizer {
         return this.token;
     }
 
-    // lookAhead(): Token {
-    //     if (!this.nextToken) {
-    //         this.nextToken = this.read();
-    //     }
+    lookAheadExpressionToken(): Token {
+        if (!this.nextToken) {
+            this.nextToken = this.readExpressionToken();
+        }
 
-    //     return this.nextToken;
-    // }
+        return this.nextToken;
+    }
+
+    lookAheadStringToken(): Token {
+        if (!this.nextToken) {
+            this.nextToken = this.readStringToken();
+        }
+
+        return this.nextToken;
+    }
 
     protected readExpressionToken(): Token {
         let ch = this.scanner.get(isNonWhitespace)
@@ -249,7 +257,7 @@ export class Tokenizer {
             }
         }
 
-        if (token.s === "mod") {
+        if ((token.s === "mod") || (token.s === "in")) {
             token.type = "operator";
         }
 

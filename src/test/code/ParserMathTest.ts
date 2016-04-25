@@ -4,7 +4,7 @@ import Scanner from "../../script/code/Scanner";
 import * as Parser from "../../script/code/Parser";
 import {assert} from "chai";
 
-describe("Parser", () => {
+describe("Parser (Math)", () => {
 
     it("positive number: +2", () => {
         let expression = Parser.parseExpression(Parser.scan("+2"));
@@ -68,5 +68,13 @@ describe("Parser", () => {
         assert.equal(expression.describe(), "2 * 3 + 4 / 2");
         assert.equal(expression.invoke(), 8);
     });
+
+    it("parentheses: 2 * (3 + 4) / 2", () => {
+        let expression = Parser.parseExpression(Parser.scan("2 * (3 + 4) / 2"));
+
+        assert.equal(expression.describe(), "2 * (3 + 4) / 2");
+        assert.equal(expression.invoke(), 7);
+    });
+
 
 });

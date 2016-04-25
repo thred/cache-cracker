@@ -4,7 +4,7 @@ import Scanner from "../../script/code/Scanner";
 import * as Parser from "../../script/code/Parser";
 import {assert} from "chai";
 
-describe("Parser", () => {
+describe("Parser (Quantity)", () => {
 
     it("read a quantity: 1.5 m", () => {
         let expression = Parser.parseExpression(Parser.scan("1.5 m"));
@@ -13,11 +13,25 @@ describe("Parser", () => {
         assert.equal(expression.invoke(), "1.5 m");
     });
 
+    it("convert a unit: 0.5 m in cm", () => {
+        let expression = Parser.parseExpression(Parser.scan("0.5 m in cm"));
+
+        assert.equal(expression.describe(), "0.5 m in cm");
+        assert.equal(expression.invoke(), "50 cm");
+    });
+
     it("read chained quantities: 1 m 50 cm", () => {
         let expression = Parser.parseExpression(Parser.scan("1 m 50 cm"));
 
         assert.equal(expression.describe(), "1 m 50 cm");
         assert.equal(expression.invoke(), "1.5 m");
+    });
+
+    it("convert an inch: (1 in) in in", () => {
+        let expression = Parser.parseExpression(Parser.scan("(1 in) in in"));
+
+        assert.equal(expression.describe(), "(1 in) in in");
+        assert.equal(expression.invoke(), "1 in");
     });
 
     it("read chained quantities guessing the unit: 1 m 50", () => {
