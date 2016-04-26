@@ -20,6 +20,7 @@ enum Precedence {
     BitweiseAnd,
     Equality,
     Compare,
+    Unit,
     Shift,
     Addition,
     Multiplication,
@@ -66,9 +67,11 @@ class Parser {
     }
 
     /**
+     *  Expression = SingleExpression { ( Unit [ Expression ] ) | ( Operator [ Expression ] ) }. 
+     *  Expression = SingleExpression { Operator Expression } [ Unit [ Expression ] ]. 
      *  Expression = SingleExpression { "in" Unit } { Operator Expression }. 
      */
-    private parseExpression(context: Context, minimumPrecedence: Precedence = Precedence.Undefined): Expression {
+    private parseExpression(context: Context, minimumPrecedence: Precedence = Precedence.Undefined, leadingUnit?: Unit): Expression {
         let token = this.tokenizer.get();
 
         if (!this.isExpression(token)) {
@@ -80,78 +83,107 @@ class Parser {
 
         token = this.tokenizer.get();
 
-        // parse: { "in" Unit }
-        while (this.isIn(token)) {
-            this.tokenizer.nextExpressionToken();
-
-            expression = new Expressions.UnitConversionExpression(token.line, token.column, this.parseUnit(context), expression);
-
-            token = this.tokenizer.get();
-        }
-
-        // parse: { Operator Expression }
-        while (this.isOperator(token)) {
-            let symbol: string = token.s;
-            let operation: (left: any, right: any) => any;
-            let precedence: Precedence;
-            let leftAssociative: boolean = true;
-
-            switch (token.s) {
-                case "+":
-                    operation = Operations.add;
-                    precedence = Precedence.Addition;
+        while (true) {
+            if (this.isUnit(token)) {
+                if (Precedence.Unit <= minimumPrecedence) {
                     break;
+                }
 
-                case "-":
-                    operation = Operations.subtract;
-                    precedence = Precedence.Addition;
-                    break;
+                let unit = this.parseUnit(context);
 
-                case "*":
-                    operation = Operations.multiply;
-                    precedence = Precedence.Multiplication;
-                    break;
+                if (leadingUnit) {
+                    if (!unit.isCompatible(leadingUnit)) {
+                        throw new Error(Utils.formatError(token.line, token.column, `Unit "${unit.symbol}" not compatible with unit "${leadingUnit.symbol}"`));
+                    }
 
-                case "/":
-                    operation = Operations.divide;
-                    precedence = Precedence.Multiplication;
-                    break;
+                    if (!unit.isPreceding(leadingUnit)) {
+                        throw new Error(Utils.formatError(token.line, token.column, `Factor of unit "${unit.symbol}" not smaller than factor of leading unit "${leadingUnit.symbol}"`));
+                    }
+                }
 
-                case "^":
-                    operation = Operations.power;
-                    precedence = Precedence.Power;
-                    leftAssociative = false;
-                    break;
+                expression = new Expressions.UnitExpression(token.line, token.column, unit, expression);
+                token = this.tokenizer.get();
 
-                case "mod":
-                    operation = Operations.modulo;
-                    precedence = Precedence.Multiplication;
-                    break;
+                if ((!this.isOperator(token)) && (this.isExpression(token))) {
+                    expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseExpression(context, Precedence.Unit, unit));
+                }
 
-                default:
-                    throw new Error(Utils.formatError(token.line, token.column, `Unsupported operation: ${token.s}`));
+                token = this.tokenizer.get();
+
+                continue;
             }
 
-            if (precedence < minimumPrecedence) {
-                break;
+            if (this.isOperator(token)) {
+                let symbol: string = token.s;
+                let operation: (left: any, right: any) => any;
+                let precedence: Precedence;
+                let leftAssociative: boolean = true;
+
+                switch (token.s) {
+                    case "+":
+                        operation = Operations.add;
+                        precedence = Precedence.Addition;
+                        break;
+
+                    case "-":
+                        operation = Operations.subtract;
+                        precedence = Precedence.Addition;
+                        break;
+
+                    case "*":
+                        operation = Operations.multiply;
+                        precedence = Precedence.Multiplication;
+                        break;
+
+                    case "/":
+                        operation = Operations.divide;
+                        precedence = Precedence.Multiplication;
+                        break;
+
+                    case "^":
+                        operation = Operations.power;
+                        precedence = Precedence.Power;
+                        leftAssociative = false;
+                        break;
+
+                    case "mod":
+                        operation = Operations.modulo;
+                        precedence = Precedence.Multiplication;
+                        break;
+
+                    default:
+                        throw new Error(Utils.formatError(token.line, token.column, `Unsupported operation: ${token.s}`));
+                }
+
+                if (precedence < minimumPrecedence) {
+                    break;
+                }
+
+                if ((precedence == minimumPrecedence) && (leftAssociative)) {
+                    break;
+                }
+
+                this.tokenizer.nextExpressionToken();
+
+                expression = new Expressions.OperationExpression(token.line, token.column, symbol, operation, expression, this.parseExpression(context, precedence, null));
+
+                token = this.tokenizer.get();
+
+                continue;
             }
 
-            if ((precedence == minimumPrecedence) && (leftAssociative)) {
-                break;
+            if ((leadingUnit) && (leadingUnit.subUnit)) {
+                expression = new Expressions.UnitExpression(token.line, token.column, leadingUnit.subUnit, expression);
             }
 
-            this.tokenizer.nextExpressionToken();
-
-            expression = new Expressions.OperationExpression(token.line, token.column, symbol, operation, expression, this.parseExpression(context, precedence));
-
-            token = this.tokenizer.get();
+            break;
         }
 
         return expression;
     }
 
     /**
-     *  SingleExpression = ( ( UnaryOperator SingleExpression ) | ( "(" Expression ")" ) | Reference | Call | Constant ) [ Unit [ SingleExpression ] ]. 
+     *  SingleExpression = ( UnaryOperator SingleExpression ) | ( "(" Expression ")" ) | Reference | Call | Constant. 
      */
     private parseSingleExpression(context: Context, leadingUnit?: Unit): Expression {
         let token = this.tokenizer.get();
@@ -204,31 +236,31 @@ class Parser {
         }
 
         // parse: [ Unit [ SingleExpression ] ]
-        if ((this.isUnit(token)) && (token.s !== "in") || ((token.s === "in") && (!this.isUnit(this.tokenizer.lookAheadExpressionToken())))) {
-            let unit = this.parseUnit(context);
+        // if ((this.isUnit(token)) && (token.s !== "in") || ((token.s === "in") && (!this.isUnit(this.tokenizer.lookAheadExpressionToken())))) {
+        //     let unit = this.parseUnit(context);
 
-            if (leadingUnit) {
-                if (!unit.isCompatible(leadingUnit)) {
-                    throw new Error(Utils.formatError(token.line, token.column, `Unit "${unit.symbol}" not compatible with unit "${leadingUnit.symbol}"`));
-                }
+        //     if (leadingUnit) {
+        //         if (!unit.isCompatible(leadingUnit)) {
+        //             throw new Error(Utils.formatError(token.line, token.column, `Unit "${unit.symbol}" not compatible with unit "${leadingUnit.symbol}"`));
+        //         }
 
-                if (!unit.isPreceding(leadingUnit)) {
-                    throw new Error(Utils.formatError(token.line, token.column, `Factor of unit "${unit.symbol}" not smaller than factor of unit "${leadingUnit.symbol}"`));
-                }
-            }
+        //         if (!unit.isPreceding(leadingUnit)) {
+        //             throw new Error(Utils.formatError(token.line, token.column, `Factor of unit "${unit.symbol}" not smaller than factor of unit "${leadingUnit.symbol}"`));
+        //         }
+        //     }
 
-            expression = new Expressions.UnitExpression(token.line, token.column, unit, expression);
-            token = this.tokenizer.get();
+        //     expression = new Expressions.UnitExpression(token.line, token.column, unit, expression);
+        //     token = this.tokenizer.get();
 
-            if ((!this.isOperator(token)) && (this.isExpression(token))) {
-                expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseSingleExpression(context, unit));
-            }
+        //     if ((!this.isOperator(token)) && (this.isExpression(token))) {
+        //         expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseSingleExpression(context, unit));
+        //     }
 
-            token = this.tokenizer.get();
-        }
-        else if ((leadingUnit) && (leadingUnit.subUnit)) {
-            expression = new Expressions.UnitExpression(token.line, token.column, leadingUnit.subUnit, expression);
-        }
+        //     token = this.tokenizer.get();
+        // }
+        // else if ((leadingUnit) && (leadingUnit.subUnit)) {
+        //     expression = new Expressions.UnitExpression(token.line, token.column, leadingUnit.subUnit, expression);
+        // }
 
         return expression;
     }
