@@ -169,12 +169,13 @@ export class Quantity {
         throw new Error(`${this.describe()} mod ${other} not supported`);
     }
 
+
     describe(): string {
         if (this.unit.isUndefined()) {
-            return `${this.value}`;
+            return `${round(this.value, 8)}`;
         }
 
-        return `${this.value} ${this.unit.symbol}`;
+        return `${round(this.value, 8)} ${this.unit.symbol}`;
     }
 
 
@@ -182,4 +183,10 @@ export class Quantity {
         return this.describe();
     }
 
+}
+
+function round(n: number, digits: number): number {
+    var multiple = Math.pow(10, digits);
+
+    return Math.round(n * multiple) / multiple;
 }
