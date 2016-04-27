@@ -154,6 +154,27 @@ export const BUSHEL = aUnitOfVolume("bu", "Bushel", 35.23907 * 0.001);
 
 export const DRY_BARREL = aUnitOfVolume("dry_bbl", "Dry Barrel", 115.6271 * 0.001);
 
+// Time
+
+export const FEMTOSECOND = aUnitOfTime("fs", "Femtosecond", 0.000000000000001);
+
+export const PICOSECOND = aUnitOfTime("ps", "Picosecond", 0.000000000001);
+
+export const NANOSECOND = aUnitOfTime("ns", "Nanosecond", 0.000000001);
+
+export const MICROSECOND = aUnitOfTime("µs", "Microsecond", 0.000001);
+
+export const MILLISECOND = aUnitOfTime("ms", "Millissecond", 0.001);
+
+export const SECOND = aUnitOfTime("s", "Second", 1);
+
+export const MINUTE = aUnitOfTime("min", "Minute", 60);
+
+export const HOUR = aUnitOfTime("h", "Stunde", 60 * 60);
+
+export const DAY = aUnitOfTime("d", "Day", 60 * 60 * 24);
+
+export const YEAR = aUnitOfTime("a", "Year", 60 * 60 * 24 * 365.2425);
 
 // Angle
 
@@ -204,6 +225,10 @@ function aUnitOfLengthBasedVolume(symbol: string, name: string, baseUnit: Unit):
 
 function aUnitOfVolume(symbol: string, name: string, inLitresMultiplier: number, subUnit?: Unit): Unit {
     return register(new Unit(symbol, name, TypeOfMeasurement.Volume, inLitresMultiplier, subUnit));
+}
+
+function aUnitOfTime(symbol: string, name: string, inSecondsMultiplier: number, subUnit?: Unit): Unit {
+    return register(new Unit(symbol, name, TypeOfMeasurement.Time, inSecondsMultiplier, subUnit));
 }
 
 function aUnitOfAngle(symbol: string, name: string, inDegreesMultiplier: number, subUnit?: Unit): Unit {

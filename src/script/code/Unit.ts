@@ -9,6 +9,7 @@ export enum TypeOfMeasurement {
     Angle
 };
 
+
 export class Unit {
 
     constructor(private _symbol: string, private _name: string, private _typeOfMeasurement: TypeOfMeasurement,
