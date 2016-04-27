@@ -1,6 +1,9 @@
 import {Unit} from "./Unit";
 import * as Units from "./Units";
 
+/**
+ * Holds a quantity.
+ */
 export class Quantity {
 
     constructor(private _value: number, private _unit: Unit = Units.UNDEFINED) {
@@ -42,8 +45,12 @@ export class Quantity {
         if (other instanceof Quantity) {
             let otherValue = (other as Quantity).value;
 
-            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
+            if (other.unit.isUndefined()) {
                 return this.create(this.value + otherValue, this.unit);
+            }
+
+            if (this.unit.isUndefined()) {
+                return this.create(this.value + otherValue, other.unit);
             }
 
             if (this.unit.isCompatible(other.unit)) {
@@ -58,8 +65,12 @@ export class Quantity {
         if (other instanceof Quantity) {
             let otherValue = (other as Quantity).value;
 
-            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
+            if (other.unit.isUndefined()) {
                 return this.create(this.value - otherValue, this.unit);
+            }
+
+            if (this.unit.isUndefined()) {
+                return this.create(this.value - otherValue, other.unit);
             }
 
             if (this.unit.isCompatible(other.unit)) {
@@ -74,8 +85,12 @@ export class Quantity {
         if (other instanceof Quantity) {
             let otherValue = (other as Quantity).value;
 
-            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
+            if (other.unit.isUndefined()) {
                 return this.create(this.value * otherValue, this.unit);
+            }
+
+            if (this.unit.isUndefined()) {
+                return this.create(this.value * otherValue, other.unit);
             }
 
             if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
@@ -99,8 +114,12 @@ export class Quantity {
         if (other instanceof Quantity) {
             let otherValue = (other as Quantity).value;
 
-            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
+            if (other.unit.isUndefined()) {
                 return this.create(this.value / otherValue, this.unit);
+            }
+
+            if (this.unit.isUndefined()) {
+                return this.create(this.value / otherValue, other.unit);
             }
 
             if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
@@ -128,10 +147,6 @@ export class Quantity {
                 return this.create(Math.pow(this.value, otherValue), this.unit);
             }
 
-            if (this.unit.isUndefined()) {
-                return this.create(Math.pow(this.value, otherValue), other.unit);
-            }
-
             if (other.unit.isUndefined()) {
                 let dimension = this.unit.dimension * otherValue;
                 let unit = Units.find((unit) => (unit.baseUnit === this.unit.baseUnit) && (unit.dimension === dimension));
@@ -151,12 +166,12 @@ export class Quantity {
         if (other instanceof Quantity) {
             let otherValue = (other as Quantity).value;
 
-            if ((this.unit.isUndefined()) && (other.unit.isUndefined())) {
+            if (other.unit.isUndefined()) {
                 return this.create(this.value % otherValue, this.unit);
             }
 
-            if ((this.unit.isUndefined()) || (other.unit.isUndefined())) {
-                throw new Error(`${this.describe()} mod ${(other as Quantity).describe()} not supported`);
+            if (this.unit.isUndefined()) {
+                return this.create(this.value % otherValue, other.unit);
             }
 
             if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {

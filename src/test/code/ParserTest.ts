@@ -6,11 +6,11 @@ import {assert} from "chai";
 
 describe("Parser", () => {
 
-    it("convert an inch: (1 in) in in", () => {
-        let expression = Parser.parseExpression(Parser.scan("(1 in) in in"));
+    // it("read chained quantities: 1 m 50 cm", () => {
+    //     let expression = Parser.parseExpression(Parser.scan("1 m 50 cm"));
 
-        assert.equal(expression.describe(), "(1 in) in in");
-        assert.equal(expression.invoke(), "1 in");
-    });
+    //     assert.equal(expression.describe(), "1 m 50 cm");
+    //     assert.equal(expression.invoke(), "1.5 m");
+    // });
 
 });

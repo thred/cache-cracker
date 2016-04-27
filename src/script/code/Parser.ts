@@ -20,13 +20,12 @@ enum Precedence {
     BitweiseAnd,
     Equality,
     Compare,
-    Unit,
     Shift,
     Addition,
     Multiplication,
     Power,
     Unary,
-    Conversion,
+    Unit,
     Call,
     Access,
     Group
@@ -68,8 +67,6 @@ class Parser {
 
     /**
      *  Expression = SingleExpression { ( Unit [ Expression ] ) | ( Operator [ Expression ] ) }. 
-     *  Expression = SingleExpression { Operator Expression } [ Unit [ Expression ] ]. 
-     *  Expression = SingleExpression { "in" Unit } { Operator Expression }. 
      */
     private parseExpression(context: Context, minimumPrecedence: Precedence = Precedence.Undefined, leadingUnit?: Unit): Expression {
         let token = this.tokenizer.get();
@@ -85,7 +82,7 @@ class Parser {
 
         while (true) {
             if (this.isUnit(token)) {
-                if (Precedence.Unit <= minimumPrecedence) {
+                if (Precedence.Unit < minimumPrecedence) {
                     break;
                 }
 
@@ -101,14 +98,15 @@ class Parser {
                     }
                 }
 
+                leadingUnit = null;
                 expression = new Expressions.UnitExpression(token.line, token.column, unit, expression);
                 token = this.tokenizer.get();
 
                 if ((!this.isOperator(token)) && (this.isExpression(token))) {
                     expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseExpression(context, Precedence.Unit, unit));
-                }
 
-                token = this.tokenizer.get();
+                    token = this.tokenizer.get();
+                }
 
                 continue;
             }
@@ -374,7 +372,7 @@ class Parser {
     }
 
     /**
-     * Unit = unit.
+     * Unit = unit
      */
     private parseUnit(context: Context): Unit {
         let token = this.tokenizer.get();
