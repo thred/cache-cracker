@@ -28,10 +28,10 @@ describe("Parser (Quantity)", () => {
         assert.equal(expression.invoke().toString(), "1.5 m");
     });
 
-    it("convert a unit: 0.5 m cm", () => {
-        let expression = Parser.parseExpression(Parser.scan("0.5 m cm"));
+    it("convert a unit: (0.5 m) cm", () => {
+        let expression = Parser.parseExpression(Parser.scan("(0.5 m) cm"));
 
-        assert.equal(expression.describe(), "0.5 m cm");
+        assert.equal(expression.describe(), "(0.5 m) cm");
         assert.equal(expression.invoke().toString(), "50 cm");
     });
 
@@ -42,17 +42,17 @@ describe("Parser (Quantity)", () => {
         assert.equal(expression.invoke().toString(), "1.5 m");
     });
 
-    it("convert an inch (not): 1 in in in", () => {
-        let expression = Parser.parseExpression(Parser.scan("1 in in in"));
+    it("convert an inch (not): ((1 in) in) in", () => {
+        let expression = Parser.parseExpression(Parser.scan("((1 in) in) in"));
 
-        assert.equal(expression.describe(), "1 in in in");
+        assert.equal(expression.describe(), "((1 in) in) in");
         assert.equal(expression.invoke().toString(), "1 in");
     });
 
-    it("convert an inch: 1 in cm", () => {
-        let expression = Parser.parseExpression(Parser.scan("1 in cm"));
+    it("convert an inch: (1 in) cm", () => {
+        let expression = Parser.parseExpression(Parser.scan("(1 in) cm"));
 
-        assert.equal(expression.describe(), "1 in cm");
+        assert.equal(expression.describe(), "(1 in) cm");
         assert.equal(expression.invoke().toString(), "2.54 cm");
     });
 

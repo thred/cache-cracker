@@ -6,9 +6,9 @@ export enum TypeOfMeasurement {
     Volume,
     Mass,
     Temperature,
-    Angle
+    Angle,
+    Speed  
 };
-
 
 export class Unit {
 

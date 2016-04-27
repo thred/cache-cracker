@@ -372,20 +372,48 @@ class Parser {
     }
 
     /**
-     * Unit = unit
+     * Unit = unit { [ "/" ] unit }.
      */
     private parseUnit(context: Context): Unit {
-        let token = this.tokenizer.get();
+        let startToken = this.tokenizer.get();
 
-        if (!this.isUnit(token)) {
-            throw new Error(Utils.formatError(token.line, token.column, `Expected unit, but got: ${token.s}`));
+        if (!this.isUnit(startToken)) {
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected unit, but got: ${startToken.s}`));
         }
 
-        this.tokenizer.nextExpressionToken();
+        let unitString = startToken.s;
+        let token = this.tokenizer.nextExpressionToken();
 
-        return Units.get(token.s);
+        while (true) {
+            if ((this.isOperator(token, "/")) && (this.isUnit(this.tokenizer.lookAheadExpressionToken()))) {
+                token = this.tokenizer.nextExpressionToken();
+
+                unitString += "/" + token.s;
+
+                token = this.tokenizer.nextExpressionToken();
+
+                continue;
+            }
+
+            if (this.isUnit(token)) {
+                unitString += " " + token.s;
+
+                token = this.tokenizer.nextExpressionToken();
+
+                continue;
+            }
+
+            break;
+        }
+
+        let unit = Units.get(unitString);
+
+        if (!unit) {
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Unit not defined: ${unitString}`));
+        }
+
+        return unit;
     }
-
 
     isExpression(token: Token): boolean {
         return this.isSingleExpression(token);
