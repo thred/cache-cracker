@@ -17,25 +17,21 @@ export class Quantity {
         return this._unit;
     }
 
-    protected create(value: number, unit?: Unit): Quantity {
-        return new Quantity(value, unit);
-    }
-
     positive(): Quantity {
         return this;
     }
 
     negative(): Quantity {
-        return this.create(-this.value, this.unit);
+        return new Quantity(-this.value, this.unit);
     }
 
     convert(unit: Unit): Quantity {
         if ((this.unit.isUndefined()) || (unit.isUndefined())) {
-            return this.create(this.value, unit);
+            return new Quantity(this.value, unit);
         }
 
         if (this.unit.isCompatible(unit)) {
-            return this.create((this.value * this.unit.multiplier) / unit.multiplier, unit);
+            return new Quantity((this.value * this.unit.multiplier) / unit.multiplier, unit);
         }
 
         throw new Error(`Conversion of ${this.describe()} in ${unit.symbols[0]} not supported`);
@@ -46,15 +42,15 @@ export class Quantity {
             let otherValue = (other as Quantity).value;
 
             if (other.unit.isUndefined()) {
-                return this.create(this.value + otherValue, this.unit);
+                return new Quantity(this.value + otherValue, this.unit);
             }
 
             if (this.unit.isUndefined()) {
-                return this.create(this.value + otherValue, other.unit);
+                return new Quantity(this.value + otherValue, other.unit);
             }
 
             if (this.unit.isCompatible(other.unit)) {
-                return this.create((this.value * this.unit.multiplier + otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
+                return new Quantity((this.value * this.unit.multiplier + otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
             }
         }
 
@@ -66,15 +62,15 @@ export class Quantity {
             let otherValue = (other as Quantity).value;
 
             if (other.unit.isUndefined()) {
-                return this.create(this.value - otherValue, this.unit);
+                return new Quantity(this.value - otherValue, this.unit);
             }
 
             if (this.unit.isUndefined()) {
-                return this.create(this.value - otherValue, other.unit);
+                return new Quantity(this.value - otherValue, other.unit);
             }
 
             if (this.unit.isCompatible(other.unit)) {
-                return this.create((this.value * this.unit.multiplier - otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
+                return new Quantity((this.value * this.unit.multiplier - otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
             }
         }
 
@@ -86,17 +82,17 @@ export class Quantity {
             let otherValue = (other as Quantity).value;
 
             if (other.unit.isUndefined()) {
-                return this.create(this.value * otherValue, this.unit);
+                return new Quantity(this.value * otherValue, this.unit);
             }
 
             if (this.unit.isUndefined()) {
-                return this.create(this.value * otherValue, other.unit);
+                return new Quantity(this.value * otherValue, other.unit);
             }
 
             let unit = Units.findForMultiplicationOf(this.unit, other.unit);
 
             if (unit) {
-                return this.create((this.value * this.unit.multiplier * otherValue * other.unit.multiplier) / unit.multiplier, unit);
+                return new Quantity((this.value * this.unit.multiplier * otherValue * other.unit.multiplier) / unit.multiplier, unit);
             }
         }
 
@@ -108,17 +104,17 @@ export class Quantity {
             let otherValue = (other as Quantity).value;
 
             if (other.unit.isUndefined()) {
-                return this.create(this.value / otherValue, this.unit);
+                return new Quantity(this.value / otherValue, this.unit);
             }
 
             if (this.unit.isUndefined()) {
-                return this.create(this.value / otherValue, other.unit);
+                return new Quantity(this.value / otherValue, other.unit);
             }
 
             let unit = Units.findForMultiplicationOf(this.unit, other.unit);
 
             if (unit) {
-                return this.create(((this.value * this.unit.multiplier) / (otherValue * other.unit.multiplier)) / unit.multiplier, unit);
+                return new Quantity(((this.value * this.unit.multiplier) / (otherValue * other.unit.multiplier)) / unit.multiplier, unit);
             }
         }
 
@@ -133,7 +129,7 @@ export class Quantity {
                 let unit = Units.findForPowerOf(this.unit, otherValue);
 
                 if (unit) {
-                    return this.create(Math.pow(this.value, otherValue), unit);
+                    return new Quantity(Math.pow(this.value, otherValue), unit);
                 }
             }
         }
@@ -146,15 +142,15 @@ export class Quantity {
             let otherValue = (other as Quantity).value;
 
             if (other.unit.isUndefined()) {
-                return this.create(this.value % otherValue, this.unit);
+                return new Quantity(this.value % otherValue, this.unit);
             }
 
             if (this.unit.isUndefined()) {
-                return this.create(this.value % otherValue, other.unit);
+                return new Quantity(this.value % otherValue, other.unit);
             }
 
             if (this.unit.isCompatible(other.unit)) {
-                return this.create(((this.value * this.unit.multiplier) % (otherValue * other.unit.multiplier)) / this.unit.multiplier, this.unit);
+                return new Quantity(((this.value * this.unit.multiplier) % (otherValue * other.unit.multiplier)) / this.unit.multiplier, this.unit);
             }
         }
 
