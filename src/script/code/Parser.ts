@@ -90,11 +90,11 @@ class Parser {
 
                 if (leadingUnit) {
                     if (!unit.isCompatible(leadingUnit)) {
-                        throw new Error(Utils.formatError(token.line, token.column, `Unit "${unit.symbol}" not compatible with unit "${leadingUnit.symbol}"`));
+                        throw new Error(Utils.formatError(token.line, token.column, `Unit "${unit.symbols[0]}" not compatible with unit "${leadingUnit.symbols[0]}"`));
                     }
 
                     if (!unit.isPreceding(leadingUnit)) {
-                        throw new Error(Utils.formatError(token.line, token.column, `Factor of unit "${unit.symbol}" not smaller than factor of leading unit "${leadingUnit.symbol}"`));
+                        throw new Error(Utils.formatError(token.line, token.column, `Factor of unit "${unit.symbols[0]}" not smaller than factor of leading unit "${leadingUnit.symbols[0]}"`));
                     }
                 }
 
@@ -232,33 +232,6 @@ class Parser {
         else {
             throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for expression: ${token.s}`));
         }
-
-        // parse: [ Unit [ SingleExpression ] ]
-        // if ((this.isUnit(token)) && (token.s !== "in") || ((token.s === "in") && (!this.isUnit(this.tokenizer.lookAheadExpressionToken())))) {
-        //     let unit = this.parseUnit(context);
-
-        //     if (leadingUnit) {
-        //         if (!unit.isCompatible(leadingUnit)) {
-        //             throw new Error(Utils.formatError(token.line, token.column, `Unit "${unit.symbol}" not compatible with unit "${leadingUnit.symbol}"`));
-        //         }
-
-        //         if (!unit.isPreceding(leadingUnit)) {
-        //             throw new Error(Utils.formatError(token.line, token.column, `Factor of unit "${unit.symbol}" not smaller than factor of unit "${leadingUnit.symbol}"`));
-        //         }
-        //     }
-
-        //     expression = new Expressions.UnitExpression(token.line, token.column, unit, expression);
-        //     token = this.tokenizer.get();
-
-        //     if ((!this.isOperator(token)) && (this.isExpression(token))) {
-        //         expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseSingleExpression(context, unit));
-        //     }
-
-        //     token = this.tokenizer.get();
-        // }
-        // else if ((leadingUnit) && (leadingUnit.subUnit)) {
-        //     expression = new Expressions.UnitExpression(token.line, token.column, leadingUnit.subUnit, expression);
-        // }
 
         return expression;
     }

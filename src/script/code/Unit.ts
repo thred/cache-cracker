@@ -1,35 +1,40 @@
-export enum TypeOfMeasurement {
+export enum Type {
     Undefined,
-    Time,
-    Length,
-    Area,
-    Volume,
-    Mass,
-    Temperature,
     Angle,
-    Speed  
+    Area,
+    Length,
+    Mass,
+    Speed,
+    Temperature,
+    Time,
+    Volume,
 };
 
 export class Unit {
 
-    constructor(private _symbol: string, private _name: string, private _typeOfMeasurement: TypeOfMeasurement,
-        private _multiplier: number, private _subUnit?: Unit, private _baseUnit?: Unit, private _dimension: number = 1) {
+    private _symbols: string[];
 
-        if (!this._baseUnit) {
-            this._baseUnit = this;
-        }
+    constructor(symbols: string | string[], private _name: string, private _type: Type,
+        private _multiplier: number, private _subUnit?: Unit, private _baseUnits: Unit[] = [], private _dimension: number = 1) {
+
+        this._symbols = (typeof symbols === "string") ? [symbols] : symbols;
+        // this._baseUnits.unshift(this);
     }
 
-    get symbol(): string {
-        return this._symbol;
+    get symbols(): string[] {
+        return this._symbols;
     }
 
     get name(): string {
         return this._name;
     }
 
-    get typeOfMeasurement(): TypeOfMeasurement {
-        return this._typeOfMeasurement;
+    get type(): Type {
+        return this._type;
+    }
+
+    isOfType(type: Type): boolean {
+        return this.type === type;
     }
 
     get multiplier(): number {
@@ -40,8 +45,8 @@ export class Unit {
         return this._subUnit;
     }
 
-    get baseUnit(): Unit {
-        return this._baseUnit;
+    get baseUnits(): Unit[] {
+        return this._baseUnits;
     }
 
     get dimension(): number {
@@ -49,11 +54,11 @@ export class Unit {
     }
 
     isUndefined() {
-        return this.typeOfMeasurement === TypeOfMeasurement.Undefined;
+        return this.type === Type.Undefined;
     }
 
     isCompatible(unit: Unit) {
-        return (this.isUndefined()) || (unit.isUndefined()) || (this.typeOfMeasurement === unit.typeOfMeasurement);
+        return (this.isUndefined()) || (unit.isUndefined()) || (this.type === unit.type);
     }
 
     isPreceding(unit: Unit) {

@@ -38,7 +38,7 @@ export class Quantity {
             return this.create((this.value * this.unit.multiplier) / unit.multiplier, unit);
         }
 
-        throw new Error(`Conversion of ${this.describe()} in ${unit.symbol} not supported`);
+        throw new Error(`Conversion of ${this.describe()} in ${unit.symbols[0]} not supported`);
     }
 
     add(other: Quantity): Quantity {
@@ -93,18 +93,11 @@ export class Quantity {
                 return this.create(this.value * otherValue, other.unit);
             }
 
-            if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
-                throw new Error(`${this.describe()} * ${(other as Quantity).describe()} not supported`);
+            let unit = Units.findForMultiplicationOf(this.unit, other.unit);
+
+            if (unit) {
+                return this.create((this.value * this.unit.multiplier * otherValue * other.unit.multiplier) / unit.multiplier, unit);
             }
-
-            let dimension = this.unit.dimension + other.unit.dimension;
-            let unit = Units.find((unit) => (unit.baseUnit === this.unit.baseUnit) && (unit.dimension === dimension));
-
-            if (!unit) {
-                throw new Error(`Unit "${this.unit.symbol}" with dimension ${dimension} not defined`);
-            }
-
-            return this.create((this.value * this.unit.multiplier * otherValue * other.unit.multiplier) / unit.multiplier, unit);
         }
 
         throw new Error(`${this.describe()} * ${other} not supported`);
@@ -122,18 +115,11 @@ export class Quantity {
                 return this.create(this.value / otherValue, other.unit);
             }
 
-            if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
-                throw new Error(`${this.describe()} / ${(other as Quantity).describe()} not supported`);
+            let unit = Units.findForMultiplicationOf(this.unit, other.unit);
+
+            if (unit) {
+                return this.create(((this.value * this.unit.multiplier) / (otherValue * other.unit.multiplier)) / unit.multiplier, unit);
             }
-
-            let dimension = this.unit.dimension - other.unit.dimension;
-            let unit = Units.find((unit) => (unit.baseUnit === this.unit.baseUnit) && (unit.dimension === dimension));
-
-            if (!unit) {
-                throw new Error(`Unit "${this.unit.symbol}" with dimension ${dimension} not defined`);
-            }
-
-            return this.create(((this.value * this.unit.multiplier) / (otherValue * other.unit.multiplier)) / unit.multiplier, unit);
         }
 
         throw new Error(`${this.describe()} / ${other} not supported`);
@@ -143,19 +129,12 @@ export class Quantity {
         if (other instanceof Quantity) {
             let otherValue = (other as Quantity).value;
 
-            if ((this.unit.isUndefined()) && (other.unit.isUndefined())) {
-                return this.create(Math.pow(this.value, otherValue), this.unit);
-            }
-
             if (other.unit.isUndefined()) {
-                let dimension = this.unit.dimension * otherValue;
-                let unit = Units.find((unit) => (unit.baseUnit === this.unit.baseUnit) && (unit.dimension === dimension));
+                let unit = Units.findForPowerOf(this.unit, otherValue);
 
-                if (!unit) {
-                    throw new Error(`Unit "${this.unit.symbol}" with dimension ${dimension} not defined`);
+                if (unit) {
+                    return this.create(Math.pow(this.value, otherValue), unit);
                 }
-
-                return this.create(Math.pow(this.value, otherValue), unit);
             }
         }
 
@@ -174,11 +153,9 @@ export class Quantity {
                 return this.create(this.value % otherValue, other.unit);
             }
 
-            if (!this.unit.baseUnit.isCompatible(other.unit.baseUnit)) {
-                throw new Error(`${this.describe()} mod ${(other as Quantity).describe()} not supported`);
+            if (this.unit.isCompatible(other.unit)) {
+                return this.create(((this.value * this.unit.multiplier) % (otherValue * other.unit.multiplier)) / this.unit.multiplier, this.unit);
             }
-
-            return this.create(((this.value * this.unit.multiplier) % (otherValue * other.unit.multiplier)) / this.unit.multiplier, this.unit);
         }
 
         throw new Error(`${this.describe()} mod ${other} not supported`);
@@ -190,7 +167,7 @@ export class Quantity {
             return `${round(this.value, 8)}`;
         }
 
-        return `${round(this.value, 8)} ${this.unit.symbol}`;
+        return `${round(this.value, 8)} ${this.unit.symbols[0]}`;
     }
 
 

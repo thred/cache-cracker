@@ -32,23 +32,11 @@ export class UnitExpression extends Expression {
     constructor(line: number, column: number, private unit: Unit, private argument: Expression) {
         super(line, column,
             (scope) => Operations.convert(argument.invoke(scope), unit),
-            () => `${argument.describe()} ${unit.symbol}`);
+            () => `${argument.describe()} ${unit.symbols[0]}`);
     }
 
     toString(): string {
         return `Unit(${this.unit}, ${this.argument})`;
-    }
-}
-
-export class UnitConversionExpression extends Expression {
-    constructor(line: number, column: number, private unit: Unit, private argument: Expression) {
-        super(line, column,
-            (scope) => Operations.convert(argument.invoke(scope), unit),
-            () => `${argument.describe()} in ${unit.symbol}`);
-    }
-
-    toString(): string {
-        return `UnitConversion(${this.unit}, ${this.argument})`;
     }
 }
 
