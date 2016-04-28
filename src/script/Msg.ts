@@ -1,4 +1,4 @@
-let msgs: { [key: string]: { [language: string]: string | string[] } } =
+let msgs: { [key: string]: { [language: string]: string } } =
     {
         "Global.decimalSeparators": {
             "": ".",
