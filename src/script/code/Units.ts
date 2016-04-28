@@ -324,19 +324,19 @@ export function findForDivisionOf(leftUnit: Unit, rightUnit: Unit) {
     return null;
 }
 
-export function findForPowerOf(unit: Unit, exponent: number) {
-    if (unit.isUndefined()) {
+export function findForPowerOf(baseUnit: Unit, exponent: number) {
+    if (baseUnit.isUndefined()) {
         return UNDEFINED;
     }
 
-    switch (unit.type) {
+    switch (baseUnit.type) {
         case Type.Length:
             if (exponent === 2) {
-                return find((unit) => (unit.isOfType(Type.Area)) && (unit.baseUnits[0] === unit));
+                return find((unit) => (unit.isOfType(Type.Area)) && (unit.baseUnits[0] === baseUnit));
             }
 
             if (exponent === 3) {
-                return find((unit) => (unit.isOfType(Type.Volume)) && (unit.baseUnits[0] === unit));
+                return find((unit) => (unit.isOfType(Type.Volume)) && (unit.baseUnits[0] === baseUnit));
             }
 
             break;

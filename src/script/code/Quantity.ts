@@ -111,7 +111,7 @@ export class Quantity {
                 return new Quantity(this.value / otherValue, other.unit);
             }
 
-            let unit = Units.findForMultiplicationOf(this.unit, other.unit);
+            let unit = Units.findForDivisionOf(this.unit, other.unit);
 
             if (unit) {
                 return new Quantity(((this.value * this.unit.multiplier) / (otherValue * other.unit.multiplier)) / unit.multiplier, unit);
