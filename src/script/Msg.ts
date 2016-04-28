@@ -1,5 +1,19 @@
-let msgs: { [key: string]: { [language: string]: string } } =
+let msgs: { [key: string]: { [language: string]: string | string[] } } =
     {
+        "Global.decimalSeparators": {
+            "": ".",
+            "de": ","
+        },
+
+        "Global.digitGroupDelimiters": {
+            "": ".\u00a0 ",
+            "de": ",\u00a0 "
+        },
+
+
+
+
+
         "Sheet.defaultName": {
             "": "My Cache-Cracker Sheet",
             "de": "Mein Cache-Cracker Zettel"
@@ -63,14 +77,19 @@ function getLanguage() {
     return "en-US";
 }
 
-export function msg(key: string) {
+export function msg(languageOrKey: string, key?: string) {
+    if (!key) {
+        key = languageOrKey;
+        languageOrKey = getLanguage();
+    }
+
     let translations = msgs[key];
 
     if (!translations) {
         return key;
     }
 
-    let language = getLanguage();
+    let language = languageOrKey;
 
     while (true) {
         let msg = translations[language];

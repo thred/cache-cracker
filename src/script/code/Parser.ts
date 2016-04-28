@@ -9,6 +9,8 @@ import {Unit} from "./Unit";
 import * as Units from "./Units";
 import * as Utils from "./Utils";
 
+import {msg} from "./../Msg";
+
 enum Precedence {
     Undefined,
     Assignment,
@@ -32,6 +34,10 @@ enum Precedence {
 }
 
 export class Context {
+
+    getLanguage(): string {
+        return "en-US";
+    }
 
     isReferenceDefined(reference: string): boolean {
         return false;
@@ -271,6 +277,14 @@ class Parser {
 
         return new Expressions.QuantityExpression(token.line, token.column, new Quantity(token.n));
     }
+
+    // private parseQuantity(context: Context): Quantity {
+    //     let language = context.getLanguage();
+    //     let decimalSeparators = msg(language, "Global.decimalSeparators");
+    //     let digitGroupDelimiters = msg(language, "Global.digitGroupDelimiters");
+        
+        
+    // }
 
     /**
      * String = string-delimiter { string | reference | ( "${" Expression "}") } string-delimiter. 
