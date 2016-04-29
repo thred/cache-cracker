@@ -1,21 +1,17 @@
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 
+export function noop(value: any): any {
+    return value;
+}
+
 export function concat(values: any[]): string {
     return values.join("");
 }
 
-export function positive(value: any): any {
+export function negate(value: any): any {
     if (value instanceof Quantity) {
-        return (value as Quantity).positive();
-    }
-
-    throw new Error(`Sign not supported: +${value}`);
-}
-
-export function negative(value: any): any {
-    if (value instanceof Quantity) {
-        return (value as Quantity).negative();
+        return (value as Quantity).negate();
     }
 
     throw new Error(`Sign not supported: -${value}`);
@@ -29,6 +25,16 @@ export function convert(value: any, unit: any): any {
     }
 
     throw new Error(`Conversion of ${value} in ${unit.symbol} not supported`);
+}
+
+export function chain(left: any, right: any): any {
+    if (left instanceof Quantity) {
+        if (right instanceof Quantity) {
+            return (left as Quantity).chain(right);
+        }
+    }
+
+    throw new Error(`Chaining of ${left} and ${right} not supported`);
 }
 
 export function add(left: any, right: any): any {

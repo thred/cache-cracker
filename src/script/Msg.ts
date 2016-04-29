@@ -5,9 +5,9 @@ let msgs: { [key: string]: { [language: string]: string } } =
             "de": ","
         },
 
-        "Global.digitGroupDelimiters": {
-            "": ".\u00a0 ",
-            "de": ",\u00a0 "
+        "Global.digitSeparators": {
+            "": ",\u00a0 ",
+            "de": ".\u00a0 "
         },
 
 

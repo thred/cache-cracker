@@ -1,18 +1,17 @@
 import Scanner from "./Scanner";
 
-const WHITESPACE: string = " \n\r\t\b\f";
-const OPERATOR: string = "+-*/^"
-const BRACKETS: string = "(){}[]";
-const SYMBOL: string = ",:;";
-const RESERVED: string = "~?\\&|<>!=";
-const DELIMITER: string = WHITESPACE + OPERATOR + BRACKETS + SYMBOL + RESERVED;
-
-const PRECEDENCE: { [operator: string]: number } = {
-
-}
+const DEFAULT_WHITESPACES: string = " \n\r\t\b\f\u00a0";
+const DEFAULT_OPERATORS: string = "+-*/^"
+const DEFAULT_OPERATOR_KEYWORDS: string[] = ["mod"];
+const DEFAULT_BRACKETS: string = "(){}[]";
+const DEFAULT_DELIMITERS: string = "\"";
+const DEFAULT_SEPARATORS: string = ".,:;";
+const DEFAULT_DECIMAL_SEPARATORS: string = ".";
+const DEFAULT_DIGIT_SEPARATORS: string = " \u00a0";
+const DEFAULT_RESERVED_CHARACTERS: string = DEFAULT_WHITESPACES + DEFAULT_OPERATORS + DEFAULT_BRACKETS + DEFAULT_SEPARATORS + "~?\\&|<>!=$#";
 
 export interface Token {
-    type: "string-delimiter" | "string" | "number" | "operator" | "brackets" | "reference" | "comment" | "symbol" | "identifier" | "end";
+    type: "undefined" | "delimiter" | "string" | "number" | "operator" | "brackets" | "reference" | "comment" | "separator" | "identifier" | "end";
 
     offset: number;
 
@@ -27,10 +26,198 @@ export interface Token {
 
 export class Tokenizer {
 
+    private _whitespaces: string = DEFAULT_WHITESPACES;
+    private _operators: string = DEFAULT_OPERATORS;
+    private _operatorKeywords: string[] = DEFAULT_OPERATOR_KEYWORDS;
+    private _brackets: string = DEFAULT_BRACKETS;
+    private _delimiters: string = DEFAULT_DELIMITERS;
+    private _separators: string = DEFAULT_SEPARATORS;
+    private _decimalSeparators: string = DEFAULT_DECIMAL_SEPARATORS;
+    private _digitSeparators: string = DEFAULT_DIGIT_SEPARATORS;
+    private _reservedCharacters: string = DEFAULT_RESERVED_CHARACTERS;
+
     protected token: Token;
     protected nextToken: Token;
 
     constructor(protected scanner: Scanner) {
+    }
+
+    whitespaces(whitespaces: string): Tokenizer {
+        this._whitespaces = whitespaces;
+
+        return this;
+    }
+
+    isWhitespace(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        return this._whitespaces.indexOf(ch) >= 0;
+    }
+
+    operators(operators: string): Tokenizer {
+        this._operators = operators;
+
+        return this;
+    }
+
+    isOperator(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        return this._operators.indexOf(ch) >= 0;
+    }
+
+    operatorKeywords(operatorKeywords: string[]): Tokenizer {
+        this._operatorKeywords = operatorKeywords;
+
+        return this;
+    }
+
+    isOperatorKeyword(s: string): boolean {
+        return this._operatorKeywords.indexOf(s) >= 0;
+    }
+
+    brackets(brackets: string): Tokenizer {
+        this._brackets = brackets;
+
+        return this;
+    }
+
+    isBracket(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        return this._brackets.indexOf(ch) >= 0;
+    }
+
+    /**
+     * Defines a string with all delimiters, used e.g. for delimiting strings on both ends
+     * 
+     * @param delimiters a string with all delimiters
+     */
+    delimiters(delimiters: string): Tokenizer {
+        this._delimiters = delimiters;
+
+        return this;
+    }
+
+    isDelimiter(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        return this._delimiters.indexOf(ch) >= 0;
+    }
+
+    /**
+     * Defines a string with all separators, used e.g. for separating identifiers
+     * 
+     * @param separators a string with all separators
+     */
+    separators(separators: string): Tokenizer {
+        this._separators = separators;
+
+        return this;
+    }
+
+    isSeparator(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        return this._separators.indexOf(ch) >= 0;
+    }
+
+    /**
+     * Defines a string with all decimal separators
+     * 
+     * @param decimalSeparators a string with all decimalSeparators
+     */
+    decimalSeparators(decimalSeparators: string): Tokenizer {
+        this._decimalSeparators = decimalSeparators;
+
+        return this;
+    }
+
+    isDecimalSeparator(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        return this._decimalSeparators.indexOf(ch) >= 0;
+    }
+
+    /**
+     * Defines a string with all digit separators
+     * 
+     * @param digitSeparators a string with all digitSeparators
+     */
+    digitSeparators(digitSeparators: string): Tokenizer {
+        this._digitSeparators = digitSeparators;
+
+        return this;
+    }
+
+    isDigitSeparator(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        return this._digitSeparators.indexOf(ch) >= 0;
+    }
+
+    isLetter(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        let code = ch.charCodeAt(0)
+
+        if ((code >= 65) && (code <= 90)) {
+            return true;
+        }
+
+        if ((code >= 97) && (code <= 122)) {
+            return true;
+        }
+
+        return "ÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð".indexOf(ch) >= 0;
+    }
+
+    isDigit(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        let code = ch.charCodeAt(0)
+
+        return ((code >= 48) && (code <= 57));
+    }
+
+    isNumber(ch: string): boolean {
+        return (this.isDigit(ch)) || (this.isDecimalSeparator(ch));
+    }
+
+    isIdentifier(ch: string): boolean {
+        return !this.isReservedCharacter(ch);
+    }
+
+    reservedCharacters(reservedCharacters: string): Tokenizer {
+        this._reservedCharacters = reservedCharacters;
+
+        return this;
+    }
+
+    isReservedCharacter(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        return this._reservedCharacters.indexOf(ch) >= 0;
     }
 
     get(): Token {
@@ -83,7 +270,7 @@ export class Tokenizer {
     }
 
     protected readExpressionToken(): Token {
-        let ch = this.scanner.get(isNonWhitespace)
+        let ch = this.scanner.get((ch) => !this.isWhitespace(ch))
         let token: Token = {
             type: null,
             offset: this.scanner.offset,
@@ -95,15 +282,6 @@ export class Tokenizer {
 
         if (!ch) {
             token.type = "end";
-
-            return token;
-        }
-
-        if (ch === "\"") {
-            token.type = "string-delimiter";
-            token.s = ch;
-
-            this.scanner.next();
 
             return token;
         }
@@ -120,11 +298,20 @@ export class Tokenizer {
             return this.readLineCommentToken(this.scanner.next(), token);
         }
 
-        if ((isNumber(ch)) || (ch === '.')) {
+        if (this.isDelimiter(ch)) {
+            token.type = "delimiter";
+            token.s = ch;
+
+            this.scanner.next();
+
+            return token;
+        }
+
+        if (this.isNumber(ch)) {
             return this.readNumberToken(ch, token);
         }
 
-        if (OPERATOR.indexOf(ch) >= 0) {
+        if (this.isOperator(ch)) {
             token.type = "operator";
             token.s = ch;
 
@@ -133,7 +320,7 @@ export class Tokenizer {
             return token;
         }
 
-        if (BRACKETS.indexOf(ch) >= 0) {
+        if (this.isBracket(ch)) {
             token.type = "brackets";
             token.s = ch;
 
@@ -142,8 +329,8 @@ export class Tokenizer {
             return token;
         }
 
-        if (SYMBOL.indexOf(ch) >= 0) {
-            token.type = "symbol";
+        if (this.isSeparator(ch)) {
+            token.type = "separator";
             token.s = ch;
 
             this.scanner.next();
@@ -151,7 +338,16 @@ export class Tokenizer {
             return token;
         }
 
-        return this.readIdentifierToken(ch, token);
+        if (this.isIdentifier(ch)) {
+            return this.readIdentifierToken(ch, token);
+        }
+
+        token.type = "undefined";
+        token.s = ch;
+
+        this.scanner.next();
+
+        return token;
     }
 
     private readBlockCommentToken(ch: string, token: Token): Token {
@@ -202,27 +398,46 @@ export class Tokenizer {
     private readNumberToken(ch: string, token: Token): Token {
         token.type = "number";
 
-        let decimalSeparator = false;
+        let foundDecimalSeparator = false;
+        let digitSeparatorCount = 0;
 
         while (true) {
             if (!ch) {
                 break;
             }
 
-            if (ch === ".") {
-                if (decimalSeparator) {
+            if (this.isDigitSeparator(ch)) {
+                if (digitSeparatorCount > 0) {
                     break;
                 }
 
-                decimalSeparator = true;
-                token.s += ch;
+                digitSeparatorCount++;
 
                 ch = this.scanner.next();
 
                 continue;
             }
 
-            if (!isNumber(ch)) {
+            digitSeparatorCount = 0;
+
+            if (this.isDecimalSeparator(ch)) {
+                if (foundDecimalSeparator) {
+                    break;
+                }
+
+                if (!this.isDigit(this.scanner.lookAhead())) {
+                    break;
+                }
+
+                foundDecimalSeparator = true;
+                token.s += ".";
+
+                ch = this.scanner.next();
+
+                continue;
+            }
+
+            if (!this.isDigit(ch)) {
                 break;
             }
 
@@ -248,16 +463,12 @@ export class Tokenizer {
 
             ch = this.scanner.next();
 
-            if (DELIMITER.indexOf(ch) >= 0) {
-                break;
-            }
-
-            if (isNumber(ch)) {
+            if (!this.isIdentifier(ch)) {
                 break;
             }
         }
 
-        if ((token.s === "mod") || (token.s === "in")) {
+        if (this.isOperatorKeyword(token.s)) {
             token.type = "operator";
         }
 
@@ -283,7 +494,7 @@ export class Tokenizer {
         }
 
         if (ch === "\"") {
-            token.type = "string-delimiter";
+            token.type = "delimiter";
 
             this.scanner.next();
 
@@ -396,24 +607,3 @@ export class Tokenizer {
     }
 }
 
-export function isNumber(ch: string): boolean {
-    if (!ch) {
-        return false;
-    }
-
-    let code = ch.charCodeAt(0)
-
-    return ((code >= 48) && (code <= 57));
-}
-
-export function isNonWhitespace(ch: string): boolean {
-    return !isWhitespace(ch);
-}
-
-export function isWhitespace(ch: string): boolean {
-    if (!ch) {
-        return false;
-    }
-
-    return WHITESPACE.indexOf(ch) >= 0;
-}

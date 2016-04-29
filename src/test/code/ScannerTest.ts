@@ -39,22 +39,23 @@ describe("Scanner", () => {
         assert.equal(scanner.column, 4);
     });
 
-    it("scan \"\   a\\nb\\nc   \", ignoring the whitespaces", () => {
+    it("scan \"\   a\\nb\\tc\\n   \", ignoring the whitespaces", () => {
+        let whitespaces = " \n\t";
         let scanner = new Scanner("   a\nb\tc\n   ");
 
-        assert.equal(scanner.next(Tokenizer.isNonWhitespace), "a");
+        assert.equal(scanner.next((ch) => whitespaces.indexOf(ch) < 0), "a");
         assert.equal(scanner.line, 1);
         assert.equal(scanner.column, 4);
         
-        assert.equal(scanner.next(Tokenizer.isNonWhitespace), "b");
+        assert.equal(scanner.next((ch) => whitespaces.indexOf(ch) < 0), "b");
         assert.equal(scanner.line, 2);
         assert.equal(scanner.column, 1);
         
-        assert.equal(scanner.next(Tokenizer.isNonWhitespace), "c");
+        assert.equal(scanner.next((ch) => whitespaces.indexOf(ch) < 0), "c");
         assert.equal(scanner.line, 2);
         assert.equal(scanner.column, 3);
         
-        assert.equal(scanner.next(Tokenizer.isNonWhitespace), null);
+        assert.equal(scanner.next((ch) => whitespaces.indexOf(ch) < 0), null);
         assert.equal(scanner.line, 3);
         assert.equal(scanner.column, 4);
     });

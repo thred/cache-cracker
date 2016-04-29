@@ -35,8 +35,16 @@ enum Precedence {
 
 export class Context {
 
-    getLanguage(): string {
-        return "en-US";
+    _language: string = "en-US";
+
+    withLanguage(language: string): Context {
+        this._language = language;
+
+        return this;
+    }
+
+    getLanguage() {
+        return this._language;
     }
 
     isReferenceDefined(reference: string): boolean {
@@ -53,8 +61,8 @@ export function scan(source: string): Scanner {
     return new Scanner(source);
 }
 
-export function parseExpression(scanner: Scanner): Expression {
-    return new Parser(scanner).expression(new Context());
+export function parseExpression(scanner: Scanner, context?: Context): Expression {
+    return new Parser(scanner).expression(context || new Context());
 }
 
 class Parser {
@@ -66,6 +74,12 @@ class Parser {
     }
 
     expression(context: Context): Expression {
+        this.tokenizer.nextExpressionToken();
+
+        return this.parseExpression(context);
+    }
+
+    quantity(context: Context): Expression {
         this.tokenizer.nextExpressionToken();
 
         return this.parseExpression(context);
@@ -205,10 +219,10 @@ class Parser {
             let argument = this.parseSingleExpression(context);
 
             if (token.s === "+") {
-                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.positive, argument);
+                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.noop, argument);
             }
             else if (token.s === "-") {
-                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.negative, argument);
+                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.negate, argument);
             }
             else {
                 throw new Error(Utils.formatError(token.line, token.column, `Unsupported unary operation: ${token.s}`));
@@ -263,6 +277,7 @@ class Parser {
         throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for constant: ${token.s}`));
     }
 
+
     /**
      * Value = number.
      */
@@ -277,14 +292,6 @@ class Parser {
 
         return new Expressions.QuantityExpression(token.line, token.column, new Quantity(token.n));
     }
-
-    // private parseQuantity(context: Context): Quantity {
-    //     let language = context.getLanguage();
-    //     let decimalSeparators = msg(language, "Global.decimalSeparators");
-    //     let digitGroupDelimiters = msg(language, "Global.digitGroupDelimiters");
-        
-        
-    // }
 
     /**
      * String = string-delimiter { string | reference | ( "${" Expression "}") } string-delimiter. 
@@ -304,7 +311,7 @@ class Parser {
                 throw new Error(Utils.formatError(startToken.line, startToken.column, "Unclosed string"));
             }
 
-            if (token.type === "string-delimiter") {
+            if (token.type === "delimiter") {
                 token = this.tokenizer.nextExpressionToken();
 
                 break;
@@ -402,6 +409,16 @@ class Parser {
         return unit;
     }
 
+    // parseQuantity(context: Context): Quantity {
+    //     let language = context.getLanguage();
+    //     let decimalSeparators = msg(language, "Global.decimalSeparators");
+    //     let digitSeparators = msg(language, "Global.digitSeparators");
+
+
+    // }
+
+
+
     isExpression(token: Token): boolean {
         return this.isSingleExpression(token);
     }
@@ -418,17 +435,9 @@ class Parser {
         return (token.s === "+") || (token.s === "-");
     }
 
-    isIn(token: Token) {
-        return this.isOperator(token, "in");
-    }
-
     isOperator(token: Token, operator?: string): boolean {
         if (token.type === "operator") {
             return (!operator) || (operator === token.s);
-        }
-
-        if (token.type === "identifier") {
-
         }
 
         return false;
@@ -463,11 +472,11 @@ class Parser {
     }
 
     isString(token: Token): boolean {
-        return token.type === "string-delimiter";
+        return token.type === "delimiter";
     }
 
     isUnit(token: Token): boolean {
-        if ((token.type !== "identifier") && (token.type !== "string-delimiter") && (token.type !== "symbol") && (token.type !== "operator")) {
+        if ((token.type !== "identifier") && (token.type !== "delimiter") && (token.type !== "separator") && (token.type !== "operator")) {
             return false;
         }
 
@@ -478,8 +487,8 @@ class Parser {
         return token.type === "end";
     }
 
-    isSymbol(token: Token, symbol: string): boolean {
-        return (token.type === "symbol") && (token.s === symbol);
+    isSeparator(token: Token, separator: string): boolean {
+        return (token.type === "separator") && (token.s === separator);
     }
 
 }
