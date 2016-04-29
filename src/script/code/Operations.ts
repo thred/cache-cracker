@@ -12,11 +12,7 @@ export function concat(values: any[]): string {
 }
 
 export function negate(value: any): any {
-    if (value instanceof Quantity) {
-        return (value as Quantity).negate();
-    }
-
-    throw new Error(`Sign not supported: -${value}`);
+    return asQuantity(value).negate();
 }
 
 export function convert(value: any, unit: any): any {
