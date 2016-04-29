@@ -2,14 +2,12 @@ import * as QuantityParser from "./QuantityParser";
 import {Unit} from "./Unit";
 import * as Units from "./Units";
 
-
-
 /**
  * Holds a quantity.
  */
 export class Quantity {
 
-    static of(language: string, s: string): Quantity {
+    static parse(language: string, s: string): Quantity {
         return QuantityParser.parseQuantity(language, s);
     }
 

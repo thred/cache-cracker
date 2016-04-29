@@ -7,7 +7,7 @@ import * as Utils from "./Utils";
 
 export function testQuantityParser(language: string, s: string, result: string): void {
     it(`${s} (${language}) => ${result}`, () => {
-        let quantity = Quantity.of(language, s);
+        let quantity = Quantity.parse(language, s);
         
         assert.equal(quantity.toString(), result);
     });

@@ -1,3 +1,5 @@
+import * as Code from "./Code";
+
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 
@@ -28,71 +30,57 @@ export function convert(value: any, unit: any): any {
 }
 
 export function chain(left: any, right: any): any {
-    if (left instanceof Quantity) {
-        if (right instanceof Quantity) {
-            return (left as Quantity).chain(right);
-        }
-    }
-
-    throw new Error(`Chaining of ${left} and ${right} not supported`);
+    return asQuantity(left).chain(asQuantity(right));
 }
 
 export function add(left: any, right: any): any {
-    if (left instanceof Quantity) {
-        if (right instanceof Quantity) {
-            return (left as Quantity).add(right);
-        }
-    }
-
-    throw new Error(`${left} + ${right} not supported`);
+    return asQuantity(left).add(asQuantity(right));
 }
 
 export function subtract(left: any, right: any): any {
-    if (left instanceof Quantity) {
-        if (right instanceof Quantity) {
-            return (left as Quantity).subtract(right);
-        }
-    }
-
-    throw new Error(`${left} - ${right} not supported`);
+    return asQuantity(left).subtract(asQuantity(right));
 }
 
 export function multiply(left: any, right: any): any {
-    if (left instanceof Quantity) {
-        if (right instanceof Quantity) {
-            return (left as Quantity).multiply(right);
-        }
-    }
-
-    throw new Error(`${left} * ${right} not supported`);
+    return asQuantity(left).multiply(asQuantity(right));
 }
 
 export function divide(left: any, right: any): any {
-    if (left instanceof Quantity) {
-        if (right instanceof Quantity) {
-            return (left as Quantity).divide(right);
-        }
-    }
-
-    throw new Error(`${left} / ${right} not supported`);
+    return asQuantity(left).divide(asQuantity(right));
 }
 
 export function power(left: any, right: any): any {
-    if (left instanceof Quantity) {
-        if (right instanceof Quantity) {
-            return (left as Quantity).power(right);
-        }
-    }
-
-    throw new Error(`${left} ^ ${right} not supported`);
+    return asQuantity(left).power(asQuantity(right));
 }
 
 export function modulo(left: any, right: any): any {
-    if (left instanceof Quantity) {
-        if (right instanceof Quantity) {
-            return (left as Quantity).modulo(right);
-        }
+    return asQuantity(left).modulo(asQuantity(right));
+}
+
+export function asQuantity(value: any): Quantity {
+    if (value instanceof Quantity) {
+        return value as Quantity;
     }
 
-    throw new Error(`${left} mod ${right} not supported`);
+    if (typeof value === "number") {
+        return new Quantity(value);
+    }
+
+    if (typeof value === "string") {
+        return Quantity.parse(Code.language, value as string);
+    }
+
+    throw new Error(`Convert to Quantity failed: ${value}`);
 }
+
+// export function asUnit(value: any): Unit {
+//     if (value instanceof Unit) {
+//         return value as Unit;
+//     }
+    
+//     if (typeof value === "string") {
+//         return Unit.parse(Code.language, value as string);
+//     }
+    
+//     throw new Error(`Convert to Unit failed: ${value}`);
+// }
