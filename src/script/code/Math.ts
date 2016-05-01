@@ -1,3 +1,4 @@
+import {Quantity} from "./Quantity";
 import {Scope} from "./Scope";
 
 import * as Code from "./Code";
@@ -121,5 +122,29 @@ export function populate(scope: Scope) {
             return scope.requiredAsQuantity("left").modulo(scope.requiredAsQuantity("right"));
         }
     });
+
+    scope.register({
+        name: "abs",
+        description: "Compute the absolute value.",
+        parameters: {
+            value: "The value"
+        },
+        fn: (scope: Scope) => {
+            return scope.requiredAsQuantity("value").abs();
+        }
+    });
+
+    scope.register({
+        name: "round",
+        description: "Round the value to the specified number of digits.",
+        parameters: {
+            value: "The value",
+            digits: "The number of digits (optional, default value is 0)"
+        },
+        fn: (scope: Scope) => {
+            return scope.requiredAsQuantity("value").round(scope.getAsQuantity("digits", Quantity.ZERO));
+        }
+    });
+
 }
 

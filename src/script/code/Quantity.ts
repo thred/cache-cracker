@@ -7,6 +7,8 @@ import * as Units from "./Units";
  */
 export class Quantity {
 
+    static ZERO: Quantity = new Quantity(0);
+
     static parse(language: string, s: string): Quantity {
         return QuantityParser.parseQuantity(language, s);
     }
@@ -171,6 +173,20 @@ export class Quantity {
         throw new Error(`${this.describe()} mod ${other} not supported`);
     }
 
+    abs(): Quantity {
+        return new Quantity(Math.abs(this._value), this._unit);
+    }
+
+    round(digits?: Quantity): Quantity {
+        if ((digits) && (!digits.unit.isUndefined)) {
+            throw new Error(`${digits.describe()} as value for rounding digits not supported`);
+        }
+        else if (!digits) {
+            digits = Quantity.ZERO;
+        }
+
+        return new Quantity(round(this._value, digits.value), this._unit);
+    }
 
     describe(): string {
         if (this.unit.isUndefined()) {

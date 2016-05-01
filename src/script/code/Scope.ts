@@ -19,7 +19,7 @@ export class Scope {
         return this._parent;
     }
 
-    get(name: string): any {
+    get(name: string, defaultValue?: any): any {
         let value = this.values[name];
 
         if (value === undefined) {
@@ -29,6 +29,14 @@ export class Scope {
                 scope = scope.parent;
                 value = scope.values[name];
             }
+        }
+
+        if ((value === undefined) || (value === null)) {
+            if (defaultValue !== undefined) {
+                return defaultValue;
+            }
+
+            return value;
         }
 
         if (value instanceof Expression) {
@@ -52,8 +60,8 @@ export class Scope {
         throw new Error(`Conversion to Definition failed: ${value}`);
     }
 
-    getAsString(name: string): string {
-        let value = this.get(name);
+    getAsString(name: string, defaultValue?: string): string {
+        let value = this.get(name, defaultValue);
 
         if (typeof value === "string") {
             return value;
@@ -62,8 +70,8 @@ export class Scope {
         return this.derive({ value: value }).invoke("asString");
     }
 
-    getAsQuantity(name: string): Quantity {
-        let value = this.get(name);
+    getAsQuantity(name: string, defaultValue?: Quantity): Quantity {
+        let value = this.get(name, defaultValue);
 
         if (value instanceof Quantity) {
             return value;
@@ -72,8 +80,8 @@ export class Scope {
         return this.derive({ value: value }).invoke("asQuantity");
     }
 
-    getAsUnit(name: string): Unit {
-        let value = this.get(name);
+    getAsUnit(name: string, defaultValue?: Unit): Unit {
+        let value = this.get(name, defaultValue);
 
         if (value instanceof Unit) {
             return value;
