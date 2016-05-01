@@ -95,11 +95,11 @@ class Parser {
                 }
 
                 leadingUnit = null;
-                expression = new Expressions.UnitExpression(token.line, token.column, unit, expression);
+                expression = new Expressions.InUnit(token.line, token.column, expression, unit);
                 token = this.tokenizer.get();
 
                 if ((!this.isOperator(token)) && (this.isExpression(token))) {
-                    expression = new Expressions.ChainExpression(token.line, token.column, expression, this.parseExpression(Precedence.Unit, unit));
+                    expression = new Expressions.Chain(token.line, token.column, expression, this.parseExpression(Precedence.Unit, unit));
 
                     token = this.tokenizer.get();
                 }
@@ -159,7 +159,7 @@ class Parser {
 
                 this.tokenizer.nextExpressionToken();
 
-                expression = new Expressions.OperationExpression(token.line, token.column, name, symbol, expression, this.parseExpression(precedence, null));
+                expression = new Expressions.BinaryOperation(token.line, token.column, name, symbol, expression, this.parseExpression(precedence, null));
 
                 token = this.tokenizer.get();
 
@@ -167,7 +167,7 @@ class Parser {
             }
 
             if ((leadingUnit) && (leadingUnit.subUnit)) {
-                expression = new Expressions.UnitExpression(token.line, token.column, leadingUnit.subUnit, expression);
+                expression = new Expressions.InUnit(token.line, token.column, expression, leadingUnit.subUnit);
             }
 
             break;
@@ -195,10 +195,10 @@ class Parser {
             let arg = this.parseSingleExpression();
 
             if (token.s === "+") {
-                expression = new Expressions.UnaryExpression(token.line, token.column, "positiveOf", token.s, arg);
+                expression = new Expressions.UnaryOperation(token.line, token.column, "positiveOf", token.s, arg);
             }
             else if (token.s === "-") {
-                expression = new Expressions.UnaryExpression(token.line, token.column, "negativeOf", token.s, arg);
+                expression = new Expressions.UnaryOperation(token.line, token.column, "negativeOf", token.s, arg);
             }
             else {
                 throw new Error(Utils.formatError(token.line, token.column, `Unsupported unary operation: ${token.s}`));
@@ -210,7 +210,7 @@ class Parser {
         else if (this.isOpeningParentheses(token)) {
             this.tokenizer.nextExpressionToken();
 
-            expression = new Expressions.ParenthesesExpression(token.line, token.column, this.parseExpression());
+            expression = new Expressions.Parentheses(token.line, token.column, this.parseExpression());
 
             let closingToken = this.tokenizer.get();
 
@@ -257,7 +257,7 @@ class Parser {
     /**
      * Value = number.
      */
-    private parseNumber(): Expressions.QuantityExpression {
+    private parseNumber(): Expressions.Constant {
         let token = this.tokenizer.get();
 
         if (!this.isNumber(token)) {
@@ -266,7 +266,7 @@ class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Expressions.QuantityExpression(token.line, token.column, new Quantity(token.n));
+        return new Expressions.Constant(token.line, token.column, new Quantity(token.n));
     }
 
     /**

@@ -3,6 +3,19 @@ import {Scope} from "./Scope";
 import * as Code from "./Code";
 
 export function populate(scope: Scope) {
+
+    scope.register({
+        name: "convert",
+        description: "Converts the value to a quantity with the specified unit",
+        parameters: {
+            value: "The value",
+            unit: "The unit"
+        },
+        fn: (scope: Scope) => {
+            return scope.requiredAsQuantity("value").convert(scope.requiredAsUnit("unit"));
+        }
+    });
+
     scope.register({
         name: "positiveOf",
         description: "Keeps the value",

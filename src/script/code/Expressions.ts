@@ -5,7 +5,7 @@ import {Scope} from "./Scope";
 import {Unit} from "./Unit";
 import * as Utils from "./Utils";
 
-export class InvokeExpression extends Expression {
+export class DefinitionInvocation extends Expression {
     constructor(line: number, column: number, private name: string, private args?: { [name: string]: Expression }) {
         super(line, column,
             (scope) => {
@@ -19,12 +19,12 @@ export class InvokeExpression extends Expression {
     }
 
     toString(): string {
-        return `Invoke(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe(this.args)})`;
+        return `DefinitionInvocation(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe(this.args)})`;
     }
 }
 
 
-export class OperationExpression extends Expression {
+export class BinaryOperation extends Expression {
     constructor(line: number, column: number, private name: string, private symbol: string, private leftArg: Expression, private rightArg: Expression) {
         super(line, column,
             (scope) => {
@@ -38,69 +38,75 @@ export class OperationExpression extends Expression {
     }
 
     toString(): string {
-        return `Operation(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe({
+        return `BinaryOperation(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe({
             left: this.leftArg,
             right: this.rightArg
         })})`;
     }
 }
 
-export class UnaryExpression extends Expression {
-    constructor(line: number, column: number, private name: string, private symbol: string, private arg: Expression) {
+export class UnaryOperation extends Expression {
+    constructor(line: number, column: number, private name: string, private symbol: string, private valueArg: Expression) {
         super(line, column,
             (scope) => {
                 let definition = scope.requiredAsDefinition(name);
 
                 return definition.fn(scope.derive({
-                    value: arg,
+                    value: valueArg,
                 }));
-            }, () => `${symbol}${arg.describe()}`);
+            }, () => `${symbol}${valueArg.describe()}`);
     }
 
     toString(): string {
-        return `Unary(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe({
-            value: this.arg
+        return `UnaryOperation(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe({
+            value: this.valueArg
         })})`;
     }
 }
 
-export class UnitExpression extends Expression {
-    constructor(line: number, column: number, private unit: Unit, private argument: Expression) {
+export class InUnit extends Expression {
+    constructor(line: number, column: number, private valueArg: Expression, private unit: Unit) {
         super(line, column,
-            (scope) => Operations.convert(argument.invoke(scope), unit),
-            () => `${argument.describe()} ${unit.symbols[0]}`);
+            (scope) => {
+                let definition = scope.requiredAsDefinition(name);
+
+                return definition.fn(scope.derive({
+                    value: valueArg,
+                    unit: unit
+                }));
+            }, () => `${valueArg.describe()} ${unit.symbols[0]}`);
     }
 
     toString(): string {
-        return `Unit(${this.unit}, ${this.argument})`;
+        return `InUnit(${this.valueArg}, ${this.unit.symbols[0]})`;
     }
 }
 
-export class ParenthesesExpression extends Expression {
-    constructor(line: number, column: number, private argument: Expression) {
+export class Parentheses extends Expression {
+    constructor(line: number, column: number, private arg: Expression) {
         super(line, column,
-            (scope) => argument.invoke(scope),
-            () => `(${argument.describe()})`);
+            (scope) => arg.invoke(scope),
+            () => `(${arg.describe()})`);
     }
 
     toString(): string {
-        return `Parentheses(${this.argument})`;
+        return `Parentheses(${this.arg})`;
     }
 }
 
-export class QuantityExpression extends Expression {
-    constructor(line: number, column: number, private quantity: Quantity) {
+export class Constant extends Expression {
+    constructor(line: number, column: number, private value: any) {
         super(line, column,
-            (scope) => quantity,
-            () => `${quantity}`);
+            (scope) => value,
+            () => `${value}`);
     }
 
     toString(): string {
-        return `Quantity(${this.quantity})`;
+        return `Constant(${this.value})`;
     }
 }
 
-export class ChainExpression extends Expression {
+export class Chain extends Expression {
     constructor(line: number, column: number, private leftArg: Expression, private rightArg: Expression) {
         super(line, column, (scope) => {
             let definition = scope.requiredAsDefinition("chain");
