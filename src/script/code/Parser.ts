@@ -272,7 +272,7 @@ class Parser {
     /**
      * String = string-delimiter { string | reference | ( "${" Expression "}") } string-delimiter. 
      */
-    private parseString(): Expressions.StringExpression {
+    private parseString(): Expressions.StringChain {
         let startToken = this.tokenizer.get();
 
         if (!this.isString(startToken)) {
@@ -294,7 +294,7 @@ class Parser {
             }
 
             if (token.type === "string") {
-                expressions.push(new Expressions.SegmentExpression(token.line, token.column, token.s));
+                expressions.push(new Expressions.StringStringSegment(token.line, token.column, token.s));
 
                 token = this.tokenizer.nextStringToken();
 
@@ -304,7 +304,7 @@ class Parser {
             if (token.type === "reference") {
                 let name = token.s;
 
-                expressions.push(new Expressions.ReferenceExpression(token.line, token.column, name))
+                expressions.push(new Expressions.StringReferenceSegment(token.line, token.column, name))
 
                 token = this.tokenizer.nextStringToken();
 
@@ -318,7 +318,7 @@ class Parser {
                     throw new Error(Utils.formatError(token.line, token.column, "Unclosed block"));
                 }
 
-                expressions.push(new Expressions.PlaceholderExpression(token.line, token.column, this.parseExpression()));
+                expressions.push(new Expressions.StringPlaceholderSegment(token.line, token.column, this.parseExpression()));
 
                 token = this.tokenizer.get();
 
@@ -334,7 +334,7 @@ class Parser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected string content, but got: ${token.s}`));
         }
 
-        return new Expressions.StringExpression(startToken.line, startToken.column, expressions);
+        return new Expressions.StringChain(startToken.line, startToken.column, expressions);
     }
 
     /**

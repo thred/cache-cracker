@@ -126,7 +126,7 @@ export class Chain extends Expression {
     }
 }
 
-export class StringExpression extends Expression {
+export class StringChain extends Expression {
     constructor(line: number, column: number, private segments: Expression[]) {
         super(line, column,
             (scope) => {
@@ -136,23 +136,23 @@ export class StringExpression extends Expression {
     }
 
     toString(): string {
-        return `String(${this.segments})`;
+        return `StringChain(${this.segments})`;
     }
 }
 
-export class ReferenceExpression extends Expression {
+export class StringReferenceSegment extends Expression {
     constructor(line: number, column: number, private name: string) {
         super(line, column,
             (scope) => scope.get(name),
-            () => `$${name} `);
+            () => `$${name}`);
     }
 
     toString(): string {
-        return `Reference(${this.name})`;
+        return `StringReferenceSegment(${this.name})`;
     }
 }
 
-export class PlaceholderExpression extends Expression {
+export class StringPlaceholderSegment extends Expression {
     constructor(line: number, column: number, private argument: Expression) {
         super(line, column,
             (scope) => argument.invoke(scope),
@@ -160,11 +160,11 @@ export class PlaceholderExpression extends Expression {
     }
 
     toString(): string {
-        return `Placeholder(${this.argument})`;
+        return `StringPlaceholderSegment(${this.argument})`;
     }
 }
 
-export class SegmentExpression extends Expression {
+export class StringStringSegment extends Expression {
     constructor(line: number, column: number, private s: string) {
         super(line, column,
             (scope) => s,
@@ -172,7 +172,7 @@ export class SegmentExpression extends Expression {
     }
 
     toString(): string {
-        return `Segment(${this.s})`;
+        return `StringStringSegment(${this.s})`;
     }
 }
 
