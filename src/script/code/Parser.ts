@@ -5,7 +5,6 @@ import {Token, Tokenizer} from "./Tokenizer";
 import {Unit} from "./Unit";
 
 import * as Expressions from "./Expressions";
-import * as Operations from "./Operations";
 import * as Units from "./Units";
 import * as Utils from "./Utils";
 

@@ -7,24 +7,23 @@ import * as Utils from "./Utils";
 
 export function populate(scope: Scope) {
     scope.register({
-        name: "asString",
-        description: "Converts the value to a string.",
+        name: "asArray",
+        description: "Convers the value to an array.",
         parameters: {
             value: "The value"
         },
         fn: (scope: Scope) => {
             let value = scope.required("value");
 
-            if (!(value)) {
+            if (value === null) {
                 return null;
             }
 
-            if (typeof value === "string") {
+            if (Array.isArray(value)) {
                 return value;
             }
 
-
-            return value.toString();
+            throw new Error(`Conversion to Array failed: ${value}`);
         }
     });
 
@@ -54,6 +53,28 @@ export function populate(scope: Scope) {
             }
 
             throw new Error(`Conversion to Quantity failed: ${value}`);
+        }
+    });
+
+    scope.register({
+        name: "asString",
+        description: "Converts the value to a string.",
+        parameters: {
+            value: "The value"
+        },
+        fn: (scope: Scope) => {
+            let value = scope.required("value");
+
+            if (!(value)) {
+                return null;
+            }
+
+            if (typeof value === "string") {
+                return value;
+            }
+
+
+            return value.toString();
         }
     });
 

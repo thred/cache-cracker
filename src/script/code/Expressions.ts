@@ -3,7 +3,6 @@ import {Quantity} from "./Quantity";
 import {Scope} from "./Scope";
 import {Unit} from "./Unit";
 
-import * as Operations from "./Operations";
 import * as Utils from "./Utils";
 
 export class DefinitionInvocation extends Expression {
@@ -131,7 +130,11 @@ export class StringChain extends Expression {
     constructor(line: number, column: number, private segments: Expression[]) {
         super(line, column,
             (scope) => {
-                return Operations.concat(segments.map((segment) => segment.invoke(scope)));
+                let definition = scope.requiredAsDefinition("concat");
+
+                return definition.fn(scope.derive({
+                    values: segments
+                }));
             },
             () => `"${segments.map((segment) => segment.describe()).join("")}"`);
     }

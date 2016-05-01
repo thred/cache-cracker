@@ -61,14 +61,29 @@ export class Scope {
         throw new Error(`Conversion to Definition failed: ${value}`);
     }
 
-    getAsString(name: string, defaultValue?: string): string {
-        let value = this.get(name, defaultValue);
+    getAsArray(name: string): any[] {
+        let values = this.get(name);
 
-        if (typeof value === "string") {
-            return value;
+        if (!Array.isArray(values)) {
+            values = this.derive({ value: values }).invoke("asArray");
         }
 
-        return this.derive({ value: value }).invoke("asString");
+        if ((values === undefined) || (values === null)) {
+            return values;
+        }
+
+        let results: any[] = [];
+
+        for (let item of values) {
+            if (item instanceof Expression) {
+                results.push((item as Expression).invoke(this));
+            }
+            else {
+                results.push(item);
+            }
+        }
+
+        return results;
     }
 
     getAsQuantity(name: string, defaultValue?: Quantity): Quantity {
@@ -79,6 +94,16 @@ export class Scope {
         }
 
         return this.derive({ value: value }).invoke("asQuantity");
+    }
+
+    getAsString(name: string, defaultValue?: string): string {
+        let value = this.get(name, defaultValue);
+
+        if (typeof value === "string") {
+            return value;
+        }
+
+        return this.derive({ value: value }).invoke("asString");
     }
 
     getAsUnit(name: string, defaultValue?: Unit): Unit {
@@ -110,12 +135,16 @@ export class Scope {
         return Utils.required(this.getAsDefinition(name), `Required definition is not defined: ${name}`);
     }
 
-    requiredAsString(name: string): string {
-        return Utils.required(this.getAsString(name), `Required string is not defined: ${name}`);
+    requiredAsArray(name: string): any[] {
+        return Utils.required(this.getAsArray(name), `Required array is not defined: ${name}`);
     }
 
     requiredAsQuantity(name: string): Quantity {
         return Utils.required(this.getAsQuantity(name), `Required quantity is not defined: ${name}`);
+    }
+
+    requiredAsString(name: string): string {
+        return Utils.required(this.getAsString(name), `Required string is not defined: ${name}`);
     }
 
     requiredAsUnit(name: string): Unit {
