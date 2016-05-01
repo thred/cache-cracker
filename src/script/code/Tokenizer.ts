@@ -1,4 +1,4 @@
-import Scanner from "./Scanner";
+import {Scanner} from "./Scanner";
 
 const DEFAULT_WHITESPACES: string = " \n\r\t\b\f\u00a0";
 const DEFAULT_OPERATORS: string = "+-*/^"

@@ -1,7 +1,8 @@
-import * as Code from "./Code";
 import {Quantity} from "./Quantity";
 import {Scope} from "./Scope";
 import {Unit} from "./Unit";
+
+import * as Code from "./Code";
 import * as Utils from "./Utils";
 
 export function populate(scope: Scope) {

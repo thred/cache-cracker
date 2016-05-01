@@ -1,8 +1,10 @@
 /// <reference path="../imports.d.ts" />
 
+import {Scope} from "../../script/code/Scope";
+
 import * as Code from "../../script/code/Code";
 import * as Parser from "../../script/code/Parser";
-import {Scope} from "../../script/code/Scope";
+
 import * as ReadLine from "readline";
 
 const con = ReadLine.createInterface({

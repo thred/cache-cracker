@@ -1,7 +1,7 @@
-import * as Code from "./Code";
-
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
+
+import * as Code from "./Code";
 
 export function noop(value: any): any {
     return value;

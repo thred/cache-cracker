@@ -2,6 +2,7 @@ import {Definition} from "./Definition";
 import {Expression} from "./Expression";
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
+
 import * as Utils from "./Utils";
 
 export class Scope {

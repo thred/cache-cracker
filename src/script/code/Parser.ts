@@ -1,11 +1,11 @@
 import {Expression} from "./Expression";
-
-import Scanner from "./Scanner";
+import {Quantity} from "./Quantity";
+import {Scanner} from "./Scanner";
 import {Token, Tokenizer} from "./Tokenizer";
+import {Unit} from "./Unit";
+
 import * as Expressions from "./Expressions";
 import * as Operations from "./Operations";
-import {Quantity} from "./Quantity";
-import {Unit} from "./Unit";
 import * as Units from "./Units";
 import * as Utils from "./Utils";
 

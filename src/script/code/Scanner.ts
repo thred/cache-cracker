@@ -1,4 +1,4 @@
-export default class Scanner {
+export class Scanner {
     private pos: number;
     private _offset: number;
     private _line: number;

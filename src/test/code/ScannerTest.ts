@@ -1,7 +1,9 @@
 /// <reference path="../imports.d.ts" />
 
-import Scanner from "../../script/code/Scanner";
+import {Scanner} from "../../script/code/Scanner";
+
 import * as Tokenizer from "../../script/code/Tokenizer";
+
 import {assert} from "chai";
 
 describe("Scanner", () => {

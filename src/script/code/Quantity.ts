@@ -1,5 +1,6 @@
-import * as QuantityParser from "./QuantityParser";
 import {Unit} from "./Unit";
+
+import * as QuantityParser from "./QuantityParser";
 import * as Units from "./Units";
 
 /**

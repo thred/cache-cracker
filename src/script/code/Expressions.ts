@@ -1,8 +1,9 @@
 import {Expression} from "./Expression";
-import * as Operations from "./Operations";
 import {Quantity} from "./Quantity";
 import {Scope} from "./Scope";
 import {Unit} from "./Unit";
+
+import * as Operations from "./Operations";
 import * as Utils from "./Utils";
 
 export class DefinitionInvocation extends Expression {

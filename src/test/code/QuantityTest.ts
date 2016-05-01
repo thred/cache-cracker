@@ -2,13 +2,14 @@
 
 import {Quantity} from "../../script/code/Quantity";
 
-import {assert} from "chai";
 import * as Utils from "./Utils";
+
+import {assert} from "chai";
 
 export function testQuantityParser(language: string, s: string, result: string): void {
     it(`${s} (${language}) => ${result}`, () => {
         let quantity = Quantity.parse(language, s);
-        
+
         assert.equal(quantity.toString(), result);
     });
 }

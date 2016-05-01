@@ -1,9 +1,11 @@
 /// <reference path="../imports.d.ts" />
 
-import * as Code from "../../script/code/Code";
-import Scanner from "../../script/code/Scanner";
-import * as Parser from "../../script/code/Parser";
+import {Scanner} from "../../script/code/Scanner";
 import {Scope} from "../../script/code/Scope";
+
+import * as Code from "../../script/code/Code";
+import * as Parser from "../../script/code/Parser";
+
 import {assert} from "chai";
 
 export function testExpression(code: string, result: string): Scope {
@@ -25,4 +27,5 @@ export function testExpression(code: string, result: string): Scope {
 
     return scope;
 }
+
 
