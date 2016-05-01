@@ -19,7 +19,7 @@ describe("Parser (Quantity of Length)", () => {
     //         Parser.parseExpression(Parser.scan("1 m 50 km"));
     //         assert.fail();
     //     }
-    //     catch (e) {
+    //     catch (error) {
     //     }
     // });
 

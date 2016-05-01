@@ -1,4 +1,3 @@
-import {Context} from "./Context";
 import {Scope} from "./Scope";
 
 export interface Definition {
@@ -9,8 +8,6 @@ export interface Definition {
 
     parameters?: { [name: string]: string }
 
-    resultDescription?: string;
-
-    operation: (scope: Scope, params: { [name: string]: any }) => any;
+    fn: (scope: Scope) => any;
 
 }

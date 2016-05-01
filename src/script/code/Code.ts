@@ -1,24 +1,13 @@
-import {Context} from "./Context";
 import {Definition} from "./Definition";
+import * as Conversions from "./Conversions";
+import * as Math from "./Math";
 import {Scope} from "./Scope";
 
-export let context: Context = new Context();
-export let scope: Scope = new Scope();
+export let global: Scope = new Scope(null);
 
-scope.set("language", "en-US");
+global.set("language", "en-US");
 
-context.register({
-    name: "language",
-    description: `Holds the default language, that is used e.g. for parsing Quantities from strings
-        or formatting them.
-
-        The format follows the definition of the IETF language tags: e.g. 'en-US'.`,
-    resultDescription: "Returns the default language",
-    operation: (scope) => scope.get(name)
-});
-
-export function registerDefinition(definition: Definition): Definition {
-    return context.register(definition);
-}
+Conversions.populate(global);
+Math.populate(global);
 
 

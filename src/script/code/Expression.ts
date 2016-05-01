@@ -15,7 +15,7 @@ export class Expression {
         return this._column;
     }
 
-    invoke(scope?: Scope): any {
+    invoke(scope: Scope): any {
         try {
             return this._invoke(scope);
         }

@@ -1,30 +1,66 @@
-import {Scope, Expression} from "./Expression";
+import {Expression} from "./Expression";
 import * as Operations from "./Operations";
 import {Quantity} from "./Quantity";
+import {Scope} from "./Scope";
 import {Unit} from "./Unit";
 import * as Utils from "./Utils";
 
-export class OperationExpression extends Expression {
-    constructor(line: number, column: number, private symbol: string, private operation: (left: any, right: any) => any, private leftArgument: Expression, private rightArgument: Expression) {
+export class InvokeExpression extends Expression {
+    constructor(line: number, column: number, private name: string, private args?: { [name: string]: Expression }) {
         super(line, column,
-            (scope) => operation(leftArgument.invoke(scope), rightArgument.invoke(scope)),
-            () => `${leftArgument.describe()} ${symbol} ${rightArgument.describe()}`);
+            (scope) => {
+                let definition = scope.requiredAsDefinition(name);
+
+                return definition.fn(scope.derive(args));
+            }, () => {
+                return `${name}(${Utils.describe(args)})`;
+            }
+        );
     }
 
     toString(): string {
-        return `Operation(${this.leftArgument} ${this.symbol} ${this.rightArgument})`;
+        return `Invoke(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe(this.args)})`;
     }
 }
 
-export class UnaryOperationExpression extends Expression {
-    constructor(line: number, column: number, private symbol: string, private operation: (value: any) => any, private argument: Expression) {
+
+export class OperationExpression extends Expression {
+    constructor(line: number, column: number, private name: string, private symbol: string, private leftArg: Expression, private rightArg: Expression) {
         super(line, column,
-            (scope) => operation(argument.invoke(scope)),
-            () => `${symbol}${argument.describe()}`);
+            (scope) => {
+                let definition = scope.requiredAsDefinition(name);
+
+                return definition.fn(scope.derive({
+                    left: leftArg,
+                    right: rightArg
+                }));
+            }, () => `${leftArg.describe()} ${symbol} ${rightArg.describe()}`);
     }
 
     toString(): string {
-        return `UnaryOperation(${this.symbol}, ${this.argument})`;
+        return `Operation(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe({
+            left: this.leftArg,
+            right: this.rightArg
+        })})`;
+    }
+}
+
+export class UnaryExpression extends Expression {
+    constructor(line: number, column: number, private name: string, private symbol: string, private arg: Expression) {
+        super(line, column,
+            (scope) => {
+                let definition = scope.requiredAsDefinition(name);
+
+                return definition.fn(scope.derive({
+                    value: arg,
+                }));
+            }, () => `${symbol}${arg.describe()}`);
+    }
+
+    toString(): string {
+        return `Unary(${Utils.toEscapedStringWithQuotes(this.name)}, ${Utils.describe({
+            value: this.arg
+        })})`;
     }
 }
 
@@ -48,7 +84,7 @@ export class ParenthesesExpression extends Expression {
     }
 
     toString(): string {
-        return `ParenthesesExpression(${this.argument})`;
+        return `Parentheses(${this.argument})`;
     }
 }
 
@@ -64,15 +100,23 @@ export class QuantityExpression extends Expression {
     }
 }
 
-export class ChainedQuantitiesExpression extends Expression {
-    constructor(line: number, column: number, private left: Expression, private right: Expression) {
-        super(line, column,
-            (scope) => Operations.chain(left.invoke(scope), right.invoke(scope)),
-            () => `${left.describe()} ${right.describe()}`);
+export class ChainExpression extends Expression {
+    constructor(line: number, column: number, private leftArg: Expression, private rightArg: Expression) {
+        super(line, column, (scope) => {
+            let definition = scope.requiredAsDefinition("chain");
+
+            return definition.fn(scope.derive({
+                left: leftArg,
+                right: rightArg
+            }));
+        }, () => `${leftArg.describe()} ${rightArg.describe()}`);
     }
 
     toString(): string {
-        return `ChainQuantities(${this.left}, ${this.right})`;
+        return `Chain(${Utils.describe({
+            left: this.leftArg,
+            right: this.rightArg
+        })})`;
     }
 }
 
@@ -94,7 +138,7 @@ export class ReferenceExpression extends Expression {
     constructor(line: number, column: number, private name: string) {
         super(line, column,
             (scope) => scope.get(name),
-            () => `$${name}`);
+            () => `$${name} `);
     }
 
     toString(): string {

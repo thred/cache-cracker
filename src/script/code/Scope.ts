@@ -1,56 +1,130 @@
+import {Definition} from "./Definition";
+import {Expression} from "./Expression";
+import {Quantity} from "./Quantity";
+import {Unit} from "./Unit";
 import * as Utils from "./Utils";
 
 export class Scope {
 
-    private values: { [name: string]: any };
+    private values: { [name: string]: any } = {};
 
-    constructor(private _parent?: Scope) {
+    constructor(private _parent: Scope) {
     }
 
-    derive(): Scope {
-        return new Scope(this);    
+    derive(params?: { [name: string]: any }): Scope {
+        return new Scope(this).put(params);
     }
-    
-    get parent() {
+
+    get parent(): Scope {
         return this._parent;
     }
 
     get(name: string): any {
         let value = this.values[name];
 
-        if (value !== undefined) {
+        if (value === undefined) {
+            let scope: Scope = this;
+
+            while ((value === undefined) && (scope.parent)) {
+                scope = scope.parent;
+                value = scope.values[name];
+            }
+        }
+
+        if (value instanceof Expression) {
+            value = (value as Expression).invoke(this);
+        }
+
+        return value;
+    }
+
+    getAsDefinition(name: string): Definition {
+        let value = this.get(name);
+
+        if ((value === undefined) || (value === null)) {
             return value;
         }
 
-        return (this.parent) ? this.parent.get(name) : undefined;
+        if (value["fn"]) {
+            return value;
+        }
+
+        throw new Error(`Conversion to Definition failed: ${value}`);
     }
-    
+
     getAsString(name: string): string {
-        
+        let value = this.get(name);
+
+        if (typeof value === "string") {
+            return value;
+        }
+
+        return this.derive({ value: value }).invoke("asString");
     }
 
     getAsQuantity(name: string): Quantity {
+        let value = this.get(name);
 
+        if (value instanceof Quantity) {
+            return value;
+        }
+
+        return this.derive({ value: value }).invoke("asQuantity");
     }
 
-    invoke(name: string): void {
-        
-    }    
-    
+    getAsUnit(name: string): Unit {
+        let value = this.get(name);
+
+        if (value instanceof Unit) {
+            return value;
+        }
+
+        return this.derive({ value: value }).invoke("asUnit");
+    }
+
+    invoke(name: string): any {
+        let definition = this.requiredAsDefinition(name);
+
+        try {
+            return definition.fn(this)
+        }
+        catch (error) {
+            throw new Error(`Invocation failed: ${name}. Error caused by: ${error}`);
+        }
+    }
+
     required(name: string): any {
-        return Utils.required(this.get(name), `Required value is undefined: ${name}`);
-    }
-    
-    requiredAsString(name: string): any {
-        return Utils.required(this.getAsString(name), `Required value is undefined: ${name}`);
+        return Utils.required(this.get(name), `Required value is not defined: ${name}`);
     }
 
-    put(values: { [name: string]: any }): Scope {
-        for (var name in values) {
-            this.set(name, values[name]);
+    requiredAsDefinition(name: string): Definition {
+        return Utils.required(this.getAsDefinition(name), `Required definition is not defined: ${name}`);
+    }
+
+    requiredAsString(name: string): string {
+        return Utils.required(this.getAsString(name), `Required string is not defined: ${name}`);
+    }
+
+    requiredAsQuantity(name: string): Quantity {
+        return Utils.required(this.getAsQuantity(name), `Required quantity is not defined: ${name}`);
+    }
+
+    requiredAsUnit(name: string): Unit {
+        return Utils.required(this.getAsUnit(name), `Required unit is not defined: ${name}`);
+    }
+
+    put(values?: { [name: string]: any }): Scope {
+        if (values) {
+            for (var name in values) {
+                this.set(name, values[name]);
+            }
         }
 
         return this;
+    }
+
+    register(definition: Definition): Scope {
+        return this.set(definition.name, definition);
     }
 
     set(name: string, value: any): Scope {

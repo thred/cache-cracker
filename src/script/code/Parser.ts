@@ -1,9 +1,7 @@
-import {Context} from "./Context";
 import {Expression} from "./Expression";
 
 import Scanner from "./Scanner";
 import {Token, Tokenizer} from "./Tokenizer";
-import {Program, Line} from "./Program";
 import * as Expressions from "./Expressions";
 import * as Operations from "./Operations";
 import {Quantity} from "./Quantity";
@@ -39,8 +37,8 @@ export function scan(source: string): Scanner {
     return new Scanner(source);
 }
 
-export function parseExpression(scanner: Scanner, context?: Context): Expression {
-    return new Parser(scanner).expression(context || new Context());
+export function parseExpression(scanner: Scanner): Expression {
+    return new Parser(scanner).expression();
 }
 
 class Parser {
@@ -51,22 +49,22 @@ class Parser {
         this.tokenizer = new Tokenizer(scanner);
     }
 
-    expression(context: Context): Expression {
+    expression(): Expression {
         this.tokenizer.nextExpressionToken();
 
-        return this.parseExpression(context);
+        return this.parseExpression();
     }
 
-    quantity(context: Context): Expression {
+    quantity(): Expression {
         this.tokenizer.nextExpressionToken();
 
-        return this.parseExpression(context);
+        return this.parseExpression();
     }
 
     /**
      *  Expression = SingleExpression { ( Unit [ Expression ] ) | ( Operator [ Expression ] ) }. 
      */
-    private parseExpression(context: Context, minimumPrecedence: Precedence = Precedence.Undefined, leadingUnit?: Unit): Expression {
+    private parseExpression(minimumPrecedence: Precedence = Precedence.Undefined, leadingUnit?: Unit): Expression {
         let token = this.tokenizer.get();
 
         if (!this.isExpression(token)) {
@@ -74,7 +72,7 @@ class Parser {
         }
 
         // parse: SingleExpression
-        let expression = this.parseSingleExpression(context);
+        let expression = this.parseSingleExpression();
 
         token = this.tokenizer.get();
 
@@ -84,7 +82,7 @@ class Parser {
                     break;
                 }
 
-                let unit = this.parseUnit(context);
+                let unit = this.parseUnit();
 
                 if (leadingUnit) {
                     if (!unit.isCompatible(leadingUnit)) {
@@ -101,7 +99,7 @@ class Parser {
                 token = this.tokenizer.get();
 
                 if ((!this.isOperator(token)) && (this.isExpression(token))) {
-                    expression = new Expressions.ChainedQuantitiesExpression(token.line, token.column, expression, this.parseExpression(context, Precedence.Unit, unit));
+                    expression = new Expressions.ChainExpression(token.line, token.column, expression, this.parseExpression(Precedence.Unit, unit));
 
                     token = this.tokenizer.get();
                 }
@@ -110,40 +108,40 @@ class Parser {
             }
 
             if (this.isOperator(token)) {
+                let name: string;
                 let symbol: string = token.s;
-                let operation: (left: any, right: any) => any;
                 let precedence: Precedence;
                 let leftAssociative: boolean = true;
 
                 switch (token.s) {
                     case "+":
-                        operation = Operations.add;
+                        name = "add";
                         precedence = Precedence.Addition;
                         break;
 
                     case "-":
-                        operation = Operations.subtract;
+                        name = "subtract";
                         precedence = Precedence.Addition;
                         break;
 
                     case "*":
-                        operation = Operations.multiply;
+                        name = "multiply";
                         precedence = Precedence.Multiplication;
                         break;
 
                     case "/":
-                        operation = Operations.divide;
+                        name = "divide";
                         precedence = Precedence.Multiplication;
                         break;
 
                     case "^":
-                        operation = Operations.power;
+                        name = "power";
                         precedence = Precedence.Power;
                         leftAssociative = false;
                         break;
 
                     case "mod":
-                        operation = Operations.modulo;
+                        name = "modulo";
                         precedence = Precedence.Multiplication;
                         break;
 
@@ -161,7 +159,7 @@ class Parser {
 
                 this.tokenizer.nextExpressionToken();
 
-                expression = new Expressions.OperationExpression(token.line, token.column, symbol, operation, expression, this.parseExpression(context, precedence, null));
+                expression = new Expressions.OperationExpression(token.line, token.column, name, symbol, expression, this.parseExpression(precedence, null));
 
                 token = this.tokenizer.get();
 
@@ -181,7 +179,7 @@ class Parser {
     /**
      *  SingleExpression = ( UnaryOperator SingleExpression ) | ( "(" Expression ")" ) | Reference | Call | Constant. 
      */
-    private parseSingleExpression(context: Context, leadingUnit?: Unit): Expression {
+    private parseSingleExpression(leadingUnit?: Unit): Expression {
         let token = this.tokenizer.get();
 
         if (!this.isSingleExpression(token)) {
@@ -194,13 +192,13 @@ class Parser {
         if (this.isUnaryOperator(token)) {
             this.tokenizer.nextExpressionToken();
 
-            let argument = this.parseSingleExpression(context);
+            let arg = this.parseSingleExpression();
 
             if (token.s === "+") {
-                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.noop, argument);
+                expression = new Expressions.UnaryExpression(token.line, token.column, "positiveOf", token.s, arg);
             }
             else if (token.s === "-") {
-                expression = new Expressions.UnaryOperationExpression(token.line, token.column, token.s, Operations.negate, argument);
+                expression = new Expressions.UnaryExpression(token.line, token.column, "negativeOf", token.s, arg);
             }
             else {
                 throw new Error(Utils.formatError(token.line, token.column, `Unsupported unary operation: ${token.s}`));
@@ -212,7 +210,7 @@ class Parser {
         else if (this.isOpeningParentheses(token)) {
             this.tokenizer.nextExpressionToken();
 
-            expression = new Expressions.ParenthesesExpression(token.line, token.column, this.parseExpression(context));
+            expression = new Expressions.ParenthesesExpression(token.line, token.column, this.parseExpression());
 
             let closingToken = this.tokenizer.get();
 
@@ -224,7 +222,7 @@ class Parser {
         }
         // parse: Constant
         else if (this.isConstant(token)) {
-            expression = this.parseConstant(context);
+            expression = this.parseConstant();
             token = this.tokenizer.get();
         }
         else {
@@ -237,7 +235,7 @@ class Parser {
     /**
      * Constant = Number | String. 
      */
-    parseConstant(context: Context): Expression {
+    parseConstant(): Expression {
         let token = this.tokenizer.get();
 
         if (!this.isConstant(token)) {
@@ -245,11 +243,11 @@ class Parser {
         }
 
         if (this.isNumber(token)) {
-            return this.parseNumber(context);
+            return this.parseNumber();
         }
 
         if (this.isString(token)) {
-            return this.parseString(context);
+            return this.parseString();
         }
 
         throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for constant: ${token.s}`));
@@ -259,7 +257,7 @@ class Parser {
     /**
      * Value = number.
      */
-    private parseNumber(context: Context): Expressions.QuantityExpression {
+    private parseNumber(): Expressions.QuantityExpression {
         let token = this.tokenizer.get();
 
         if (!this.isNumber(token)) {
@@ -274,7 +272,7 @@ class Parser {
     /**
      * String = string-delimiter { string | reference | ( "${" Expression "}") } string-delimiter. 
      */
-    private parseString(context: Context): Expressions.StringExpression {
+    private parseString(): Expressions.StringExpression {
         let startToken = this.tokenizer.get();
 
         if (!this.isString(startToken)) {
@@ -306,11 +304,7 @@ class Parser {
             if (token.type === "reference") {
                 let name = token.s;
 
-                if (!context.contains(name)) {
-                    throw new Error(Utils.formatError(token.line, token.column, `Unknown reference: ${name}`));
-                }
-
-                expressions.push(new Expressions.ReferenceExpression(token.line, token.column, token.s))
+                expressions.push(new Expressions.ReferenceExpression(token.line, token.column, name))
 
                 token = this.tokenizer.nextStringToken();
 
@@ -324,7 +318,7 @@ class Parser {
                     throw new Error(Utils.formatError(token.line, token.column, "Unclosed block"));
                 }
 
-                expressions.push(new Expressions.PlaceholderExpression(token.line, token.column, this.parseExpression(context)));
+                expressions.push(new Expressions.PlaceholderExpression(token.line, token.column, this.parseExpression()));
 
                 token = this.tokenizer.get();
 
@@ -346,7 +340,7 @@ class Parser {
     /**
      * Unit = unit { [ "/" ] unit }.
      */
-    private parseUnit(context: Context): Unit {
+    private parseUnit(): Unit {
         let startToken = this.tokenizer.get();
 
         if (!this.isUnit(startToken)) {
@@ -386,16 +380,6 @@ class Parser {
 
         return unit;
     }
-
-    // parseQuantity(context: Context): Quantity {
-    //     let language = context.getLanguage();
-    //     let decimalSeparators = msg(language, "Global.decimalSeparators");
-    //     let digitSeparators = msg(language, "Global.digitSeparators");
-
-
-    // }
-
-
 
     isExpression(token: Token): boolean {
         return this.isSingleExpression(token);

@@ -2,8 +2,7 @@ import * as Parser from "./Parser";
 
 import Scanner from "./Scanner";
 import {Token, Tokenizer} from "./Tokenizer";
-import {Program, Line} from "./Program";
-import {Scope, Expression} from "./Expression";
+import {Expression} from "./Expression";
 import * as Expressions from "./Expressions";
 import * as Operations from "./Operations";
 import {Quantity} from "./Quantity";

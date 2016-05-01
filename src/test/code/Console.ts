@@ -1,7 +1,8 @@
 /// <reference path="../imports.d.ts" />
 
-import Scanner from "../../script/code/Scanner";
+import * as Code from "../../script/code/Code";
 import * as Parser from "../../script/code/Parser";
+import {Scope} from "../../script/code/Scope";
 import * as ReadLine from "readline";
 
 const con = ReadLine.createInterface({
@@ -16,10 +17,10 @@ function consume() {
                 let expression = Parser.parseExpression(Parser.scan(input));
 
                 console.log("Reading: " + expression.describe());
-                console.log("Result:  " + expression.invoke());
+                console.log("Result:  " + expression.invoke(Code.global.derive()));
             }
-            catch (e) {
-                console.log(e.message);
+            catch (error) {
+                console.log(error.message);
             }
 
             consume();
