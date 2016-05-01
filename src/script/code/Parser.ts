@@ -33,30 +33,6 @@ enum Precedence {
     Group
 }
 
-export class Context {
-
-    _language: string = "en-US";
-
-    withLanguage(language: string): Context {
-        this._language = language;
-
-        return this;
-    }
-
-    getLanguage() {
-        return this._language;
-    }
-
-    isReferenceDefined(reference: string): boolean {
-        return false;
-    }
-
-    isCallDefined(reference: string): boolean {
-        return false;
-    }
-
-}
-
 export function scan(source: string): Scanner {
     return new Scanner(source);
 }
