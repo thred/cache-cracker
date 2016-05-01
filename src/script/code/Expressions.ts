@@ -68,7 +68,7 @@ export class InUnit extends Expression {
     constructor(line: number, column: number, private valueArg: Expression, private unit: Unit) {
         super(line, column,
             (scope) => {
-                let definition = scope.requiredAsDefinition(name);
+                let definition = scope.requiredAsDefinition("convert");
 
                 return definition.fn(scope.derive({
                     value: valueArg,
