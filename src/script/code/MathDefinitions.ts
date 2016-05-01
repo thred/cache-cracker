@@ -1,9 +1,23 @@
+import {Context} from "./Context";
+import {Scope} from "./Scope";
+
 import * as Code from "./Code";
 
-import {Quantity} from "./Quantity";
-import {Unit} from "./Unit";
+Code.registerDefinition({
+    name: "add",
+    description: "Adds right quantity to the left one. This method is used for the '+' operation.",
+    parameters: {
+        left: "The left hand assignment",
+        right: "The right hand assignment"
+    },
+    operation: (scope: Scope) => {
+        return asQuantity(scope.required("left"))
+    }
+});
 
 export function noop(value: any): any {
+
+
     return value;
 }
 
@@ -55,6 +69,21 @@ export function modulo(left: any, right: any): any {
     return asQuantity(left).modulo(asQuantity(right));
 }
 
+export function asQuantity(value: any): Quantity {
+    if (value instanceof Quantity) {
+        return value as Quantity;
+    }
+
+    if (typeof value === "number") {
+        return new Quantity(value);
+    }
+
+    if (typeof value === "string") {
+        return Quantity.parse(Code.language, value as string);
+    }
+
+    throw new Error(`Convert to Quantity failed: ${value}`);
+}
 
 // export function asUnit(value: any): Unit {
 //     if (value instanceof Unit) {

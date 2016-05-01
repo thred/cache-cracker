@@ -1,10 +1,6 @@
+import {Scope} from "./Scope";
+
 import * as Utils from "./Utils";
-
-export interface Scope {
-
-    get(name: string): any;
-
-}
 
 export class Expression {
 

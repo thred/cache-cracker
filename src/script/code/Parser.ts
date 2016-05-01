@@ -1,7 +1,9 @@
+import {Context} from "./Context";
+import {Expression} from "./Expression";
+
 import Scanner from "./Scanner";
 import {Token, Tokenizer} from "./Tokenizer";
 import {Program, Line} from "./Program";
-import {Scope, Expression} from "./Expression";
 import * as Expressions from "./Expressions";
 import * as Operations from "./Operations";
 import {Quantity} from "./Quantity";
@@ -304,7 +306,7 @@ class Parser {
             if (token.type === "reference") {
                 let name = token.s;
 
-                if (!context.isReferenceDefined(name)) {
+                if (!context.contains(name)) {
                     throw new Error(Utils.formatError(token.line, token.column, `Unknown reference: ${name}`));
                 }
 

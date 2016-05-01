@@ -7,7 +7,7 @@ export interface Definition {
 
     description?: string;
 
-    parameterDescriptions?: { [name: string]: string }
+    parameters?: { [name: string]: string }
 
     resultDescription?: string;
 

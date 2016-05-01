@@ -1,10 +1,11 @@
 import {Context} from "./Context";
 import {Definition} from "./Definition";
-
-
-export let language: string = "en-US";
+import {Scope} from "./Scope";
 
 export let context: Context = new Context();
+export let scope: Scope = new Scope();
+
+scope.set("language", "en-US");
 
 context.register({
     name: "language",
@@ -13,9 +14,11 @@ context.register({
 
         The format follows the definition of the IETF language tags: e.g. 'en-US'.`,
     resultDescription: "Returns the default language",
-    operation: (scope) => scope[name];
-    
-})
+    operation: (scope) => scope.get(name)
+});
 
+export function registerDefinition(definition: Definition): Definition {
+    return context.register(definition);
+}
 
 
