@@ -2,9 +2,9 @@ import {Scope} from "./Scope";
 
 import * as Utils from "./Utils";
 
-export class Expression {
+export class Command {
 
-    constructor(private _line: number, private _column: number, private _invoke: (scope: Scope) => any, private _describe: () => string) {
+    constructor(private _line: number, private _column: number, private fn: (scope: Scope) => any, private _describe: () => string) {
     }
 
     get line() {
@@ -17,7 +17,7 @@ export class Expression {
 
     invoke(scope: Scope): any {
         try {
-            return this._invoke(scope);
+            return this.fn(scope);
         }
         catch (error) {
             throw new Error(Utils.formatError(this._line, this._column, `Invocation failed: ${this.describe()}`, error));

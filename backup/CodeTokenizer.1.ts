@@ -309,7 +309,7 @@ export class CodeTokenizer {
         }
 
         return {
-            type: "identifier",
+            type: "word",
             offset: offset,
             line: line,
             column: column,

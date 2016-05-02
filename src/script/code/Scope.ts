@@ -1,5 +1,5 @@
 import {Definition} from "./Definition";
-import {Expression} from "./Expression";
+import {Command} from "./Command";
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 
@@ -40,8 +40,8 @@ export class Scope {
             return value;
         }
 
-        if (value instanceof Expression) {
-            value = (value as Expression).invoke(this);
+        if (value instanceof Command) {
+            value = (value as Command).invoke(this);
         }
 
         return value;
@@ -75,8 +75,8 @@ export class Scope {
         let results: any[] = [];
 
         for (let item of values) {
-            if (item instanceof Expression) {
-                results.push((item as Expression).invoke(this));
+            if (item instanceof Command) {
+                results.push((item as Command).invoke(this));
             }
             else {
                 results.push(item);
@@ -116,11 +116,11 @@ export class Scope {
         return this.derive({ value: value }).invoke("asUnit");
     }
 
-    invoke(name: string): any {
+    invoke(name: string, params?: { [name: string]: any }): any {
         let definition = this.requiredAsDefinition(name);
 
         try {
-            return definition.fn(this)
+            return definition.invoke(this.derive(params));
         }
         catch (error) {
             throw new Error(`Invocation failed: ${name}. Error caused by: ${error}`);
@@ -135,7 +135,7 @@ export class Scope {
         return Utils.required(this.getAsDefinition(name), `Required definition is not defined: ${name}`);
     }
 
-    requiredAsArray(name: string): any[] {
+    requiredAsList(name: string): any[] {
         return Utils.required(this.getAsArray(name), `Required array is not defined: ${name}`);
     }
 
