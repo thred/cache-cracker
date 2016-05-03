@@ -2,8 +2,6 @@
 
 import {Quantity} from "../../script/code/Quantity";
 
-import * as Utils from "./Utils";
-
 import {assert} from "chai";
 
 export function testQuantityParser(language: string, s: string, result: string): void {

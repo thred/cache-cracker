@@ -2,13 +2,13 @@
 
 ## Code
 
-* The class Expression should be called Command
 * NextExpressionToken should be called nextToken (rename all expression things)
-* The definition should be called Procedure (finally a word that does not collide with function).
+* Define Units via Definitions, Context and Scope
 * Datatype Array should be List.
 * Datatype Object should be Map.
-* Other datatypes are String, Quantity, Unit.
-* Parse methods should accept objects instead of strings.
+* Other datatypes are String, Quantity and Unit.
+* Implement Lazy Tuples/Lists/Maps for procedure calls.
+* Parse methods of Quantity and Unit should accept objects instead of strings.
 * Invoke method of scope should take args - where should the method store values?
 * More options for invoke beside Maps: single parameters, arrays
 * Implement units mathematically correctly by supporting undefined units, too.

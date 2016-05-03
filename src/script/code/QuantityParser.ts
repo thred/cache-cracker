@@ -12,27 +12,17 @@ import * as Utils from "./Utils";
 
 import {msg} from "./../Msg";
 
-export function parseQuantity(language: string, s: string): Quantity {
-    let parser = new QuantityParser(language, Parser.scan(s));
-
-    return parser.init().parseSignedQuantity();
-}
-
-class QuantityParser {
+export class QuantityParser {
 
     private tokenizer: Tokenizer;
 
-    constructor(private language: string, scanner: Scanner) {
+    constructor(private language: string, source: string) {
         let decimalSeparators = msg(language, "Global.decimalSeparators");
         let digitSeparators = msg(language, "Global.digitSeparators");
 
-        this.tokenizer = new Tokenizer(scanner).decimalSeparators(decimalSeparators).digitSeparators(digitSeparators);
-    }
+        this.tokenizer = new Tokenizer(new Scanner(source)).decimalSeparators(decimalSeparators).digitSeparators(digitSeparators);
 
-    init(): QuantityParser {
         this.tokenizer.nextExpressionToken();
-
-        return this;
     }
 
     /**

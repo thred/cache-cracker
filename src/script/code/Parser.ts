@@ -1,4 +1,5 @@
 import {Command} from "./Command";
+import {Context} from "./Context";
 import {Identifier} from "./Identifier";
 import {Quantity} from "./Quantity";
 import {Scanner} from "./Scanner";
@@ -33,50 +34,32 @@ enum Precedence {
     Group
 }
 
-export function scan(source: string): Scanner {
-    return new Scanner(source);
-}
-
-export function parseExpression(scanner: Scanner): Command {
-    return new Parser(scanner).expression();
-}
-
-class Parser {
+export class Parser {
 
     private tokenizer: Tokenizer;
 
     constructor(scanner: Scanner) {
         this.tokenizer = new Tokenizer(scanner);
-    }
 
-    expression(): Command {
         this.tokenizer.nextExpressionToken();
-
-        return this.parseStatement();
-    }
-
-    quantity(): Command {
-        this.tokenizer.nextExpressionToken();
-
-        return this.parseStatement();
     }
 
     /**
      *  Statement = [ UnaryOperator ] ExpressionChain { Operator [ Statement ] }. 
      */
-    private parseStatement(minimumPrecedence: Precedence = Precedence.Undefined, leadingUnit?: Unit): Command {
+    parseStatement(context: Context, minimumPrecedence: Precedence = Precedence.Undefined, leadingUnit?: Unit): Command {
         let token = this.tokenizer.get();
 
-        if (!this.isStatement(token)) {
+        if (!this.isStatement(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected statement, but found: ${token.s}`));
         }
 
         let expression: Command;
 
-        if (this.isUnaryOperator(token)) {
+        if (this.isUnaryOperator(context, token)) {
             this.tokenizer.nextExpressionToken();
 
-            let arg = this.parseExpressionChain();
+            let arg = this.parseExpressionChain(context);
 
             if (token.s === "+") {
                 expression = new Commands.UnaryOperation(token.line, token.column, "positiveOf", token.s, arg);
@@ -91,12 +74,12 @@ class Parser {
             token = this.tokenizer.get();
         }
         else {
-            expression = this.parseExpressionChain();
+            expression = this.parseExpressionChain(context);
         }
 
         token = this.tokenizer.get();
 
-        while (this.isOperator(token)) {
+        while (this.isOperator(context, token)) {
             let name: string;
             let symbol: string = token.s;
             let precedence: Precedence;
@@ -148,7 +131,7 @@ class Parser {
 
             this.tokenizer.nextExpressionToken();
 
-            expression = new Commands.BinaryOperation(token.line, token.column, name, symbol, expression, this.parseStatement(precedence, null));
+            expression = new Commands.BinaryOperation(token.line, token.column, name, symbol, expression, this.parseStatement(context, precedence, null));
 
             token = this.tokenizer.get();
         }
@@ -159,22 +142,22 @@ class Parser {
     /**
      *  ExpressionChain = Expression { Expression }. 
      */
-    private parseExpressionChain(): Command {
+    private parseExpressionChain(context: Context): Command {
         let startToken = this.tokenizer.get();
 
-        if (!this.isExpressionChain(startToken)) {
+        if (!this.isExpressionChain(context, startToken)) {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected expression chain, but found: ${startToken.s}`));
         }
 
         // parse: SingleExpression
-        let expression = this.parseExpression();
+        let expression = this.parseExpression(context);
         let token = this.tokenizer.get();
 
-        if (this.isExpression(token)) {
+        if (this.isExpression(context, token)) {
             let expressions: Command[] = [expression];
 
-            while (this.isExpression(token)) {
-                expressions.push(this.parseExpression());
+            while (this.isExpression(context, token)) {
+                expressions.push(this.parseExpression(context));
 
                 token = this.tokenizer.get();
             }
@@ -186,44 +169,40 @@ class Parser {
     }
 
     /**
-     *  Expression = ( "(" Statement ")" ) | List | Map | Constant | Unit | Identifier. 
+     *  Expression = Tuple | List | Map | Constant | Call | Access | Unit | Identifier. 
      */
-    private parseExpression(leadingUnit?: Unit): Command {
+    private parseExpression(context: Context, leadingUnit?: Unit): Command {
         let token = this.tokenizer.get();
 
-        if (!this.isExpression(token)) {
+        if (!this.isExpression(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected expression, but found: ${token.s}`));
         }
 
         let result: Command;
 
-        if (this.isOpeningParentheses(token)) {
-            this.tokenizer.nextExpressionToken();
-
-            result = new Commands.Parentheses(token.line, token.column, this.parseStatement());
-
-            let closingToken = this.tokenizer.get();
-
-            if (!this.isClosingParentheses(closingToken)) {
-                throw new Error(Utils.formatError(closingToken.line, closingToken.column, "Expected closing parentheses, but found: " + closingToken.s));
-            }
-
-            this.tokenizer.nextExpressionToken();
+        if (this.isTuple(context, token)) {
+            result = this.parseTuple(context);
         }
-        else if (this.isList(token)) {
-            result = this.parseList();
+        else if (this.isList(context, token)) {
+            result = this.parseList(context);
         }
-        else if (this.isMap(token)) {
-            result = this.parseMap();
+        else if (this.isMap(context, token)) {
+            result = this.parseMap(context);
         }
-        else if (this.isConstant(token)) {
-            result = this.parseConstant();
+        else if (this.isConstant(context, token)) {
+            result = this.parseConstant(context);
         }
-        else if (this.isUnit(token)) {
-            result = this.parseUnit();
+        else if (this.isCall(context, token)) {
+            result = this.parseCall(context);
         }
-        else if (this.isIdentifier(token)) {
-            result = this.parseIdentifier();
+        else if (this.isAccess(context, token)) {
+            result = this.parseAccess(context);
+        }
+        else if (this.isUnit(context, token)) {
+            result = this.parseUnit(context);
+        }
+        else if (this.isIdentifier(context, token)) {
+            result = this.parseIdentifier(context);
         }
         else {
             throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for expression: ${token.s}`));
@@ -233,75 +212,113 @@ class Parser {
     }
 
     /**
-     * List = "[" Statement { "," Statement } "]";
+     * Tuple = "(" [ Statement { "," Statement } ] ")";
      */
-    private parseList(): Command {
+    private parseTuple(context: Context): Command {
         let startToken = this.tokenizer.get();
         let commands: Command[] = [];
 
-        if (!this.isList(startToken)) {
+        if (!this.isTuple(context, startToken)) {
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected tuple, but found: ${startToken.s}`));
+        }
+
+        let token = this.tokenizer.nextExpressionToken();
+
+        while (true) {
+            if (!this.isStatement(context, token)) {
+                break;
+            }
+
+            commands.push(this.parseStatement(context));
+
+            token = this.tokenizer.get();
+
+            if (!this.isSeparator(context, token, ",")) {
+                break;
+            }
+
+            token = this.tokenizer.nextExpressionToken();
+        }
+
+        if (!this.isClosingParentheses(context, token)) {
+            throw new Error(Utils.formatError(token.line, token.column, `Expected end of tuple, but found: ${token.s}`));
+        }
+
+        this.tokenizer.nextExpressionToken();
+
+        return new Commands.NewTuple(startToken.line, startToken.column, commands);
+    }
+
+    /**
+     * List = "[" [ Statement { "," Statement } ] "]";
+     */
+    private parseList(context: Context): Command {
+        let startToken = this.tokenizer.get();
+        let commands: Command[] = [];
+
+        if (!this.isList(context, startToken)) {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected list, but found: ${startToken.s}`));
         }
 
         let token = this.tokenizer.nextExpressionToken();
 
         while (true) {
-            if (!this.isStatement(token)) {
+            if (!this.isStatement(context, token)) {
                 break;
             }
 
-            commands.push(this.parseStatement());
+            commands.push(this.parseStatement(context));
 
             token = this.tokenizer.get();
 
-            if (!this.isSeparator(token, ",")) {
+            if (!this.isSeparator(context, token, ",")) {
                 break;
             }
 
             token = this.tokenizer.nextExpressionToken();
         }
 
-        if (!this.isClosingList(token)) {
+        if (!this.isClosingList(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected end of list, but found: ${token.s}`));
         }
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.List(startToken.line, startToken.column, commands);
+        return new Commands.NewList(startToken.line, startToken.column, commands);
     }
 
     /**
      * Map = "{" Key ":" Statement { "," Key ":" Statement } "}";
      */
-    private parseMap(): Command {
+    private parseMap(context: Context): Command {
         let startToken = this.tokenizer.get();
         let commands: {
             key: Command;
             value: Command;
         }[] = [];
 
-        if (!this.isMap(startToken)) {
+        if (!this.isMap(context, startToken)) {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected map, but found: ${startToken.s}`));
         }
 
         let token = this.tokenizer.nextExpressionToken();
 
         while (true) {
-            if (!this.isKey(token)) {
+            if (!this.isKey(context, token)) {
                 break;
             }
 
-            let key = this.parseKey();
+            let key = this.parseKey(context);
 
             token = this.tokenizer.get();
 
-            if (!this.isSeparator(token, ":")) {
+            if (!this.isSeparator(context, token, ":")) {
                 throw new Error(Utils.formatError(token.line, token.column, `Expected ":", but found: ${token.s}`));
             }
 
             token = this.tokenizer.nextExpressionToken();
 
-            let value = this.parseStatement();
+            let value = this.parseStatement(context);
 
             commands.push({
                 key: key,
@@ -310,7 +327,7 @@ class Parser {
 
             token = this.tokenizer.get();
 
-            if (!this.isSeparator(token, ",")) {
+            if (!this.isSeparator(context, token, ",")) {
                 break;
             }
 
@@ -318,31 +335,31 @@ class Parser {
 
         }
 
-        if (!this.isClosingMap(token)) {
+        if (!this.isClosingMap(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected end of map, but found: ${token.s}`));
         }
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.Map(startToken.line, startToken.column, commands);
+        return new Commands.NewMap(startToken.line, startToken.column, commands);
     }
 
     /**
      * Key = String | Identifier. 
      */
-    parseKey(): Command {
+    parseKey(context: Context): Command {
         let token = this.tokenizer.get();
 
-        if (!this.isKey(token)) {
+        if (!this.isKey(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected key, but found: ${token.s}`));
         }
 
-        if (this.isString(token)) {
-            return this.parseString();
+        if (this.isString(context, token)) {
+            return this.parseString(context);
         }
 
-        if (this.isIdentifier(token)) {
-            return this.parseIdentifier();
+        if (this.isIdentifier(context, token)) {
+            return this.parseIdentifier(context);
         }
 
         throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for key: ${token.s}`));
@@ -351,19 +368,19 @@ class Parser {
     /**
      * Constant = Number | String. 
      */
-    parseConstant(): Command {
+    parseConstant(context: Context): Command {
         let token = this.tokenizer.get();
 
-        if (!this.isConstant(token)) {
+        if (!this.isConstant(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected constant, but found: ${token.s}`));
         }
 
-        if (this.isNumber(token)) {
-            return this.parseNumber();
+        if (this.isNumber(context, token)) {
+            return this.parseNumber(context);
         }
 
-        if (this.isString(token)) {
-            return this.parseString();
+        if (this.isString(context, token)) {
+            return this.parseString(context);
         }
 
         throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for constant: ${token.s}`));
@@ -372,25 +389,25 @@ class Parser {
     /**
      * Number = number.
      */
-    private parseNumber(): Commands.Constant {
+    private parseNumber(context: Context): Commands.NewValue {
         let token = this.tokenizer.get();
 
-        if (!this.isNumber(token)) {
+        if (!this.isNumber(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected number, but found: ${token.s}`));
         }
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.Constant(token.line, token.column, new Quantity(token.n));
+        return new Commands.NewValue(token.line, token.column, new Quantity(token.n));
     }
 
     /**
      * String = delimiter { string | reference | ( "${" Expression "}") } delimiter. 
      */
-    private parseString(): Commands.StringChain {
+    private parseString(context: Context): Commands.StringChain {
         let startToken = this.tokenizer.get();
 
-        if (!this.isString(startToken)) {
+        if (!this.isString(context, startToken)) {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected delimiter, but found: ${startToken.s}`));
         }
 
@@ -398,7 +415,7 @@ class Parser {
         let token = this.tokenizer.nextStringToken();
 
         while (true) {
-            if (this.isEnd(token)) {
+            if (this.isEnd(context, token)) {
                 throw new Error(Utils.formatError(startToken.line, startToken.column, "Unclosed string"));
             }
 
@@ -426,18 +443,18 @@ class Parser {
                 continue;
             }
 
-            if (this.isOpeningPlaceholder(token)) {
+            if (this.isOpeningPlaceholder(context, token)) {
                 let blockToken = this.tokenizer.nextExpressionToken();
 
-                if (this.isEnd(blockToken)) {
+                if (this.isEnd(context, blockToken)) {
                     throw new Error(Utils.formatError(token.line, token.column, "Unclosed block"));
                 }
 
-                expressions.push(new Commands.StringPlaceholderSegment(token.line, token.column, this.parseStatement()));
+                expressions.push(new Commands.StringPlaceholderSegment(token.line, token.column, this.parseStatement(context)));
 
                 token = this.tokenizer.get();
 
-                if (!this.isClosingPlaceholder(token)) {
+                if (!this.isClosingPlaceholder(context, token)) {
                     throw new Error(Utils.formatError(token.line, token.column, `Expected closing placeholder, but found: ${token.s}`));
                 }
 
@@ -453,12 +470,49 @@ class Parser {
     }
 
     /**
-     * Unit = unit { [ "/" ] unit }.
+     * Call = word Statement.
      */
-    private parseUnit(): Command {
+    private parseCall(context: Context): Command {
         let startToken = this.tokenizer.get();
 
-        if (!this.isUnit(startToken)) {
+        if (!this.isCall(context, startToken)) {
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected call, but found: ${startToken.s}`));
+        }
+
+        let procedure = context.requiredAsProcedure(startToken.s);
+
+        this.tokenizer.nextExpressionToken();
+
+        let args = this.parseStatement(context);
+
+
+        return new Commands.Call(startToken.line, startToken.column, procedure, args);
+    }
+
+    /**
+     * Access = word.
+     */
+    private parseAccess(context: Context): Command {
+        let startToken = this.tokenizer.get();
+
+        if (!this.isAccess(context, startToken)) {
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected access, but found: ${startToken.s}`));
+        }
+
+        let variable = context.get(startToken.s);
+
+        this.tokenizer.nextExpressionToken();
+
+        return new Commands.Access(startToken.line, startToken.column, variable.name);
+    }
+
+    /**
+     * Unit = unit { [ "/" ] unit }.
+     */
+    private parseUnit(context: Context): Command {
+        let startToken = this.tokenizer.get();
+
+        if (!this.isUnit(context, startToken)) {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected unit, but found: ${startToken.s}`));
         }
 
@@ -466,7 +520,7 @@ class Parser {
         let token = this.tokenizer.nextExpressionToken();
 
         while (true) {
-            if ((this.isOperator(token, "/")) && (this.isUnit(this.tokenizer.lookAheadExpressionToken()))) {
+            if ((this.isOperator(context, token, "/")) && (this.isUnit(context, this.tokenizer.lookAheadExpressionToken()))) {
                 token = this.tokenizer.nextExpressionToken();
 
                 unitString += "/" + token.s;
@@ -476,7 +530,7 @@ class Parser {
                 continue;
             }
 
-            if (this.isUnit(token)) {
+            if (this.isUnit(context, token)) {
                 unitString += " " + token.s;
 
                 token = this.tokenizer.nextExpressionToken();
@@ -493,43 +547,43 @@ class Parser {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Unit not defined: ${unitString}`));
         }
 
-        return new Commands.Constant(startToken.line, startToken.column, unit);
+        return new Commands.NewValue(startToken.line, startToken.column, unit);
     }
 
     /**
      * Identifier = identifier.
      */
-    parseIdentifier(): Command {
+    parseIdentifier(context: Context): Command {
         let token = this.tokenizer.get();
 
-        if (!this.isIdentifier(token)) {
+        if (!this.isIdentifier(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected identifier, but found: ${token.s}`));
         }
 
-        return new Commands.Constant(token.line, token.column, new Identifier(token.s));
+        return new Commands.NewValue(token.line, token.column, new Identifier(token.s));
     }
 
-    isStatement(token: Token): boolean {
-        return (this.isUnaryOperator(token)) || (this.isExpressionChain(token));
+    isStatement(context: Context, token: Token): boolean {
+        return (this.isUnaryOperator(context, token)) || (this.isExpressionChain(context, token));
     }
 
-    isExpressionChain(token: Token): boolean {
-        return this.isExpression(token);
+    isExpressionChain(context: Context, token: Token): boolean {
+        return this.isExpression(context, token);
     }
 
-    isExpression(token: Token): boolean {
-        return (this.isOpeningParentheses(token)) || (this.isConstant(token));
+    isExpression(context: Context, token: Token): boolean {
+        return (this.isOpeningParentheses(context, token)) || (this.isConstant(context, token));
     }
 
-    isUnaryOperator(token: Token): boolean {
-        if (!this.isOperator(token)) {
+    isUnaryOperator(context: Context, token: Token): boolean {
+        if (!this.isOperator(context, token)) {
             return false;
         }
 
         return (token.s === "+") || (token.s === "-");
     }
 
-    isOperator(token: Token, operator?: string): boolean {
+    isOperator(context: Context, token: Token, operator?: string): boolean {
         if (token.type === "operator") {
             return (!operator) || (operator === token.s);
         }
@@ -537,43 +591,43 @@ class Parser {
         return false;
     }
 
-    isOpeningParentheses(token: Token) {
-        return this.isBrackets(token, "(");
+    isOpeningParentheses(context: Context, token: Token) {
+        return this.isBrackets(context, token, "(");
     }
 
-    isClosingParentheses(token: Token) {
-        return this.isBrackets(token, ")");
+    isClosingParentheses(context: Context, token: Token) {
+        return this.isBrackets(context, token, ")");
     }
 
-    isOpeningList(token: Token) {
-        return this.isBrackets(token, "[");
+    isOpeningList(context: Context, token: Token) {
+        return this.isBrackets(context, token, "[");
     }
 
-    isClosingList(token: Token) {
-        return this.isBrackets(token, "]");
+    isClosingList(context: Context, token: Token) {
+        return this.isBrackets(context, token, "]");
     }
 
-    isOpeningMap(token: Token) {
-        return this.isBrackets(token, "{");
+    isOpeningMap(context: Context, token: Token) {
+        return this.isBrackets(context, token, "{");
     }
 
-    isClosingMap(token: Token) {
-        return this.isBrackets(token, "}");
+    isClosingMap(context: Context, token: Token) {
+        return this.isBrackets(context, token, "}");
     }
 
-    isOpeningPlaceholder(token: Token) {
-        return this.isBrackets(token, "${");
+    isOpeningPlaceholder(context: Context, token: Token) {
+        return this.isBrackets(context, token, "${");
     }
 
-    isClosingPlaceholder(token: Token) {
-        return this.isBrackets(token, "}");
+    isClosingPlaceholder(context: Context, token: Token) {
+        return this.isBrackets(context, token, "}");
     }
 
-    isBrackets(token: Token, brackets?: string): boolean {
+    isBrackets(context: Context, token: Token, brackets?: string): boolean {
         return (token.type === "brackets") && ((!brackets) || (brackets === token.s));
     }
 
-    isIdentifier(token: Token): boolean {
+    isIdentifier(context: Context, token: Token): boolean {
         if (token.type !== "word") {
             return false;
         }
@@ -581,30 +635,51 @@ class Parser {
         return Utils.isIdentifier(token.s);
     }
 
-    isList(token: Token): boolean {
-        return this.isOpeningList(token);
+    isTuple(context: Context, token: Token): boolean {
+        return this.isOpeningParentheses(context, token);
     }
 
-    isMap(token: Token): boolean {
-        return this.isOpeningMap(token);
+    isList(context: Context, token: Token): boolean {
+        return this.isOpeningList(context, token);
     }
 
-    isKey(token: Token): boolean {
-        return (this.isIdentifier(token)) || (this.isString(token));
-    }
-    isConstant(token: Token): boolean {
-        return this.isNumber(token) || this.isString(token);
+    isMap(context: Context, token: Token): boolean {
+        return this.isOpeningMap(context, token);
     }
 
-    isNumber(token: Token): boolean {
+    isKey(context: Context, token: Token): boolean {
+        return (this.isIdentifier(context, token)) || (this.isString(context, token));
+    }
+
+    isConstant(context: Context, token: Token): boolean {
+        return this.isNumber(context, token) || this.isString(context, token);
+    }
+
+    isNumber(context: Context, token: Token): boolean {
         return token.type === "number";
     }
 
-    isString(token: Token): boolean {
+    isString(context: Context, token: Token): boolean {
         return token.type === "delimiter";
     }
 
-    isUnit(token: Token): boolean {
+    isCall(context: Context, token: Token): boolean {
+        if (token.type !== "word") {
+            return false;
+        }
+
+        return context.isProcedure(token.s);
+    }
+
+    isAccess(context: Context, token: Token): boolean {
+        if (token.type !== "word") {
+            return false;
+        }
+
+        return context.isVariable(token.s);
+    }
+
+    isUnit(context: Context, token: Token): boolean {
         if ((token.type !== "word") && (token.type !== "delimiter") && (token.type !== "separator") && (token.type !== "operator")) {
             return false;
         }
@@ -612,11 +687,11 @@ class Parser {
         return Units.exists(token.s);
     }
 
-    isEnd(token: Token): boolean {
+    isEnd(context: Context, token: Token): boolean {
         return token.type === "end";
     }
 
-    isSeparator(token: Token, separator?: string): boolean {
+    isSeparator(context: Context, token: Token, separator?: string): boolean {
         return (token.type === "separator") && ((!separator) || (separator === token.s));
     }
 

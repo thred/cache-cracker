@@ -16,10 +16,10 @@ function consume() {
     setImmediate(() => {
         con.question("> ", (input) => {
             try {
-                let expression = Parser.parseExpression(Parser.scan(input));
+                let command = Code.parse(input);
 
-                console.log("Reading: " + expression.describe());
-                console.log("Result:  " + expression.invoke(Code.global.derive()));
+                console.log("Reading: " + command.describe());
+                console.log("Result:  " + command.invoke(new Scope(null)));
             }
             catch (error) {
                 console.log(error.message);

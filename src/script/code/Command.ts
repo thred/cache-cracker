@@ -2,7 +2,7 @@ import {Scope} from "./Scope";
 
 import * as Utils from "./Utils";
 
-export class Command {
+export abstract class Command {
 
     constructor(private _line: number, private _column: number, private fn: (scope: Scope) => any, private _describe: () => string) {
     }

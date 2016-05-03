@@ -1,6 +1,5 @@
 /// <reference path="../imports.d.ts" />
 
-import {Scanner} from "../../script/code/Scanner";
 import {Scope} from "../../script/code/Scope";
 
 import * as Code from "../../script/code/Code";
@@ -9,7 +8,7 @@ import * as Parser from "../../script/code/Parser";
 import {assert} from "chai";
 
 export function testExpression(code: string, result: string): Scope {
-    let scope = Code.global.derive();
+    let scope = new Scope(null);
 
     it(`${code} => ${result}`, () => {
         let description = code;
@@ -19,10 +18,10 @@ export function testExpression(code: string, result: string): Scope {
             code = code.substring(0, code.indexOf(":")).trim();
         }
 
-        let expression = Parser.parseExpression(Parser.scan(code));
+        let expression = Code.parse(code);
 
         assert.equal(expression.describe(), description);
-        assert.equal(expression.invoke(scope).toString(), result);
+        assert.equal(expression.invoke(new Scope(null)).toString(), result);
     });
 
     return scope;

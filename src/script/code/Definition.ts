@@ -1,12 +1,13 @@
+import {Command} from "./Command";
 import {Scope} from "./Scope";
 
 import * as Utils from "./Utils";
 
-export class Definition {
+export abstract class Definition {
 
-    constructor(private _name: string, private _description: string, private _parameters: { [name: string]: string }, private _fn: (scope: Scope) => any) {
+    constructor(private _name: string, private _description: string, private _fallback: any) {
         if (!Utils.isIdentifier(_name)) {
-            throw new Error(`Invalid name for function: ${_name}`);
+            throw new Error(`Invalid name for definition: ${_name}`);
         }
     }
 
@@ -18,32 +19,19 @@ export class Definition {
         return this._description;
     }
 
-    get parameters(): { [name: string]: string } {
-        return this._parameters;
+    get fallback(): any {
+        return this._fallback;
     }
 
-    invoke(scope: Scope): any {
-        try {
-            this._fn(scope);
-        }
-        catch (error) {
-            throw new Error(`Failed to invoke function: ${this.name}. Error caused by: ${error}`);
-        }
+    invoke(scope: Scope, arg?: Command): any {
+        return scope.get(name) || this.fallback();
     }
 
     describe(language: string): string {
-        let description = "Function: " + this.name;
+        let description = this.name;
 
         if (this.description) {
             description += "\n\n" + this.description;
-        }
-
-        if ((this.parameters) && (Object.keys(this.parameters).length)) {
-            description += "\n\n";
-
-            for (let key in Object.keys(this.parameters)) {
-                description += `${key}: ${this.parameters[key]}`;
-            }
         }
 
         return description;

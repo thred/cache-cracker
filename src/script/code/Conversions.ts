@@ -1,3 +1,4 @@
+import {Context} from "./Context";
 import {Definition} from "./Definition";
 import {Identifier} from "./Identifier";
 import {Quantity} from "./Quantity";
@@ -5,12 +6,13 @@ import {Scope} from "./Scope";
 import {Unit} from "./Unit";
 
 import * as Code from "./Code";
+import * as Definitions from "./Definitions";
 import * as Utils from "./Utils";
 
-export function populate(scope: Scope) {
-    scope.register(new Definition("asArray", "Convers the value to an array.", {
-        value: "The value"
-    }, (scope: Scope) => {
+export function populate(context: Context) {
+    context.defineProcedure("asArray", "Convers the value to an array.", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
         let value = scope.required("value");
 
         if (value === null) {
@@ -22,11 +24,11 @@ export function populate(scope: Scope) {
         }
 
         throw new Error(`Conversion to Array failed: ${value}`);
-    }));
+    });
 
-    scope.register(new Definition("asIdentifier", "Converts the value to an identifier.", {
-        value: "The value"
-    }, (scope: Scope) => {
+    context.defineProcedure("asIdentifier", "Converts the value to an identifier.", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
         let value = scope.required("value");
 
         if ((value === undefined) || (value === null)) {
@@ -38,11 +40,11 @@ export function populate(scope: Scope) {
         }
 
         return Identifier.parse(scope.requiredAsString("language"), value);
-    }));
+    });
 
-    scope.register(new Definition("asQuantity", "Converts the value to a quantity.", {
-        value: "The value"
-    }, (scope: Scope) => {
+    context.defineProcedure("asQuantity", "Converts the value to a quantity.", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
         let value = scope.required("value");
 
         if (value === null) {
@@ -62,11 +64,11 @@ export function populate(scope: Scope) {
         }
 
         throw new Error(`Conversion to Quantity failed: ${value}`);
-    }));
+    });
 
-    scope.register(new Definition("asString", "Converts the value to a string.", {
-        value: "The value"
-    }, (scope: Scope) => {
+    context.defineProcedure("asString", "Converts the value to a string.", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
         let value = scope.required("value");
 
         if (!(value)) {
@@ -79,11 +81,11 @@ export function populate(scope: Scope) {
 
 
         return value.toString();
-    }));
+    });
 
-    scope.register(new Definition("asUnit", "Converts the value to a unit.", {
-        value: "The value"
-    }, (scope: Scope) => {
+    context.defineProcedure("asUnit", "Converts the value to a unit.", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
         let value = scope.required("value");
 
         if (value === null) {
@@ -95,5 +97,5 @@ export function populate(scope: Scope) {
         }
 
         throw new Error(`Conversion to Unit failed: ${value}`);
-    }));
+    });
 }

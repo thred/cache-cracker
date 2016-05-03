@@ -1,10 +1,13 @@
 import {Command} from "./Command";
 import {Definition} from "./Definition";
 import {Identifier} from "./Identifier";
+import {List} from "./List";
+import {Map} from "./Map";
 import {Quantity} from "./Quantity";
 import {Scope} from "./Scope";
 import {Unit} from "./Unit";
 
+import * as Definitions from "./Definitions";
 import * as Utils from "./Utils";
 
 // export class DefinitionInvocation extends Command {
@@ -62,6 +65,24 @@ export class BinaryOperation extends Command {
     }
 }
 
+export class Call extends Command {
+    constructor(line: number, column: number, procedure: Definitions.Procedure, arg: Command) {
+        super(line, column, (scope) => {
+            return procedure.invoke(scope, arg);
+        }, () => `${name} ${arg.describe()}`);
+    };
+}
+
+export class Access extends Command {
+    constructor(line: number, column: number, name: string) {
+        super(line, column, (scope) => {
+
+            throw new Error("Implement me!");
+
+        }, () => `${name}`);
+    };
+}
+
 export class Chain extends Command {
     constructor(line: number, column: number, private segments: Command[]) {
         super(line, column, (scope) => {
@@ -115,19 +136,7 @@ export class Chain extends Command {
     }
 }
 
-export class Parentheses extends Command {
-    constructor(line: number, column: number, private arg: Command) {
-        super(line, column,
-            (scope) => arg.invoke(scope),
-            () => `(${arg.describe()})`);
-    }
-
-    toString(): string {
-        return `Parentheses(${this.arg})`;
-    }
-}
-
-export class Constant extends Command {
+export class NewValue extends Command {
     constructor(line: number, column: number, private value: any) {
         super(line, column,
             (scope) => value,
@@ -135,38 +144,54 @@ export class Constant extends Command {
     }
 
     toString(): string {
-        return `Constant(${this.value})`;
+        return `NewValue(${this.value})`;
     }
 }
 
-export class List extends Command {
-    constructor(line: number, column: number, private commands: Command[]) {
+export class NewTuple extends Command {
+    constructor(line: number, column: number, private commands: Command[], private lazy: boolean = false) {
         super(line, column,
             (scope) => {
-                let list: any[] = [];
-
-                for (let command of commands) {
-                    list.push(command.invoke(scope));
+                if (commands.length === 0) {
+                    return null; // FIXME what is an empty Tuple? NULL, NIL, EMPTY, (), [], ... ?
                 }
 
-                return list;
+                if (commands.length === 1) {
+                    return commands[0].invoke(scope);
+                }
+
+                return new List(scope, commands, lazy);
+            },
+            () => `(${commands.map((item) => item.describe()).join(", ")})`);
+    }
+
+    toString(): string {
+        return `NewTuple(${this.commands})`;
+    }
+}
+
+export class NewList extends Command {
+    constructor(line: number, column: number, private commands: Command[], private lazy: boolean = false) {
+        super(line, column,
+            (scope) => {
+                return new List(scope, commands, lazy);
             },
             () => `[${commands.map((item) => item.describe()).join(", ")}]`);
     }
 
     toString(): string {
-        return `List(${this.commands})`;
+        return `NewList(${this.commands})`;
     }
 }
 
-export class Map extends Command {
+export class NewMap extends Command {
     constructor(line: number, column: number, private commands: {
         key: Command;
         value: Command;
-    }[]) {
+    }[], lazy: boolean = false) {
         super(line, column,
             (scope) => {
-                let map: any[] = [];
+                let map: { [name: string]: any } = {};
 
                 for (let command of commands) {
                     let key = command.key.invoke(scope);
@@ -176,10 +201,10 @@ export class Map extends Command {
                             `Invalid key: ${key}`));
                     }
 
-                    map[key.toString()] = command.value.invoke(scope);
+                    map[key] = command.value.invoke(scope);
                 }
 
-                return map;
+                return new Map(scope, map, lazy);
             },
             () => {
                 if (!this.commands.length) {
@@ -199,7 +224,7 @@ export class Map extends Command {
     }
 
     toString(): string {
-        return `List(${this.commands})`;
+        return `NewMap(${this.commands})`;
     }
 }
 
