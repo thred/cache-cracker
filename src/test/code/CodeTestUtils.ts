@@ -7,7 +7,7 @@ import * as Parser from "../../script/code/Parser";
 
 import {assert} from "chai";
 
-export function testExpression(code: string, result: string): Scope {
+export function testStatement(code: string, result: string): Scope {
     let scope = new Scope(null);
 
     it(`${code} => ${result}`, () => {
@@ -18,10 +18,10 @@ export function testExpression(code: string, result: string): Scope {
             code = code.substring(0, code.indexOf(":")).trim();
         }
 
-        let expression = Code.parse(code);
+        let statement = Code.parse(code);
 
-        assert.equal(expression.describe(), description);
-        assert.equal(expression.invoke(new Scope(null)).toString(), result);
+        assert.equal(statement.describe(), description);
+        assert.equal(statement.invoke(new Scope(null)).toString(), result);
     });
 
     return scope;

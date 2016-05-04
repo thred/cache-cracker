@@ -136,7 +136,7 @@ export class Chain extends Command {
     }
 }
 
-export class NewValue extends Command {
+export class AValue extends Command {
     constructor(line: number, column: number, private value: any) {
         super(line, column,
             (scope) => value,
@@ -144,11 +144,11 @@ export class NewValue extends Command {
     }
 
     toString(): string {
-        return `NewValue(${this.value})`;
+        return `AValue(${this.value})`;
     }
 }
 
-export class NewTuple extends Command {
+export class ATuple extends Command {
     constructor(line: number, column: number, private commands: Command[], private lazy: boolean = false) {
         super(line, column,
             (scope) => {
@@ -166,11 +166,11 @@ export class NewTuple extends Command {
     }
 
     toString(): string {
-        return `NewTuple(${this.commands})`;
+        return `ATuple(${this.commands})`;
     }
 }
 
-export class NewList extends Command {
+export class AList extends Command {
     constructor(line: number, column: number, private commands: Command[], private lazy: boolean = false) {
         super(line, column,
             (scope) => {
@@ -180,11 +180,11 @@ export class NewList extends Command {
     }
 
     toString(): string {
-        return `NewList(${this.commands})`;
+        return `AList(${this.commands})`;
     }
 }
 
-export class NewMap extends Command {
+export class AMap extends Command {
     constructor(line: number, column: number, private commands: {
         key: Command;
         value: Command;
@@ -224,9 +224,22 @@ export class NewMap extends Command {
     }
 
     toString(): string {
-        return `NewMap(${this.commands})`;
+        return `AMap(${this.commands})`;
     }
 }
+
+export class AUnit extends Command {
+    constructor(line: number, column: number, private unit: Unit) {
+        super(line, column,
+            (scope) => unit,
+            () => `${unit.symbols[0]}`);
+    }
+
+    toString(): string {
+        return `AUnit(${this.unit.symbols[0]})`;
+    }
+}
+
 
 export class InUnit extends Command {
     constructor(line: number, column: number, private valueArg: Command, private unit: Unit) {

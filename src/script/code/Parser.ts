@@ -44,6 +44,10 @@ export class Parser {
         this.tokenizer.nextExpressionToken();
     }
 
+    isStatement(context: Context, token: Token): boolean {
+        return (this.isUnaryOperator(context, token)) || (this.isExpressionChain(context, token));
+    }
+
     /**
      *  Statement = [ UnaryOperator ] ExpressionChain { Operator [ Statement ] }. 
      */
@@ -139,6 +143,10 @@ export class Parser {
         return expression;
     }
 
+    isExpressionChain(context: Context, token: Token): boolean {
+        return this.isExpression(context, token);
+    }
+
     /**
      *  ExpressionChain = Expression { Expression }. 
      */
@@ -166,6 +174,11 @@ export class Parser {
         }
 
         return expression;
+    }
+
+    isExpression(context: Context, token: Token): boolean {
+        return (this.isTuple(context, token)) || (this.isList(context, token)) || (this.isMap(context, token)) || (this.isConstant(context, token)) ||
+            (this.isCall(context, token)) || (this.isAccess(context, token)) || (this.isUnit(context, token));
     }
 
     /**
@@ -200,9 +213,6 @@ export class Parser {
         }
         else if (this.isUnit(context, token)) {
             result = this.parseUnit(context);
-        }
-        else if (this.isIdentifier(context, token)) {
-            result = this.parseIdentifier(context);
         }
         else {
             throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for expression: ${token.s}`));
@@ -246,7 +256,7 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.NewTuple(startToken.line, startToken.column, commands);
+        return new Commands.ATuple(startToken.line, startToken.column, commands);
     }
 
     /**
@@ -284,7 +294,7 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.NewList(startToken.line, startToken.column, commands);
+        return new Commands.AList(startToken.line, startToken.column, commands);
     }
 
     /**
@@ -341,7 +351,7 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.NewMap(startToken.line, startToken.column, commands);
+        return new Commands.AMap(startToken.line, startToken.column, commands);
     }
 
     /**
@@ -389,7 +399,7 @@ export class Parser {
     /**
      * Number = number.
      */
-    private parseNumber(context: Context): Commands.NewValue {
+    private parseNumber(context: Context): Commands.AValue {
         let token = this.tokenizer.get();
 
         if (!this.isNumber(context, token)) {
@@ -398,7 +408,7 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.NewValue(token.line, token.column, new Quantity(token.n));
+        return new Commands.AValue(token.line, token.column, new Quantity(token.n));
     }
 
     /**
@@ -547,7 +557,7 @@ export class Parser {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Unit not defined: ${unitString}`));
         }
 
-        return new Commands.NewValue(startToken.line, startToken.column, unit);
+        return new Commands.AUnit(startToken.line, startToken.column, unit);
     }
 
     /**
@@ -560,19 +570,7 @@ export class Parser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected identifier, but found: ${token.s}`));
         }
 
-        return new Commands.NewValue(token.line, token.column, new Identifier(token.s));
-    }
-
-    isStatement(context: Context, token: Token): boolean {
-        return (this.isUnaryOperator(context, token)) || (this.isExpressionChain(context, token));
-    }
-
-    isExpressionChain(context: Context, token: Token): boolean {
-        return this.isExpression(context, token);
-    }
-
-    isExpression(context: Context, token: Token): boolean {
-        return (this.isOpeningParentheses(context, token)) || (this.isConstant(context, token));
+        return new Commands.AValue(token.line, token.column, new Identifier(token.s));
     }
 
     isUnaryOperator(context: Context, token: Token): boolean {
