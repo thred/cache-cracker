@@ -1,23 +1,23 @@
 /// <reference path="../imports.d.ts" />
 
-import * as Utils from "./Utils";
+import * as CodeTestUtils from "./CodeTestUtils";
 
 describe("Parser (Math)", () => {
 
-    Utils.testExpression("+2", "2");
-    Utils.testExpression("-2", "-2");
+    CodeTestUtils.testStatement("+2", "2");
+    CodeTestUtils.testStatement("-2", "-2");
 
-    Utils.testExpression("1 + 2", "3");
-    Utils.testExpression("3 - 2", "1");
+    CodeTestUtils.testStatement("1 + 2", "3");
+    CodeTestUtils.testStatement("3 - 2", "1");
 
-    Utils.testExpression("2 * 3", "6");
-    Utils.testExpression("6 / 3", "2");
+    CodeTestUtils.testStatement("2 * 3", "6");
+    CodeTestUtils.testStatement("6 / 3", "2");
 
-    Utils.testExpression("4 ^ 3 ^ 2", "262144");
+    CodeTestUtils.testStatement("4 ^ 3 ^ 2", "262144");
 
-    Utils.testExpression("3 mod 2", "1");
+    CodeTestUtils.testStatement("3 mod 2", "1");
 
-    Utils.testExpression("2 * 3 + 4 / 2", "8");
-    Utils.testExpression("2 * (3 + 4) / 2", "7");
+    CodeTestUtils.testStatement("2 * 3 + 4 / 2", "8");
+    CodeTestUtils.testStatement("2 * (3 + 4) / 2", "7");
 
 });

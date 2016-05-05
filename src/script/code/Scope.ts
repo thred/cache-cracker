@@ -1,5 +1,7 @@
 import {Definition} from "./Definition";
-import {Expression} from "./Expression";
+import {Command} from "./Command";
+import {List} from "./List";
+import {Map} from "./Map";
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 
@@ -40,90 +42,41 @@ export class Scope {
             return value;
         }
 
-        if (value instanceof Expression) {
-            value = (value as Expression).invoke(this);
-        }
+        // if (value instanceof Command) {
+        //     value = (value as Command).invoke(this);
+        // }
 
         return value;
     }
 
-    getAsDefinition(name: string): Definition {
-        let value = this.get(name);
-
-        if ((value === undefined) || (value === null)) {
-            return value;
-        }
-
-        if (value["fn"]) {
-            return value;
-        }
-
-        throw new Error(`Conversion to Definition failed: ${value}`);
+    getAsList(name: string): List {
+        return this.asList(this.get(name));
     }
 
-    getAsArray(name: string): any[] {
-        let values = this.get(name);
-
-        if (!Array.isArray(values)) {
-            values = this.derive({ value: values }).invoke("asArray");
-        }
-
-        if ((values === undefined) || (values === null)) {
-            return values;
-        }
-
-        let results: any[] = [];
-
-        for (let item of values) {
-            if (item instanceof Expression) {
-                results.push((item as Expression).invoke(this));
-            }
-            else {
-                results.push(item);
-            }
-        }
-
-        return results;
+    getAsMap(name: string): Map {
+        return this.asMap(this.get(name));
     }
 
     getAsQuantity(name: string, defaultValue?: Quantity): Quantity {
-        let value = this.get(name, defaultValue);
-
-        if (value instanceof Quantity) {
-            return value;
-        }
-
-        return this.derive({ value: value }).invoke("asQuantity");
+        return this.asQuantity(this.get(name, defaultValue));
     }
 
     getAsString(name: string, defaultValue?: string): string {
-        let value = this.get(name, defaultValue);
-
-        if (typeof value === "string") {
-            return value;
-        }
-
-        return this.derive({ value: value }).invoke("asString");
+        return this.asString(this.get(name, defaultValue));
     }
 
     getAsUnit(name: string, defaultValue?: Unit): Unit {
-        let value = this.get(name, defaultValue);
-
-        if (value instanceof Unit) {
-            return value;
-        }
-
-        return this.derive({ value: value }).invoke("asUnit");
+        return this.asUnit(this.get(name, defaultValue));
     }
 
-    invoke(name: string): any {
-        let definition = this.requiredAsDefinition(name);
+    invoke(name: string, args?: { [name: string]: any }): any {
+        let implementation = Utils.required(this.get(name), `Required procedure implementation is not defined: ${name}`);
 
         try {
-            return definition.fn(this)
+            return implementation(this.derive(args));
         }
         catch (error) {
-            throw new Error(`Invocation failed: ${name}. Error caused by: ${error}`);
+            throw new Error(`Invocation failed: ${name}.\n\tcaused by ${error}`);
         }
     }
 
@@ -131,12 +84,12 @@ export class Scope {
         return Utils.required(this.get(name), `Required value is not defined: ${name}`);
     }
 
-    requiredAsDefinition(name: string): Definition {
-        return Utils.required(this.getAsDefinition(name), `Required definition is not defined: ${name}`);
+    requiredAsList(name: string): List {
+        return Utils.required(this.getAsList(name), `Required list is not defined: ${name}`);
     }
 
-    requiredAsArray(name: string): any[] {
-        return Utils.required(this.getAsArray(name), `Required array is not defined: ${name}`);
+    requiredAsMap(name: string): Map {
+        return Utils.required(this.getAsMap(name), `Required map is not defined: ${name}`);
     }
 
     requiredAsQuantity(name: string): Quantity {
@@ -171,4 +124,68 @@ export class Scope {
         return this;
     }
 
+    asList(value: any): List {
+        if (value instanceof List) {
+            return value;
+        }
+
+        try {
+            return this.invoke("asList", { value: value });
+        }
+        catch (error) {
+            throw new Error(`Conversion to Unit failed: ${value}\n\tcaused by ${error}`);
+        }
+    }
+
+    asMap(value: any): Map {
+        if (value instanceof Map) {
+            return value;
+        }
+
+        try {
+            return this.invoke("asMap", { value: value });
+        }
+        catch (error) {
+            throw new Error(`Conversion to Unit failed: ${value}\n\tcaused by ${error}`);
+        }
+    }
+
+    asQuantity(value: any): Quantity {
+        if (value instanceof Quantity) {
+            return value;
+        }
+
+        try {
+            return this.invoke("asQuantity", { value: value });
+        }
+        catch (error) {
+            throw new Error(`Conversion to Unit failed: ${value}\n\tcaused by ${error}`);
+        }
+    }
+
+    asString(value: any): string {
+        if (typeof value === "string") {
+            return value;
+        }
+
+        try {
+            return this.invoke("asString", { value: value });
+        }
+        catch (error) {
+            throw new Error(`Conversion to Unit failed: ${value}\n\tcaused by ${error}`);
+        }
+    }
+
+    asUnit(value: any): Unit {
+        if (value instanceof Unit) {
+            return value;
+        }
+
+        try {
+            return this.invoke("asUnit", { value: value });
+        }
+        catch (error) {
+            throw new Error(`Conversion to Unit failed: ${value}\n\tcaused by ${error}`);
+        }
+    }
 }

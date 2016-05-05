@@ -1,10 +1,9 @@
 /// <reference path="../imports.d.ts" />
 
-import * as Utils from "./Utils";
+import * as CodeTestUtils from "./CodeTestUtils";
 
 describe("Parser (Sample)", () => {
 
-    Utils.testExpression("0.5 m² / 50 cm", "1 m");
-    Utils.testExpression("2 m ^ 3", "8 m³");
+    CodeTestUtils.testStatement("1 m² 5000 cm²", "1.5 m²");
 
 });

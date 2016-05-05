@@ -1,38 +1,28 @@
 
-import {Expression} from "./Expression";
+import {Command} from "./Command";
 import {Quantity} from "./Quantity";
 import {Scanner} from "./Scanner";
 import {Token, Tokenizer} from "./Tokenizer";
 import {Unit} from "./Unit";
 
-import * as Expressions from "./Expressions";
+import * as Commands from "./Commands";
 import * as Parser from "./Parser";
 import * as Units from "./Units";
 import * as Utils from "./Utils";
 
 import {msg} from "./../Msg";
 
-export function parseQuantity(language: string, s: string): Quantity {
-    let parser = new QuantityParser(language, Parser.scan(s));
-
-    return parser.init().parseSignedQuantity();
-}
-
-class QuantityParser {
+export class QuantityParser {
 
     private tokenizer: Tokenizer;
 
-    constructor(private language: string, scanner: Scanner) {
+    constructor(private language: string, source: string) {
         let decimalSeparators = msg(language, "Global.decimalSeparators");
         let digitSeparators = msg(language, "Global.digitSeparators");
 
-        this.tokenizer = new Tokenizer(scanner).decimalSeparators(decimalSeparators).digitSeparators(digitSeparators);
-    }
+        this.tokenizer = new Tokenizer(new Scanner(source)).decimalSeparators(decimalSeparators).digitSeparators(digitSeparators);
 
-    init(): QuantityParser {
         this.tokenizer.nextExpressionToken();
-
-        return this;
     }
 
     /**
@@ -91,7 +81,7 @@ class QuantityParser {
         let token = this.tokenizer.get();
 
         if (!this.isNumber(token)) {
-            throw new Error(Utils.formatError(token.line, token.column, `Expected number, but got: ${token.s}`));
+            throw new Error(Utils.formatError(token.line, token.column, `Expected number, but found: ${token.s}`));
         }
 
         this.tokenizer.nextExpressionToken();
@@ -106,7 +96,7 @@ class QuantityParser {
         let startToken = this.tokenizer.get();
 
         if (!this.isUnit(startToken)) {
-            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected unit, but got: ${startToken.s}`));
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected unit, but found: ${startToken.s}`));
         }
 
         let unitString = startToken.s;

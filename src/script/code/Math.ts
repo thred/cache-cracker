@@ -1,149 +1,124 @@
+import {Code} from "./Code";
+import {Definition} from "./Definition";
 import {Quantity} from "./Quantity";
 import {Scope} from "./Scope";
+import {Unit} from "./Unit";
 
-import * as Code from "./Code";
+import * as Definitions from "./Definitions";
 
-export function populate(scope: Scope) {
+export function populate(code: Code) {
 
-    scope.register({
-        name: "convert",
-        description: "Converts the value to a quantity with the specified unit",
-        parameters: {
-            value: "The value",
-            unit: "The unit"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("value").convert(scope.requiredAsUnit("unit"));
-        }
+    code.defineProcedure("convert", "Converts the value to a quantity with the specified unit.", [
+        new Definitions.Variable("value", "The value, interpretable as Quantity"),
+        new Definitions.Variable("unit", "The unit, interpretable as Unit")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value").convert(scope.requiredAsUnit("unit"));
     });
 
-    scope.register({
-        name: "positiveOf",
-        description: "Keeps the value",
-        parameters: {
-            value: "The value"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("value");
+    code.defineProcedure("chain", "Chains the values (e.g. 4 ft 2 in).", [
+        new Definitions.Variable("values", "A list of values, interpretable as Quantities")
+    ], (scope: Scope) => {
+        let leadingUnit: Unit = null;
+        let list = scope.requiredAsList("values");
+        let result: Quantity = null;
+
+        for (let i = 0; i < list.size; i++) {
+            let value: Quantity = scope.asQuantity(list.get(i));
+
+            if (value.unit.isUndefined()) {
+                if (list.size > i + 1) {
+                    throw new Error("Unit missing. This is only allowed for the last item in the chain");
+                }
+
+                if (leadingUnit.subUnit) {
+                    value = scope.invoke("convert", {
+                        value: value,
+                        unit: leadingUnit.subUnit
+                    });
+                }
+            }
+            else if ((leadingUnit) && (!leadingUnit.isPreceding(value.unit))) {
+                throw new Error(`Unit ${value.unit.describe()} cannot succeed unit ${leadingUnit.describe()} in chained expressions`);
+            }
+
+            if (result) {
+                result = result.add(value)
+            }
+            else {
+                result = value;
+            }
+
+            leadingUnit = value.unit;
         }
+
+        return result;
     });
 
-    scope.register({
-        name: "negativeOf",
-        description: "Negates the value",
-        parameters: {
-            value: "The value"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("value").negate();
-        }
+    code.defineProcedure("positiveOf", "Keeps the value", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value");
     });
 
-    scope.register({
-        name: "chain",
-        description: "Chains the left quantity and the right one (e.g. 3 ft 2 in). This method is used for chaining operation.",
-        parameters: {
-            left: "The left hand assignment",
-            right: "The right hand assignment"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("left").chain(scope.requiredAsQuantity("right"));
-        }
+    code.defineProcedure("negativeOf", "Negates the value", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value").negate();
     });
 
-    scope.register({
-        name: "add",
-        description: "Adds the right quantity to the left one. This method is used for the '+' operation.",
-        parameters: {
-            left: "The left hand assignment",
-            right: "The right hand assignment"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("left").add(scope.requiredAsQuantity("right"));
-        }
+    code.defineProcedure("add", "Adds the right quantity to the left one. This method is used for the '+' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").add(scope.requiredAsQuantity("right"));
     });
 
-    scope.register({
-        name: "subtract",
-        description: "Subtracts the right quantity from the left one. This method is used for the '-' operation.",
-        parameters: {
-            left: "The left hand assignment",
-            right: "The right hand assignment"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("left").subtract(scope.requiredAsQuantity("right"));
-        }
+    code.defineProcedure("subtract", "Subtracts the right quantity from the left one. This method is used for the '-' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").subtract(scope.requiredAsQuantity("right"));
     });
 
-    scope.register({
-        name: "multiply",
-        description: "Mutiplies the left quantity with the right one. This method is used for the '*' operation.",
-        parameters: {
-            left: "The left hand assignment",
-            right: "The right hand assignment"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("left").multiply(scope.requiredAsQuantity("right"));
-        }
+    code.defineProcedure("multiply", "Mutiplies the left quantity with the right one. This method is used for the '*' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").multiply(scope.requiredAsQuantity("right"));
     });
 
-    scope.register({
-        name: "divide",
-        description: "Divides the left quantity by the right one. This method is used for the '/' operation.",
-        parameters: {
-            left: "The left hand assignment",
-            right: "The right hand assignment"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("left").divide(scope.requiredAsQuantity("right"));
-        }
+    code.defineProcedure("divide", "Divides the left quantity by the right one. This method is used for the '/' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").divide(scope.requiredAsQuantity("right"));
     });
 
-    scope.register({
-        name: "power",
-        description: "Performs a power operation of the left quantity and the right one. This method is used for the '^' operation.",
-        parameters: {
-            left: "The left hand assignment",
-            right: "The right hand assignment"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("left").power(scope.requiredAsQuantity("right"));
-        }
+    code.defineProcedure("power", "Performs a power operation of the left quantity and the right one. This method is used for the '^' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").power(scope.requiredAsQuantity("right"));
     });
 
-    scope.register({
-        name: "modulo",
-        description: "Performs a modulo operation of the left quantity and the right one. This method is used for the 'mod' operation.",
-        parameters: {
-            left: "The left hand assignment",
-            right: "The right hand assignment"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("left").modulo(scope.requiredAsQuantity("right"));
-        }
+    code.defineProcedure("modulo", "Performs a modulo operation of the left quantity and the right one. This method is used for the 'mod' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").modulo(scope.requiredAsQuantity("right"));
     });
 
-    scope.register({
-        name: "abs",
-        description: "Compute the absolute value.",
-        parameters: {
-            value: "The value"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("value").abs();
-        }
+    code.defineProcedure("abs", "Compute the absolute value.", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value").abs();
     });
 
-    scope.register({
-        name: "round",
-        description: "Round the value to the specified number of digits.",
-        parameters: {
-            value: "The value",
-            digits: "The number of digits (optional, default value is 0)"
-        },
-        fn: (scope: Scope) => {
-            return scope.requiredAsQuantity("value").round(scope.getAsQuantity("digits", Quantity.ZERO));
-        }
+    code.defineProcedure("round", "Round the value to the specified number of digits.", [
+        new Definitions.Variable("value", "The value"),
+        new Definitions.Variable("digits", "The number of digits", new Quantity(0))
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value").round(scope.getAsQuantity("digits", Quantity.ZERO));
     });
 
 }

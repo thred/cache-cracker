@@ -1,6 +1,6 @@
+import {QuantityParser} from "./QuantityParser";
 import {Unit} from "./Unit";
 
-import * as QuantityParser from "./QuantityParser";
 import * as Units from "./Units";
 
 /**
@@ -11,7 +11,7 @@ export class Quantity {
     static ZERO: Quantity = new Quantity(0);
 
     static parse(language: string, s: string): Quantity {
-        return QuantityParser.parseQuantity(language, s);
+        return new QuantityParser(language, s).parseSignedQuantity();
     }
 
     constructor(private _value: number, private _unit: Unit = Units.UNDEFINED) {

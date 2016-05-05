@@ -31,7 +31,7 @@ export function describe(object: any): string {
                 s += ", ";
             }
 
-            s += value.replace("\n", "\n\t");
+            s += indent(value);
             found = true;
         }
 
@@ -50,7 +50,7 @@ export function describe(object: any): string {
             s += ",";
         }
 
-        s += "\n\t" + toIdentifier(name) + ": " + value.replace("\n", "\n\t");
+        s += "\n\t" + indent(toKey(name)) + ": " + indent(value);
         found = true;
     }
 
@@ -63,12 +63,73 @@ export function describe(object: any): string {
     return s;
 }
 
-export function toIdentifier(s: string): string {
+export function isLetter(ch: string): boolean {
+    if (!ch) {
+        return false;
+    }
+
+    let code = ch.charCodeAt(0)
+
+    if ((code >= 65) && (code <= 90)) {
+        return true;
+    }
+
+    if ((code >= 97) && (code <= 122)) {
+        return true;
+    }
+
+    return "ÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð".indexOf(ch) >= 0;
+}
+
+export function isDigit(ch: string): boolean {
+    if (!ch) {
+        return false;
+    }
+
+    let code = ch.charCodeAt(0)
+
+    return ((code >= 48) && (code <= 57));
+}
+
+export function isIdentifier(s: string): boolean {
+    if ((s === undefined) || (s === null)) {
+        return false;
+    }
+
+    if (!s.length) {
+        return false;
+    }
+
+    for (let i = 0; i < s.length; i++) {
+        let ch = s.charAt(i);
+
+        if (isLetter(ch)) {
+            continue;
+        }
+
+        if ((isDigit(ch)) && (i > 0)) {
+            continue;
+        }
+
+        if (ch === "_") {
+            continue;
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+export function toKey(s: string): string {
     if ((s === undefined) || (s === null)) {
         return s;
     }
 
-    // TODO implement identifier detection and return without quotes if possible
+    if (isIdentifier(s)) {
+        return s;
+    }
+
     return toEscapedStringWithQuotes(s);
 }
 
@@ -168,4 +229,12 @@ export function formatError(line: number, column: number, message: string, cause
     }
 
     return result;
+}
+
+export function indent(s: string) {
+    if ((s === undefined) || (s === null)) {
+        return s;
+    }
+
+    return s.replace("\n", "\n\t");
 }

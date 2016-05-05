@@ -11,7 +11,7 @@ const DEFAULT_DIGIT_SEPARATORS: string = " \u00a0";
 const DEFAULT_RESERVED_CHARACTERS: string = DEFAULT_WHITESPACES + DEFAULT_OPERATORS + DEFAULT_BRACKETS + DEFAULT_SEPARATORS + "~?\\&|<>!=$#";
 
 export interface Token {
-    type: "undefined" | "delimiter" | "string" | "number" | "operator" | "brackets" | "reference" | "comment" | "separator" | "identifier" | "end";
+    type: "undefined" | "delimiter" | "string" | "number" | "operator" | "brackets" | "reference" | "comment" | "separator" | "word" | "end";
 
     offset: number;
 
@@ -202,7 +202,7 @@ export class Tokenizer {
         return (this.isDigit(ch)) || (this.isDecimalSeparator(ch));
     }
 
-    isIdentifier(ch: string): boolean {
+    isWord(ch: string): boolean {
         return !this.isReservedCharacter(ch);
     }
 
@@ -338,8 +338,8 @@ export class Tokenizer {
             return token;
         }
 
-        if (this.isIdentifier(ch)) {
-            return this.readIdentifierToken(ch, token);
+        if (this.isWord(ch)) {
+            return this.readWordToken(ch, token);
         }
 
         token.type = "undefined";
@@ -451,8 +451,8 @@ export class Tokenizer {
         return token;
     }
 
-    private readIdentifierToken(ch: string, token: Token): Token {
-        token.type = "identifier";
+    private readWordToken(ch: string, token: Token): Token {
+        token.type = "word";
 
         while (true) {
             if (!ch) {
@@ -463,7 +463,7 @@ export class Tokenizer {
 
             ch = this.scanner.next();
 
-            if (!this.isIdentifier(ch)) {
+            if (!this.isWord(ch)) {
                 break;
             }
         }

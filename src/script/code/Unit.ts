@@ -62,7 +62,11 @@ export class Unit {
     }
 
     isPreceding(unit: Unit) {
-        return (!unit.isUndefined()) && (this.isCompatible(unit)) && (unit.multiplier > this.multiplier);
+        return (!unit.isUndefined()) && (this.isCompatible(unit)) && (unit.multiplier < this.multiplier);
+    }
+
+    describe(language?: string): string {
+        return this.symbols[0];
     }
 
 }
