@@ -7,6 +7,7 @@
 * Parse methods of Quantity and Unit should accept objects instead of strings.
 * Invoke method of scope should take args - where should the method store values? Check all calls.
 * Implement units mathematically correct by supporting undefined units, too.
+* Check all describe methods... *boooooring!*
 
 
 

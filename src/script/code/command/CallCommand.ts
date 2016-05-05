@@ -57,7 +57,7 @@ export class CallCommand extends BlockCommand {
             }
 
             return scope.invoke(procedure.name);
-        }, () => `${name} ${arg.describe()}`);
+        }, (language?: string) => `${procedure.name} ${this.arg.describe(language)}`);
     };
 
     toString(): string {

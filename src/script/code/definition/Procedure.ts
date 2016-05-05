@@ -29,10 +29,10 @@ export class Procedure extends Definition {
         let description = `Procedure: ${super.describe(language)}`;
 
         if (this._params.length > 0) {
-            description += "\n\n";
+            description += "\n";
 
             for (let param of this._params) {
-                description += `${param.name}: ${param.description}`;
+                description += `\n${param.name}: ${param.description}`;
             }
         }
 

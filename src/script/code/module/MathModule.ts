@@ -115,11 +115,25 @@ class MathModule extends Module {
             return scope.requiredAsQuantity("value").abs();
         }));
 
-        this.define(this.procedure("round", "Round the value to the specified number of digits.", [
+        this.define(this.procedure("round", "Rounds the value to the specified number of digits.", [
             this.parameter("value", "The value"),
             this.parameter("digits", "The number of digits", new Quantity(0))
         ], (scope: Scope) => {
             return scope.requiredAsQuantity("value").round(scope.getAsQuantity("digits", Quantity.ZERO));
+        }));
+
+        this.define(this.procedure("floor", "Returns the greatest number less or equal the specified number (with the specified number of digits).", [
+            this.parameter("value", "The value"),
+            this.parameter("digits", "The number of digits", new Quantity(0))
+        ], (scope: Scope) => {
+            return scope.requiredAsQuantity("value").floor(scope.getAsQuantity("digits", Quantity.ZERO));
+        }));
+
+        this.define(this.procedure("ceil", "Returns the smallest number greater or equal the specified number (with the specified number of digits).", [
+            this.parameter("value", "The value"),
+            this.parameter("digits", "The number of digits", new Quantity(0))
+        ], (scope: Scope) => {
+            return scope.requiredAsQuantity("value").ceil(scope.getAsQuantity("digits", Quantity.ZERO));
         }));
     }
 }

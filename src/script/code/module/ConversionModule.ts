@@ -6,7 +6,9 @@ import {Unit} from "./../Unit";
 
 class ConversionModule extends Module {
 
-    init() {
+    constructor() {
+        super();
+        
         // TODO asList
         // TODO asMap
 

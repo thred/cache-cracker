@@ -4,6 +4,6 @@ import {testScript} from "./CodeTestUtils";
 
 describe("Parser (Sample)", () => {
 
-    testScript("1 m² 5000 cm²", "1.5 m²");
+    testScript("round (1.555, 2)", "1.56");
 
 });

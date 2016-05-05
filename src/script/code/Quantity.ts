@@ -190,6 +190,28 @@ export class Quantity {
         return new Quantity(round(this._value, digits.value), this._unit);
     }
 
+    floor(digits?: Quantity): Quantity {
+        if ((digits) && (!digits.unit.isUndefined)) {
+            throw new Error(`${digits.describe()} as value for rounding digits not supported`);
+        }
+        else if (!digits) {
+            digits = Quantity.ZERO;
+        }
+
+        return new Quantity(floor(this._value, digits.value), this._unit);
+    }
+
+    ceil(digits?: Quantity): Quantity {
+        if ((digits) && (!digits.unit.isUndefined)) {
+            throw new Error(`${digits.describe()} as value for rounding digits not supported`);
+        }
+        else if (!digits) {
+            digits = Quantity.ZERO;
+        }
+
+        return new Quantity(ceil(this._value, digits.value), this._unit);
+    }
+
     describe(): string {
         if (this.unit.isUndefined()) {
             return `${round(this.value, 8)}`;
@@ -209,4 +231,16 @@ function round(n: number, digits: number): number {
     var multiple = Math.pow(10, digits);
 
     return Math.round(n * multiple) / multiple;
+}
+
+function floor(n: number, digits: number): number {
+    var multiple = Math.pow(10, digits);
+
+    return Math.floor(n * multiple) / multiple;
+}
+
+function ceil(n: number, digits: number): number {
+    var multiple = Math.pow(10, digits);
+
+    return Math.ceil(n * multiple) / multiple;
 }
