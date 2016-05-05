@@ -5,7 +5,7 @@ import {Scope} from "../../script/code/Scope";
 
 import {assert} from "chai";
 
-export function testStatement(source: string, result: string): Scope {
+export function testScript(source: string, result: string): Scope {
     let scope = new Scope(null);
 
     it(`${source} => ${result}`, () => {

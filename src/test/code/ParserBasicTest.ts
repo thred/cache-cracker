@@ -1,11 +1,11 @@
 /// <reference path="../imports.d.ts" />
 
-import * as CodeTestUtils from "./CodeTestUtils";
+import {testScript} from "./CodeTestUtils";
 
 describe("Parser (Basic)", () => {
 
-    CodeTestUtils.testStatement("42.1", "42.1");
-    CodeTestUtils.testStatement("\"a string\"", "a string");
-    CodeTestUtils.testStatement("\"a ${2}nd string\"", "a 2nd string");
+    testScript("42.1", "42.1");
+    testScript("\"a string\"", "a string");
+    testScript("\"a ${2}nd string\"", "a 2nd string");
 
 });
