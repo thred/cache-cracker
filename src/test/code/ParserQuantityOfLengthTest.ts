@@ -9,7 +9,7 @@ describe("Parser (Quantity of Length)", () => {
     CodeTestUtils.testStatement("3 * 0.5 m", "1.5 m");
     CodeTestUtils.testStatement("(150 cm) m", "1.5 m");
     CodeTestUtils.testStatement("1 m 50 cm", "1.5 m");
-    CodeTestUtils.testStatement("1 m 50: 1 m 50 cm", "1.5 m");
+    CodeTestUtils.testStatement("1 m 50", "1.5 m");
 
     CodeTestUtils.testStatement("((1 in) in) in", "1 in");
     CodeTestUtils.testStatement("(1 in) cm", "2.54 cm");

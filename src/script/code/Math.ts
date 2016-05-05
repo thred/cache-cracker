@@ -20,158 +20,106 @@ export function populate(code: Code) {
     ], (scope: Scope) => {
         let leadingUnit: Unit = null;
         let list = scope.requiredAsList("values");
+        let result: Quantity = null;
 
         for (let i = 0; i < list.size; i++) {
-            let item: Quantity = scope.asQuantity(list.get(i));
+            let value: Quantity = scope.asQuantity(list.get(i));
 
-            if (item.unit.isUndefined()) {
+            if (value.unit.isUndefined()) {
                 if (list.size > i + 1) {
-                    
+                    throw new Error("Unit missing. This is only allowed for the last item in the chain");
+                }
+
+                if (leadingUnit.subUnit) {
+                    value = scope.invoke("convert", {
+                        value: value,
+                        unit: leadingUnit.subUnit
+                    });
                 }
             }
-
-            if (leadingUnit) {
-                if (!leadingUnit.isPreceding(item.))
+            else if ((leadingUnit) && (!leadingUnit.isPreceding(value.unit))) {
+                throw new Error(`Unit ${value.unit.describe()} cannot succeed unit ${leadingUnit.describe()} in chained expressions`);
             }
+
+            if (result) {
+                result = result.add(value)
+            }
+            else {
+                result = value;
+            }
+
+            leadingUnit = value.unit;
         }
 
-
-
-
-        let left = scope.requiredAsQuantity("left");
-        let right = scope.requiredAsQUantity("rig")
-
-        return .add(scope.requiredAsQuantity("right"));
+        return result;
     });
 
+    code.defineProcedure("positiveOf", "Keeps the value", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value");
+    });
 
+    code.defineProcedure("negativeOf", "Negates the value", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value").negate();
+    });
 
-    let values: any[] = scope.requiredAsList("values");
-    let index = 0;
+    code.defineProcedure("add", "Adds the right quantity to the left one. This method is used for the '+' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").add(scope.requiredAsQuantity("right"));
+    });
 
-    function get(): any {
-        return (index < values.length) ? values[index] : undefined;
-    }
+    code.defineProcedure("subtract", "Subtracts the right quantity from the left one. This method is used for the '-' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").subtract(scope.requiredAsQuantity("right"));
+    });
 
-    function next(): any {
-        if (index + 1 < values.length) {
-            return undefined;
-        }
+    code.defineProcedure("multiply", "Mutiplies the left quantity with the right one. This method is used for the '*' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").multiply(scope.requiredAsQuantity("right"));
+    });
 
-        return values[++index];
-    }
+    code.defineProcedure("divide", "Divides the left quantity by the right one. This method is used for the '/' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").divide(scope.requiredAsQuantity("right"));
+    });
 
-    function lookAhead(): any {
-        return (index + 1 < values.length) ? values[index + 1] : undefined;
-    }
+    code.defineProcedure("power", "Performs a power operation of the left quantity and the right one. This method is used for the '^' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").power(scope.requiredAsQuantity("right"));
+    });
 
-    if (lookAhead instanceof Unit) {
+    code.defineProcedure("modulo", "Performs a modulo operation of the left quantity and the right one. This method is used for the 'mod' operation.", [
+        new Definitions.Variable("left", "The left hand assignment"),
+        new Definitions.Variable("right", "The right hand assignment")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("left").modulo(scope.requiredAsQuantity("right"));
+    });
 
-    }
+    code.defineProcedure("abs", "Compute the absolute value.", [
+        new Definitions.Variable("value", "The value")
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value").abs();
+    });
 
-
-
-
-
-    // while (values.length) {
-    //     let value = values.shift();
-
-    //     if ()
-
-
-
-    // }
-
-    // if (left instanceof Quantity) {
-    //     if (right instanceof Quantity) {
-    //         return (left as Quantity).chain(right as Quantity);
-    //     }
-
-    //     if (right instanceof Unit) {
-    //         return (left as Quantity).convert(right as Unit);
-    //     }
-
-    //     if (typeof right === "string") {
-    //         return (left as Quantity).chain(scope.requiredAsQuantity(right));
-    //     }
-
-
-    // }
-
-
-
-    //     // return .chain(scope.requiredAsQuantity("right"));
-    //     return null;
-    // });
-
-});
-
-code.defineProcedure("positiveOf", "Keeps the value", [
-    new Definitions.Variable("value", "The value")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("value");
-});
-
-code.defineProcedure("negativeOf", "Negates the value", [
-    new Definitions.Variable("value", "The value")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("value").negate();
-});
-
-code.defineProcedure("add", "Adds the right quantity to the left one. This method is used for the '+' operation.", [
-    new Definitions.Variable("left", "The left hand assignment"),
-    new Definitions.Variable("right", "The right hand assignment")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("left").add(scope.requiredAsQuantity("right"));
-});
-
-code.defineProcedure("subtract", "Subtracts the right quantity from the left one. This method is used for the '-' operation.", [
-    new Definitions.Variable("left", "The left hand assignment"),
-    new Definitions.Variable("right", "The right hand assignment")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("left").subtract(scope.requiredAsQuantity("right"));
-});
-
-code.defineProcedure("multiply", "Mutiplies the left quantity with the right one. This method is used for the '*' operation.", [
-    new Definitions.Variable("left", "The left hand assignment"),
-    new Definitions.Variable("right", "The right hand assignment")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("left").multiply(scope.requiredAsQuantity("right"));
-});
-
-code.defineProcedure("divide", "Divides the left quantity by the right one. This method is used for the '/' operation.", [
-    new Definitions.Variable("left", "The left hand assignment"),
-    new Definitions.Variable("right", "The right hand assignment")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("left").divide(scope.requiredAsQuantity("right"));
-});
-
-code.defineProcedure("power", "Performs a power operation of the left quantity and the right one. This method is used for the '^' operation.", [
-    new Definitions.Variable("left", "The left hand assignment"),
-    new Definitions.Variable("right", "The right hand assignment")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("left").power(scope.requiredAsQuantity("right"));
-});
-
-code.defineProcedure("modulo", "Performs a modulo operation of the left quantity and the right one. This method is used for the 'mod' operation.", [
-    new Definitions.Variable("left", "The left hand assignment"),
-    new Definitions.Variable("right", "The right hand assignment")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("left").modulo(scope.requiredAsQuantity("right"));
-});
-
-code.defineProcedure("abs", "Compute the absolute value.", [
-    new Definitions.Variable("value", "The value")
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("value").abs();
-});
-
-code.defineProcedure("round", "Round the value to the specified number of digits.", [
-    new Definitions.Variable("value", "The value"),
-    new Definitions.Variable("digits", "The number of digits", new Quantity(0))
-], (scope: Scope) => {
-    return scope.requiredAsQuantity("value").round(scope.getAsQuantity("digits", Quantity.ZERO));
-});
+    code.defineProcedure("round", "Round the value to the specified number of digits.", [
+        new Definitions.Variable("value", "The value"),
+        new Definitions.Variable("digits", "The number of digits", new Quantity(0))
+    ], (scope: Scope) => {
+        return scope.requiredAsQuantity("value").round(scope.getAsQuantity("digits", Quantity.ZERO));
+    });
 
 }
 
