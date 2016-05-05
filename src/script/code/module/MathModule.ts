@@ -4,6 +4,8 @@ import {Quantity} from "./../Quantity";
 import {Scope} from "./../Scope";
 import {Unit} from "./../Unit";
 
+import * as Utils from "./../util/Utils";
+
 class MathModule extends Module {
 
     constructor() {
@@ -115,26 +117,35 @@ class MathModule extends Module {
             return scope.requiredAsQuantity("value").abs();
         }));
 
-        this.define(this.procedure("round", "Rounds the value to the specified number of digits.", [
+        this.define(this.procedure("round", "Rounds the value to the specified accuracy (e.g. 0.01).", [
             this.parameter("value", "The value"),
-            this.parameter("digits", "The number of digits", new Quantity(0))
+            this.parameter("accuracy", "The accuracy, default value is 1", Quantity.ONE)
         ], (scope: Scope) => {
-            return scope.requiredAsQuantity("value").round(scope.getAsQuantity("digits", Quantity.ZERO));
+            return scope.requiredAsQuantity("value").round(scope.getAsQuantity("accuracy"));
         }));
 
-        this.define(this.procedure("floor", "Returns the greatest number less or equal the specified number (with the specified number of digits).", [
+        this.define(this.procedure("floor", "Returns the greatest number less or equal the specified number (with the specified accuracy, e.g. 0.01).", [
             this.parameter("value", "The value"),
-            this.parameter("digits", "The number of digits", new Quantity(0))
+            this.parameter("accuracy", "The accuracy, default value is 1", Quantity.ONE)
         ], (scope: Scope) => {
-            return scope.requiredAsQuantity("value").floor(scope.getAsQuantity("digits", Quantity.ZERO));
+            return scope.requiredAsQuantity("value").floor(scope.getAsQuantity("accuracy"));
         }));
 
-        this.define(this.procedure("ceil", "Returns the smallest number greater or equal the specified number (with the specified number of digits).", [
+        this.define(this.procedure("ceil", "Returns the smallest number greater or equal the specified number (with the specified accuracy, e.g. 0.01).", [
             this.parameter("value", "The value"),
-            this.parameter("digits", "The number of digits", new Quantity(0))
+            this.parameter("accuracy", "The accuracy, default value is 1", Quantity.ONE)
         ], (scope: Scope) => {
-            return scope.requiredAsQuantity("value").ceil(scope.getAsQuantity("digits", Quantity.ZERO));
+            return scope.requiredAsQuantity("value").ceil(scope.getAsQuantity("accuracy"));
         }));
+
+        this.define(this.procedure("random", "Returns a random number between (and including) 1 and the maximum value.", [
+            this.parameter("maximum", "The maximum value"),
+            this.parameter("accuracy", "The accuracy, default value is 1", Quantity.ONE)
+        ], (scope: Scope) => {
+            let quantity = scope.requiredAsQuantity("maximum");
+
+            return new Quantity(Math.random() * quantity.value + 1, quantity.unit).floor(scope.getAsQuantity("accuracy"));
+        }))
     }
 }
 

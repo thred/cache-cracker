@@ -61,6 +61,10 @@ export class Unit {
         return (this.isUndefined()) || (unit.isUndefined()) || (this.type === unit.type);
     }
 
+    isSame(unit: Unit) {
+        return ((this.isUndefined()) && (unit.isUndefined())) || (this.type === unit.type);
+    }
+    
     isPreceding(unit: Unit) {
         return (!unit.isUndefined()) && (this.isCompatible(unit)) && (unit.multiplier < this.multiplier);
     }

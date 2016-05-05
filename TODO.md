@@ -12,5 +12,27 @@
 * Implement asMap, asArray
 * Implement UnitParser like QuantityParser
 
+A() = 5
+A() = 6
+B() = A * 3
+
+A = fn(): 5
+
+
+A = 4 * 5
+
+B = fn(a, b, c):  
+
+fn A(a, b, c) =
+
+fn(a, b, c) = 
+
+A = fn(a, b, c) = 
+
+A: 4 * 5
+
+
+A(x) = x * 3
+
 
 

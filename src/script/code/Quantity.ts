@@ -4,12 +4,16 @@ import * as Units from "./Units";
 
 import {QuantityParser} from "./util/QuantityParser";
 
+import * as Utils from "./util/Utils";
+
 /**
  * Holds a quantity.
  */
-export class Quantity {
+export class Quantity implements Utils.Descripted {
 
     static ZERO: Quantity = new Quantity(0);
+
+    static ONE: Quantity = new Quantity(1);
 
     static parse(language: string, s: string): Quantity {
         return new QuantityParser(language, s).parseSignedQuantity();
@@ -179,45 +183,59 @@ export class Quantity {
         return new Quantity(Math.abs(this._value), this._unit);
     }
 
-    round(digits?: Quantity): Quantity {
-        if ((digits) && (!digits.unit.isUndefined)) {
-            throw new Error(`${digits.describe()} as value for rounding digits not supported`);
-        }
-        else if (!digits) {
-            digits = Quantity.ZERO;
+    round(accuracy: Quantity = Quantity.ONE): Quantity {
+        if (accuracy.unit.isUndefined()) {
+            return new Quantity(Utils.round(this._value, accuracy.value), this._unit);
         }
 
-        return new Quantity(round(this._value, digits.value), this._unit);
+        if (this.unit.isCompatible(accuracy._unit)) {
+            return new Quantity(Utils.round(this._value, accuracy.value * accuracy.unit.multiplier / this._unit.multiplier), this._unit);
+        }
+
+        throw new Error(`Rounding "${this.describe()}" to "${accuracy.describe()}" not supported`);
     }
 
-    floor(digits?: Quantity): Quantity {
-        if ((digits) && (!digits.unit.isUndefined)) {
-            throw new Error(`${digits.describe()} as value for rounding digits not supported`);
-        }
-        else if (!digits) {
-            digits = Quantity.ZERO;
+    floor(accuracy: Quantity = Quantity.ONE): Quantity {
+        if (accuracy.unit.isUndefined()) {
+            return new Quantity(Utils.floor(this._value, accuracy.value), this._unit);
         }
 
-        return new Quantity(floor(this._value, digits.value), this._unit);
+        if (this.unit.isCompatible(accuracy._unit)) {
+            return new Quantity(Utils.floor(this._value, accuracy.value * accuracy.unit.multiplier / this._unit.multiplier), this._unit);
+        }
+
+        throw new Error(`Rounding "${this.describe()}" to "${accuracy.describe()}" not supported`);
     }
 
-    ceil(digits?: Quantity): Quantity {
-        if ((digits) && (!digits.unit.isUndefined)) {
-            throw new Error(`${digits.describe()} as value for rounding digits not supported`);
-        }
-        else if (!digits) {
-            digits = Quantity.ZERO;
+    ceil(accuracy: Quantity = Quantity.ONE): Quantity {
+        if (accuracy.unit.isUndefined()) {
+            return new Quantity(Utils.ceil(this._value, accuracy.value), this._unit);
         }
 
-        return new Quantity(ceil(this._value, digits.value), this._unit);
+        if (this.unit.isCompatible(accuracy._unit)) {
+            return new Quantity(Utils.ceil(this._value, accuracy.value * accuracy.unit.multiplier / this._unit.multiplier), this._unit);
+        }
+
+        throw new Error(`Rounding "${this.describe()}" to "${accuracy.describe()}" not supported`);
     }
 
-    describe(): string {
+    equals(other: Quantity): boolean {
+        if (!this._unit.isSame(other.unit)) {
+            return false;
+        }
+
+        let value = this.value * this.unit.multiplier;
+        let otherValue = other.value * other.unit.multiplier;
+
+        return value.toPrecision(Utils.precision) === otherValue.toPrecision(Utils.precision);
+    }
+
+    describe(language: string = Utils.language): string {
         if (this.unit.isUndefined()) {
-            return `${round(this.value, 8)}`;
+            return `${parseFloat(this.value.toPrecision(Utils.precision))}`;
         }
 
-        return `${round(this.value, 8)} ${this.unit.symbols[0]}`;
+        return `${parseFloat(this.value.toPrecision(Utils.precision))} ${this.unit.symbols[0]}`;
     }
 
 
@@ -227,20 +245,3 @@ export class Quantity {
 
 }
 
-function round(n: number, digits: number): number {
-    var multiple = Math.pow(10, digits);
-
-    return Math.round(n * multiple) / multiple;
-}
-
-function floor(n: number, digits: number): number {
-    var multiple = Math.pow(10, digits);
-
-    return Math.floor(n * multiple) / multiple;
-}
-
-function ceil(n: number, digits: number): number {
-    var multiple = Math.pow(10, digits);
-
-    return Math.ceil(n * multiple) / multiple;
-}

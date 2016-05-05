@@ -1,6 +1,8 @@
 import {Quantity} from "./../Quantity"
 import {Unit} from "./../Unit"
 
+export let precision = 8;
+
 export let language = "en-US";
 
 export interface Descripted {
@@ -71,6 +73,30 @@ export function describe(object: any): string {
     s += "}";
 
     return s;
+}
+
+export function round(n: number, accuracy: number): number {
+    if (accuracy === 0) {
+        return n;
+    }
+
+    return Math.round(n / accuracy) * accuracy;
+}
+
+export function floor(n: number, accuracy: number): number {
+    if (accuracy === 0) {
+        return n;
+    }
+
+    return Math.floor(n / accuracy) * accuracy;
+}
+
+export function ceil(n: number, accuracy: number): number {
+    if (accuracy === 0) {
+        return n;
+    }
+
+    return Math.ceil(n / accuracy) * accuracy;
 }
 
 export type Map = { [key: string]: any };

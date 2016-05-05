@@ -5,10 +5,10 @@ import {Scope} from "../../script/code/Scope";
 
 import {assert} from "chai";
 
-export function testScript(source: string, result: string): Scope {
+export function testScript(source: string, expected: string, verify?: (value: any, error?: any) => boolean): Scope {
     let scope = new Scope(null);
 
-    it(`${source} => ${result}`, () => {
+    it(`${source} => ${expected}`, () => {
         let description = source;
 
         if (source.indexOf(":") >= 0) {
@@ -19,7 +19,25 @@ export function testScript(source: string, result: string): Scope {
         let script = Environment.DEFAULT.parse(source);
 
         assert.equal(script.describe(), description);
-        assert.equal(script.execute().toString(), result);
+
+        try {
+            let result = script.execute();
+
+            if (verify) {
+                assert.isTrue(verify(result, null), `Verify failed for result ${result.toString()}`);
+            }
+            else {
+                assert.equal(result, expected);
+            }
+        }
+        catch (error) {
+            if (verify) {
+                assert.isTrue(verify(null, error), `Verify failed for error ${error}`);
+            }
+            else {
+                throw error;
+            }
+        }
     });
 
     return scope;

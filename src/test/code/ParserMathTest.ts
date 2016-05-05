@@ -23,9 +23,11 @@ describe("Parser (Math)", () => {
     testScript("abs -1.5", "1.5");
 
     testScript("round 1.5", "2");
-    testScript("round (1.555, 2)", "1.56");
+    testScript("round (1.555, 0.01)", "1.56");
 
     testScript("floor 1.5", "1");
     testScript("ceil 1.5", "2");
+
+    testScript("random 1", "1");
 
 });
