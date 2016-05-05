@@ -19,8 +19,6 @@ export function testScript(source: string, result: string): Scope {
         let script = Environment.DEFAULT.parse(source);
 
         assert.equal(script.describe(), description);
-        console.log(script);
-        
         assert.equal(script.execute().toString(), result);
     });
 

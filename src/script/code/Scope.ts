@@ -1,5 +1,3 @@
-import {List} from "./List";
-import {Map} from "./Map";
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 
@@ -51,11 +49,11 @@ export class Scope {
         return value;
     }
 
-    getAsList(name: string): List {
-        return this.asList(this.get(name));
+    getAsArray(name: string): any[] {
+        return this.asArray(this.get(name));
     }
 
-    getAsMap(name: string): Map {
+    getAsMap(name: string): Utils.Map {
         return this.asMap(this.get(name));
     }
 
@@ -86,11 +84,11 @@ export class Scope {
         return Utils.required(this.get(name), `Required value is not defined: ${name}`);
     }
 
-    requiredAsList(name: string): List {
-        return Utils.required(this.getAsList(name), `Required list is not defined: ${name}`);
+    requiredAsArray(name: string): any[] {
+        return Utils.required(this.getAsArray(name), `Required array is not defined: ${name}`);
     }
 
-    requiredAsMap(name: string): Map {
+    requiredAsMap(name: string): Utils.Map {
         return Utils.required(this.getAsMap(name), `Required map is not defined: ${name}`);
     }
 
@@ -126,22 +124,22 @@ export class Scope {
         return this;
     }
 
-    asList(value: any): List {
-        if (value instanceof List) {
+    asArray(value: any): any[] {
+        if (Array.isArray(value)) {
             return value;
         }
 
         try {
-            return this.invoke("asList", { value: value });
+            return this.invoke("asArray", { value: value });
         }
         catch (error) {
             throw new Error(`Conversion to Unit failed: ${value}\n\tcaused by ${error}`);
         }
     }
 
-    asMap(value: any): Map {
-        if (value instanceof Map) {
-            return value;
+    asMap(value: any): Utils.Map {
+        if (Utils.isMap(value)) {
+            return value as Utils.Map;
         }
 
         try {

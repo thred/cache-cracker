@@ -1,7 +1,5 @@
 import {Command} from "./Command";
 
-import {List} from "./../List";
-
 export class TupleCommand extends Command {
     constructor(line: number, column: number, private commands: Command[]) {
         super(line, column,
@@ -14,7 +12,7 @@ export class TupleCommand extends Command {
                     return commands[0].execute(scope);
                 }
 
-                return new List(commands.map((command => command.execute(scope))));
+                return commands.map((command => command.execute(scope)));
             },
             () => `(${commands.map((command) => command.describe()).join(", ")})`);
     }

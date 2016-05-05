@@ -1,7 +1,5 @@
 import {Command} from "./Command";
 
-import {List} from "./../List";
-
 import * as Utils from "./../util/Utils";
 
 export class ChainOperationCommand extends Command {
@@ -9,7 +7,7 @@ export class ChainOperationCommand extends Command {
         super(line, column,
             (scope) => {
                 return scope.invoke("chain", {
-                    values: new List(segments.map((segment) => segment.execute(scope)))
+                    values: segments.map((segment) => segment.execute(scope))
                 });
             }, () => `${segments.map((segment) => segment.describe()).join(" ")}`);
     }

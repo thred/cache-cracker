@@ -1,9 +1,7 @@
 import {Command} from "./Command";
 
-import {Identifier} from "./../Identifier";
-
 export class IdentifierCommand extends Command {
-    constructor(line: number, column: number, private identifier: Identifier) {
+    constructor(line: number, column: number, private identifier: string) {
         super(line, column,
             (scope) => identifier,
             () => `${identifier}`);

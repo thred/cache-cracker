@@ -10,7 +10,7 @@ class StringModule extends Module {
         this.define(this.procedure("concat", "Concatenates the specified array as strings.", [
             this.parameter("values", "An array of values")
         ], (scope: Scope) => {
-            let values = scope.requiredAsList("values")
+            let values = scope.requiredAsArray("values")
 
             if (values === null) {
                 return null;

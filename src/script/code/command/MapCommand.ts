@@ -1,7 +1,5 @@
 import {Command} from "./Command";
 
-import {Map} from "./../Map";
-
 import * as Utils from "./../util/Utils";
 
 export class MapCommand extends Command {
@@ -11,7 +9,7 @@ export class MapCommand extends Command {
     }[]) {
         super(line, column,
             (scope) => {
-                let map = new Map();
+                let map: Utils.Map = {};
 
                 for (let command of commands) {
                     let key = command.key.execute(scope);
@@ -21,7 +19,7 @@ export class MapCommand extends Command {
                             `Invalid key: ${key}`));
                     }
 
-                    map.set(key, command.value.execute(scope));
+                    map[key] = command.value.execute(scope);
                 }
 
                 return map;

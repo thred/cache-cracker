@@ -4,7 +4,6 @@ import {Token, Tokenizer} from "./Tokenizer";
 
 import * as Utils from "./Utils";
 
-import {Identifier} from "./../Identifier";
 import {Quantity} from "./../Quantity";
 import {Unit} from "./../Unit";
 
@@ -12,12 +11,12 @@ import * as Units from "./../Units";
 
 import {Command} from "./../command/Command";
 import {AccessCommand} from "./../command/AccessCommand";
+import {ArrayCommand} from "./../command/ArrayCommand";
 import {BinaryOperationCommand} from "./../command/BinaryOperationCommand";
 import {CallCommand} from "./../command/CallCommand";
 import {ChainOperationCommand} from "./../command/ChainOperationCommand";
 import {ConvertCommand} from "./../command/ConvertCommand";
 import {IdentifierCommand} from "./../command/IdentifierCommand";
-import {ListCommand} from "./../command/ListCommand";
 import {MapCommand} from "./../command/MapCommand";
 import {QuantityCommand} from "./../command/QuantityCommand";
 import {StringCommand, StringCommandReferenceSegment, StringCommandPlaceholderSegment, StringCommandStringSegment} from "./../command/StringCommand";
@@ -200,12 +199,12 @@ export class CommandParser {
     }
 
     isExpression(context: Context, token: Token): boolean {
-        return (this.isTuple(context, token)) || (this.isList(context, token)) || (this.isMap(context, token)) || (this.isConstant(context, token)) ||
+        return (this.isTuple(context, token)) || (this.isArray(context, token)) || (this.isMap(context, token)) || (this.isConstant(context, token)) ||
             (this.isCall(context, token)) || (this.isAccess(context, token)) || (this.isUnit(context, token));
     }
 
     /**
-     *  Expression = Tuple | List | Map | Constant | Call | Access | Unit. 
+     *  Expression = Tuple | Array | Map | Constant | Call | Access | Unit. 
      */
     private parseExpression(context: Context, leadingUnit?: Unit): Command {
         let token = this.tokenizer.get();
@@ -219,8 +218,8 @@ export class CommandParser {
         if (this.isTuple(context, token)) {
             result = this.parseTuple(context);
         }
-        else if (this.isList(context, token)) {
-            result = this.parseList(context);
+        else if (this.isArray(context, token)) {
+            result = this.parseArray(context);
         }
         else if (this.isMap(context, token)) {
             result = this.parseMap(context);
@@ -283,14 +282,14 @@ export class CommandParser {
     }
 
     /**
-     * List = "[" [ Statement { "," Statement } ] "]";
+     * Array = "[" [ Statement { "," Statement } ] "]";
      */
-    private parseList(context: Context): Command {
+    private parseArray(context: Context): Command {
         let startToken = this.tokenizer.get();
         let commands: Command[] = [];
 
-        if (!this.isList(context, startToken)) {
-            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected list, but found: ${startToken.s}`));
+        if (!this.isArray(context, startToken)) {
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected array, but found: ${startToken.s}`));
         }
 
         let token = this.tokenizer.nextExpressionToken();
@@ -311,13 +310,13 @@ export class CommandParser {
             token = this.tokenizer.nextExpressionToken();
         }
 
-        if (!this.isClosingList(context, token)) {
-            throw new Error(Utils.formatError(token.line, token.column, `Expected end of list, but found: ${token.s}`));
+        if (!this.isClosingArray(context, token)) {
+            throw new Error(Utils.formatError(token.line, token.column, `Expected end of array, but found: ${token.s}`));
         }
 
         this.tokenizer.nextExpressionToken();
 
-        return new ListCommand(startToken.line, startToken.column, commands);
+        return new ArrayCommand(startToken.line, startToken.column, commands);
     }
 
     /**
@@ -592,7 +591,7 @@ export class CommandParser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected identifier, but found: ${token.s}`));
         }
 
-        return new IdentifierCommand(token.line, token.column, new Identifier(token.s));
+        return new IdentifierCommand(token.line, token.column, token.s);
     }
 
     isUnaryOperator(context: Context, token: Token): boolean {
@@ -619,11 +618,11 @@ export class CommandParser {
         return this.isBrackets(context, token, ")");
     }
 
-    isOpeningList(context: Context, token: Token) {
+    isOpeningArray(context: Context, token: Token) {
         return this.isBrackets(context, token, "[");
     }
 
-    isClosingList(context: Context, token: Token) {
+    isClosingArray(context: Context, token: Token) {
         return this.isBrackets(context, token, "]");
     }
 
@@ -659,8 +658,8 @@ export class CommandParser {
         return this.isOpeningParentheses(context, token);
     }
 
-    isList(context: Context, token: Token): boolean {
-        return this.isOpeningList(context, token);
+    isArray(context: Context, token: Token): boolean {
+        return this.isOpeningArray(context, token);
     }
 
     isMap(context: Context, token: Token): boolean {

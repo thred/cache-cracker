@@ -17,17 +17,17 @@ class MathModule extends Module {
         }));
 
         this.define(this.procedure("chain", "Chains the values (e.g. 4 ft 2 in).", [
-            this.parameter("values", "A list of values, interpretable as Quantities")
+            this.parameter("values", "An array of values, interpretable as Quantities")
         ], (scope: Scope) => {
             let leadingUnit: Unit = null;
-            let list = scope.requiredAsList("values");
+            let array = scope.requiredAsArray("values");
             let result: Quantity = null;
 
-            for (let i = 0; i < list.size; i++) {
-                let value: Quantity = scope.asQuantity(list.get(i));
+            for (let i = 0; i < array.length; i++) {
+                let value: Quantity = scope.asQuantity(array[i]);
 
                 if (value.unit.isUndefined()) {
-                    if (list.size > i + 1) {
+                    if (array.length > i + 1) {
                         throw new Error("Unit missing. This is only allowed for the last item in the chain");
                     }
 

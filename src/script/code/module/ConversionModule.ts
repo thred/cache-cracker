@@ -9,7 +9,7 @@ class ConversionModule extends Module {
     constructor() {
         super();
         
-        // TODO asList
+        // TODO asArray
         // TODO asMap
 
         this.define(this.procedure("asQuantity", "Converts the value to a quantity.", [

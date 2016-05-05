@@ -1,10 +1,12 @@
+import {Quantity} from "./../Quantity"
+import {Unit} from "./../Unit"
 
 export let language = "en-US";
 
 export interface Descripted {
 
     describe(language?: string): string;
-    
+
 }
 
 export function describe(object: any): string {
@@ -69,6 +71,13 @@ export function describe(object: any): string {
     s += "}";
 
     return s;
+}
+
+export type Map = { [key: string]: any };
+
+export function isMap(value: any): boolean {
+    return ((value !== undefined) && (value !== null) && (typeof value !== "boolean") && (typeof value !== "number") &&
+        (typeof value !== "string") && (!Array.isArray(value)) && (!(value instanceof Quantity)) && (!(value instanceof Unit)));
 }
 
 export function isLetter(ch: string): boolean {
