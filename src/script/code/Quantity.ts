@@ -1,7 +1,8 @@
-import {QuantityParser} from "./QuantityParser";
 import {Unit} from "./Unit";
 
 import * as Units from "./Units";
+
+import {QuantityParser} from "./util/QuantityParser";
 
 /**
  * Holds a quantity.

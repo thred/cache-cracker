@@ -1,9 +1,7 @@
 /// <reference path="../imports.d.ts" />
 
-import {Code} from "../../script/code/Code";
+import {Environment} from "../../script/code/Environment";
 import {Scope} from "../../script/code/Scope";
-
-import * as Parser from "../../script/code/Parser";
 
 import * as ReadLine from "readline";
 
@@ -16,10 +14,10 @@ function consume() {
     setImmediate(() => {
         con.question("> ", (input) => {
             try {
-                let command = new Code().parse(input);
+                let script = Environment.DEFAULT.parse(input);
 
-                console.log("Reading: " + command.describe());
-                console.log("Result:  " + command.invoke(new Scope(null)));
+                console.log("Reading: " + script.describe());
+                console.log("Result:  " + script.execute());
             }
             catch (error) {
                 console.log(error.message);

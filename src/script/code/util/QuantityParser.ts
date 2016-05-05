@@ -1,16 +1,15 @@
 
-import {Command} from "./Command";
-import {Quantity} from "./Quantity";
 import {Scanner} from "./Scanner";
 import {Token, Tokenizer} from "./Tokenizer";
-import {Unit} from "./Unit";
 
-import * as Commands from "./Commands";
-import * as Parser from "./Parser";
-import * as Units from "./Units";
 import * as Utils from "./Utils";
 
-import {msg} from "./../Msg";
+import {Quantity} from "./../Quantity";
+import {Unit} from "./../Unit";
+
+import * as Units from "./../Units";
+
+import {msg} from "./../../Msg";
 
 export class QuantityParser {
 

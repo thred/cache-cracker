@@ -1,6 +1,3 @@
-import {Command} from "./Command";
-import {Scope} from "./Scope";
-
 export class Map {
 
     constructor(private values: { [key: string]: any } = {}) {

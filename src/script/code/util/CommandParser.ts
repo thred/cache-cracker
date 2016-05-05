@@ -1,40 +1,55 @@
-import {Command} from "./Command";
 import {Context} from "./Context";
-import {Identifier} from "./Identifier";
-import {Quantity} from "./Quantity";
 import {Scanner} from "./Scanner";
 import {Token, Tokenizer} from "./Tokenizer";
-import {Unit} from "./Unit";
 
-import * as Commands from "./Commands";
-import * as Units from "./Units";
 import * as Utils from "./Utils";
 
-import {msg} from "./../Msg";
+import {Identifier} from "./../Identifier";
+import {Quantity} from "./../Quantity";
+import {Unit} from "./../Unit";
+
+import * as Units from "./../Units";
+
+import {Command} from "./../command/Command";
+import {AccessCommand} from "./../command/AccessCommand";
+import {BinaryOperationCommand} from "./../command/BinaryOperationCommand";
+import {CallCommand} from "./../command/CallCommand";
+import {ChainOperationCommand} from "./../command/ChainOperationCommand";
+import {ConvertCommand} from "./../command/ConvertCommand";
+import {IdentifierCommand} from "./../command/IdentifierCommand";
+import {ListCommand} from "./../command/ListCommand";
+import {MapCommand} from "./../command/MapCommand";
+import {QuantityCommand} from "./../command/QuantityCommand";
+import {StringCommand, StringCommandReferenceSegment, StringCommandPlaceholderSegment, StringCommandStringSegment} from "./../command/StringCommand";
+import {TupleCommand} from "./../command/TupleCommand";
+import {UnaryOperationCommand} from "./../command/UnaryOperationCommand";
+import {UnitCommand} from "./../command/UnitCommand";
+
+import {msg} from "./../../Msg";
 
 enum Precedence {
     Undefined,
-    Assignment,
-    Conditional,
-    LogicalOr,
-    LogicalAnd,
-    BitwiseOr,
-    BitwiseXOr,
-    BitweiseAnd,
-    Equality,
-    Compare,
-    Shift,
+    // Assignment,
+    // Conditional,
+    // LogicalOr,
+    // LogicalAnd,
+    // BitwiseOr,
+    // BitwiseXOr,
+    // BitweiseAnd,
+    // Equality,
+    // Compare,
+    // Shift,
     Addition,
     Multiplication,
     Power,
-    Unary,
-    Unit,
-    Call,
-    Access,
-    Group
+    // Unary,
+    // Unit,
+    // Call,
+    // Access,
+    // Group
 }
 
-export class Parser {
+export class CommandParser {
 
     private tokenizer: Tokenizer;
 
@@ -66,10 +81,10 @@ export class Parser {
             let arg = this.parseExpressionChain(context);
 
             if (token.s === "+") {
-                expression = new Commands.UnaryOperation(token.line, token.column, "positiveOf", token.s, arg);
+                expression = new UnaryOperationCommand(token.line, token.column, "positiveOf", token.s, arg);
             }
             else if (token.s === "-") {
-                expression = new Commands.UnaryOperation(token.line, token.column, "negativeOf", token.s, arg);
+                expression = new UnaryOperationCommand(token.line, token.column, "negativeOf", token.s, arg);
             }
             else {
                 throw new Error(Utils.formatError(token.line, token.column, `Unsupported unary operation: ${token.s}`));
@@ -135,7 +150,7 @@ export class Parser {
 
             this.tokenizer.nextExpressionToken();
 
-            expression = new Commands.BinaryOperation(token.line, token.column, name, symbol, expression, this.parseStatement(context, precedence, null));
+            expression = new BinaryOperationCommand(token.line, token.column, name, symbol, expression, this.parseStatement(context, precedence, null));
 
             token = this.tokenizer.get();
         }
@@ -167,18 +182,18 @@ export class Parser {
                 throw new Error(Utils.formatError(token.line, token.column, `Unit ${unit} cannot succeed unit ${leadingUnit} in chained expressions`));
             }
 
-            command = new Commands.InUnit(startToken.line, startToken.column, command, unit);
+            command = new ConvertCommand(startToken.line, startToken.column, command, unit);
 
             token = this.tokenizer.get();
 
             if (this.isExpressionChain(context, token)) {
-                command = new Commands.Chain(startToken.line, startToken.column, [command, this.parseExpressionChain(context, leadingUnit)]);
+                command = new ChainOperationCommand(startToken.line, startToken.column, [command, this.parseExpressionChain(context, leadingUnit)]);
 
                 token = this.tokenizer.get();
             }
         }
         else if ((leadingUnit) && (leadingUnit.subUnit)) {
-            command = new Commands.InUnit(startToken.line, startToken.column, command, leadingUnit.subUnit);
+            command = new ConvertCommand(startToken.line, startToken.column, command, leadingUnit.subUnit);
         }
 
         return command;
@@ -220,7 +235,7 @@ export class Parser {
             result = this.parseAccess(context);
         }
         else if (this.isUnit(context, token)) {
-            result = new Commands.AUnit(token.line, token.column, this.parseUnit(context));
+            result = new UnitCommand(token.line, token.column, this.parseUnit(context));
         }
         else {
             throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for expression: ${token.s}`));
@@ -264,7 +279,7 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.ATuple(startToken.line, startToken.column, commands);
+        return new TupleCommand(startToken.line, startToken.column, commands);
     }
 
     /**
@@ -302,7 +317,7 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.AList(startToken.line, startToken.column, commands);
+        return new ListCommand(startToken.line, startToken.column, commands);
     }
 
     /**
@@ -359,7 +374,7 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.AMap(startToken.line, startToken.column, commands);
+        return new MapCommand(startToken.line, startToken.column, commands);
     }
 
     /**
@@ -407,7 +422,7 @@ export class Parser {
     /**
      * Number = number.
      */
-    private parseNumber(context: Context): Commands.AValue {
+    private parseNumber(context: Context): QuantityCommand {
         let token = this.tokenizer.get();
 
         if (!this.isNumber(context, token)) {
@@ -416,13 +431,13 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.AValue(token.line, token.column, new Quantity(token.n));
+        return new QuantityCommand(token.line, token.column, new Quantity(token.n));
     }
 
     /**
      * String = delimiter { string | reference | ( "${" Expression "}") } delimiter. 
      */
-    private parseString(context: Context): Commands.StringChain {
+    private parseString(context: Context): StringCommand {
         let startToken = this.tokenizer.get();
 
         if (!this.isString(context, startToken)) {
@@ -444,7 +459,7 @@ export class Parser {
             }
 
             if (token.type === "string") {
-                expressions.push(new Commands.StringStringSegment(token.line, token.column, token.s));
+                expressions.push(new StringCommandStringSegment(token.line, token.column, token.s));
 
                 token = this.tokenizer.nextStringToken();
 
@@ -454,7 +469,7 @@ export class Parser {
             if (token.type === "reference") {
                 let name = token.s;
 
-                expressions.push(new Commands.StringReferenceSegment(token.line, token.column, name))
+                expressions.push(new StringCommandReferenceSegment(token.line, token.column, name))
 
                 token = this.tokenizer.nextStringToken();
 
@@ -468,7 +483,7 @@ export class Parser {
                     throw new Error(Utils.formatError(token.line, token.column, "Unclosed block"));
                 }
 
-                expressions.push(new Commands.StringPlaceholderSegment(token.line, token.column, this.parseStatement(context)));
+                expressions.push(new StringCommandPlaceholderSegment(token.line, token.column, this.parseStatement(context)));
 
                 token = this.tokenizer.get();
 
@@ -484,7 +499,7 @@ export class Parser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected string content, but found: ${token.s}`));
         }
 
-        return new Commands.StringChain(startToken.line, startToken.column, expressions);
+        return new StringCommand(startToken.line, startToken.column, expressions);
     }
 
     /**
@@ -503,8 +518,7 @@ export class Parser {
 
         let args = this.parseStatement(context);
 
-
-        return new Commands.Call(startToken.line, startToken.column, procedure, args);
+        return new CallCommand(startToken.line, startToken.column, procedure.createContext(), procedure, args);
     }
 
     /**
@@ -521,7 +535,7 @@ export class Parser {
 
         this.tokenizer.nextExpressionToken();
 
-        return new Commands.Access(startToken.line, startToken.column, variable.name);
+        return new AccessCommand(startToken.line, startToken.column, variable.name);
     }
 
     /**
@@ -578,7 +592,7 @@ export class Parser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected identifier, but found: ${token.s}`));
         }
 
-        return new Commands.AValue(token.line, token.column, new Identifier(token.s));
+        return new IdentifierCommand(token.line, token.column, new Identifier(token.s));
     }
 
     isUnaryOperator(context: Context, token: Token): boolean {

@@ -1,8 +1,8 @@
 /// <reference path="../imports.d.ts" />
 
-import {Scanner} from "../../script/code/Scanner";
+import {Scanner} from "../../script/code/util/Scanner";
 
-import * as Tokenizer from "../../script/code/Tokenizer";
+import * as Tokenizer from "../../script/code/util/Tokenizer";
 
 import {assert} from "chai";
 
@@ -15,7 +15,7 @@ describe("Scanner", () => {
         assert.equal(scanner.offset, 0);
         assert.equal(scanner.line, 1);
         assert.equal(scanner.column, 1);
-        
+
         assert.equal(scanner.next(), "b");
         assert.equal(scanner.lookAhead(), "c");
         assert.equal(scanner.get(), "b");
@@ -48,15 +48,15 @@ describe("Scanner", () => {
         assert.equal(scanner.next((ch) => whitespaces.indexOf(ch) < 0), "a");
         assert.equal(scanner.line, 1);
         assert.equal(scanner.column, 4);
-        
+
         assert.equal(scanner.next((ch) => whitespaces.indexOf(ch) < 0), "b");
         assert.equal(scanner.line, 2);
         assert.equal(scanner.column, 1);
-        
+
         assert.equal(scanner.next((ch) => whitespaces.indexOf(ch) < 0), "c");
         assert.equal(scanner.line, 2);
         assert.equal(scanner.column, 3);
-        
+
         assert.equal(scanner.next((ch) => whitespaces.indexOf(ch) < 0), null);
         assert.equal(scanner.line, 3);
         assert.equal(scanner.column, 4);

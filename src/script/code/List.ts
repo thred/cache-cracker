@@ -1,6 +1,3 @@
-import {Command} from "./Command";
-import {Scope} from "./Scope";
-
 export class List {
 
     constructor(private values: any[] = []) {

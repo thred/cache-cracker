@@ -1,18 +1,34 @@
-import {Definition} from "./Definition";
-import {Scope} from "./Scope";
-
-import * as Definitions from "./Definitions";
 import * as Utils from "./Utils";
+
+import {Scope} from "./../Scope";
+
+import {Definition} from "./../definition/Definition";
+import {Procedure} from "./../definition/Procedure";
+import {Variable} from "./../definition/Variable";
 
 export class Context {
 
-    private definitions: { [name: string]: Definition } = {};
+    private _definitions: { [name: string]: Definition } = {};
 
     constructor(private _parent: Context) {
     }
 
     get parent() {
         return this._parent;
+    }
+
+    get definitions() {
+        return this._definitions;
+    }
+
+    createScope(parent?: Scope): Scope {
+        let scope = new Scope(parent);
+
+        for (let name in this._definitions) {
+            scope.set(name, this._definitions[name].initialValue);
+        }
+
+        return scope;
     }
 
     derive(): Context {
@@ -26,7 +42,7 @@ export class Context {
             return false;
         }
 
-        return definition instanceof Definitions.Procedure;
+        return definition instanceof Procedure;
     }
 
     isVariable(name: string): boolean {
@@ -36,46 +52,46 @@ export class Context {
             return false;
         }
 
-        return definition instanceof Definitions.Variable;
+        return definition instanceof Variable;
     }
 
     get(name: string): Definition {
-        let definition = this.definitions[name];
+        let definition = this._definitions[name];
 
         if (definition === undefined) {
             let context: Context = this;
 
             while ((definition === undefined) && (context.parent)) {
                 context = context.parent;
-                definition = context.definitions[name];
+                definition = context._definitions[name];
             }
         }
 
         return definition;
     }
 
-    getAsProcedure(name: string): Definitions.Procedure {
+    getAsProcedure(name: string): Procedure {
         let definition = this.get(name);
 
         if ((definition === undefined) || (definition === null)) {
-            return (definition as Definitions.Procedure);
+            return (definition as Procedure);
         }
 
-        if (!(definition instanceof Definitions.Procedure)) {
+        if (!(definition instanceof Procedure)) {
             throw new Error(`Definition is not a procedure: ${name}`);
         }
 
-        return (definition as Definitions.Procedure);
+        return (definition as Procedure);
     }
 
-    getAsVariable(name: string): Definitions.Variable {
+    getAsVariable(name: string): Variable {
         let definition = this.get(name);
 
         if ((definition === undefined) || (definition === null)) {
             return definition;
         }
 
-        if (!(definition instanceof Definitions.Variable)) {
+        if (!(definition instanceof Variable)) {
             throw new Error(`Definition is not a variable: ${name}`);
         }
 
@@ -86,16 +102,16 @@ export class Context {
         return Utils.required(this.get(name), `Required definition is not defined: ${name}`);
     }
 
-    requiredAsProcedure(name: string): Definitions.Procedure {
+    requiredAsProcedure(name: string): Procedure {
         return Utils.required(this.getAsProcedure(name), `Required procedure is not defined: ${name}`);
     }
 
-    requiredAsVariable(name: string): Definitions.Variable {
+    requiredAsVariable(name: string): Variable {
         return Utils.required(this.getAsVariable(name), `Required variable is not defined: ${name}`);
     }
 
     define<AnyDefinition extends Definition>(definition: AnyDefinition): AnyDefinition {
-        this.definitions[definition.name] = definition;
+        this._definitions[definition.name] = definition;
 
         return definition;
     }

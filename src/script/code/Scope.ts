@@ -1,11 +1,13 @@
-import {Definition} from "./Definition";
-import {Command} from "./Command";
 import {List} from "./List";
 import {Map} from "./Map";
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 
-import * as Utils from "./Utils";
+import {Command} from "./command/Command";
+
+import {Definition} from "./definition/Definition";
+
+import * as Utils from "./util/Utils";
 
 export class Scope {
 

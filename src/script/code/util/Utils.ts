@@ -1,4 +1,12 @@
 
+export let language = "en-US";
+
+export interface Descripted {
+
+    describe(language?: string): string;
+    
+}
+
 export function describe(object: any): string {
     if (object === undefined) {
         return "undefined";
