@@ -94,15 +94,7 @@ export class Context {
         return Utils.required(this.getAsVariable(name), `Required variable is not defined: ${name}`);
     }
 
-    defineProcedure(name: string, description: string, parameters: Definition[], defaultImplementation?: (scope: Scope) => any): Definition {
-        return this.define(new Definitions.Procedure(name, description, parameters, defaultImplementation));
-    }
-
-    defineVariable(name: string, description: string, defaultValue?: any): Definition {
-        return this.define(new Definitions.Variable(name, description, defaultValue));
-    }
-
-    define(definition: Definition): Definition {
+    define<AnyDefinition extends Definition>(definition: AnyDefinition): AnyDefinition {
         this.definitions[definition.name] = definition;
 
         return definition;

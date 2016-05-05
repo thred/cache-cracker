@@ -148,32 +148,40 @@ export class Parser {
     }
 
     /**
-     *  ExpressionChain = Expression { Expression }. 
+     *  ExpressionChain = Expression [ Unit [ ExpressionChain ] ]. 
      */
-    private parseExpressionChain(context: Context): Command {
+    private parseExpressionChain(context: Context, leadingUnit?: Unit): Command {
         let startToken = this.tokenizer.get();
 
         if (!this.isExpressionChain(context, startToken)) {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected expression chain, but found: ${startToken.s}`));
         }
 
-        // parse: SingleExpression
-        let expression = this.parseExpression(context);
+        let command = this.parseExpression(context);
         let token = this.tokenizer.get();
 
-        if (this.isExpression(context, token)) {
-            let expressions: Command[] = [expression];
+        if (this.isUnit(context, token)) {
+            let unit = this.parseUnit(context);
 
-            while (this.isExpression(context, token)) {
-                expressions.push(this.parseExpression(context));
+            if ((leadingUnit) && (!leadingUnit.isPreceding(unit))) {
+                throw new Error(Utils.formatError(token.line, token.column, `Unit ${unit} cannot succeed unit ${leadingUnit} in chained expressions`));
+            }
+
+            command = new Commands.InUnit(startToken.line, startToken.column, command, unit);
+
+            token = this.tokenizer.get();
+
+            if (this.isExpressionChain(context, token)) {
+                command = new Commands.Chain(startToken.line, startToken.column, [command, this.parseExpressionChain(context, leadingUnit)]);
 
                 token = this.tokenizer.get();
             }
-
-            expression = new Commands.Chain(startToken.line, startToken.column, expressions);
+        }
+        else if ((leadingUnit) && (leadingUnit.subUnit)) {
+            command = new Commands.InUnit(startToken.line, startToken.column, command, leadingUnit.subUnit);
         }
 
-        return expression;
+        return command;
     }
 
     isExpression(context: Context, token: Token): boolean {
@@ -182,7 +190,7 @@ export class Parser {
     }
 
     /**
-     *  Expression = Tuple | List | Map | Constant | Call | Access | Unit | Identifier. 
+     *  Expression = Tuple | List | Map | Constant | Call | Access | Unit. 
      */
     private parseExpression(context: Context, leadingUnit?: Unit): Command {
         let token = this.tokenizer.get();
@@ -212,7 +220,7 @@ export class Parser {
             result = this.parseAccess(context);
         }
         else if (this.isUnit(context, token)) {
-            result = this.parseUnit(context);
+            result = new Commands.AUnit(token.line, token.column, this.parseUnit(context));
         }
         else {
             throw new Error(Utils.formatError(token.line, token.column, `Implementation missing for expression: ${token.s}`));
@@ -519,7 +527,7 @@ export class Parser {
     /**
      * Unit = unit { [ "/" ] unit }.
      */
-    private parseUnit(context: Context): Command {
+    private parseUnit(context: Context): Unit {
         let startToken = this.tokenizer.get();
 
         if (!this.isUnit(context, startToken)) {
@@ -557,7 +565,7 @@ export class Parser {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Unit not defined: ${unitString}`));
         }
 
-        return new Commands.AUnit(startToken.line, startToken.column, unit);
+        return unit;
     }
 
     /**

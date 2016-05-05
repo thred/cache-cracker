@@ -3,29 +3,15 @@ import {Scope} from "./Scope";
 
 export class Map {
 
-    constructor(private scope: Scope, private values: { [key: string]: any } = {}, lazy: boolean = false) {
-        if (!lazy) {
-            for (let key of Object.keys(values)) {
-                this.get(key);
-            }
-        }
+    constructor(private values: { [key: string]: any } = {}) {
     }
 
-    get(key: string, lazy: boolean = false): any {
-        let value = this.values[key];
+    contains(key: string): boolean {
+        return this.values[key] !== undefined;
+    }
 
-        if ((!lazy) && (value instanceof Command)) {
-            try {
-                value = (value as Command).invoke(this.scope);
-            }
-            catch (error) {
-                throw new Error(`Failed to initialize item "${key}" of Map: ${error}`);
-            }
-
-            this.values[key] = value;
-        }
-
-        return value;
+    get(key: string): any {
+        return this.values[key];
     }
 
     keys() {

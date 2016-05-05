@@ -1,21 +1,18 @@
-import {Command} from "./Command";
 import {Definition} from "./Definition";
-import {List} from "./List";
-import {Map} from "./Map";
 import {Scope} from "./Scope";
 
 export class Procedure extends Definition {
 
-    constructor(name: string, description: string, private _parameters: Definition[], defaultImplementation?: (scope: Scope) => any) {
+    constructor(name: string, description: string, private _params: Definition[], defaultImplementation?: (scope: Scope) => any) {
         super(name, description, defaultImplementation);
     }
 
-    get parameters(): Definition[] {
-        return this._parameters;
+    get params(): Definition[] {
+        return this._params;
     }
 
-    findParameterByName(name: string): Definition {
-        for (let parameter of this._parameters) {
+    findParamByName(name: string): Definition {
+        for (let parameter of this._params) {
             if (parameter.name === name) {
                 return parameter;
             }
@@ -24,43 +21,14 @@ export class Procedure extends Definition {
         return null;
     }
 
-    invoke(scope: Scope, arg?: Command): any {
-        let implementation: (scope: Scope) => any = super.invoke(scope, arg);
-        let map: Map;
-        let args = arg.invoke(scope);
+    describe(language?: string): string {
+        let description = `Procedure: ${super.describe(language)}`;
 
-        if (args instanceof Map) {
-            map = args;
-        }
-        // TODO add other types
-        else {
-            throw new Error(`Unsupported type of arguments: ${args}`);
-        }
-
-        // TODO check parameters!
-
-        scope = scope.derive();
-
-        for (let key in map.keys()) {
-            scope.set(key, map.get(key, true));
-        }
-
-        try {
-            return implementation(scope);
-        }
-        catch (error) {
-            throw new Error(`Failed to invoke function: ${this.name}. Error caused by: ${error}`);
-        }
-    }
-
-    describe(language: string): string {
-        let description = "Procedure: " + super.describe(language);
-
-        if ((this._parameters) && (this._parameters.length > 0)) {
+        if (this._params.length > 0) {
             description += "\n\n";
 
-            for (let key in Object.keys(this.parameters)) {
-                description += `${key}: ${this.parameters[key]}`;
+            for (let param of this._params) {
+                description += `${param.name}: ${param.description}`;
             }
         }
 
@@ -74,7 +42,7 @@ export class Variable extends Definition {
         super(name, description, defaultValue);
     }
 
-    describe(language: string): string {
-        return "Variable: " + super.describe(language);
+    describe(language?: string): string {
+        return `Variable: ${super.describe(language)}`;
     }
 }

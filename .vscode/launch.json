@@ -8,7 +8,7 @@
 			"port": 5858,
 			"address": "localhost",
 			"sourceMaps": true,
-			"outDir": "${workspaceRoot}/build",
+			"outDir": "${workspaceRoot}/build"
 		}
 	]
 }

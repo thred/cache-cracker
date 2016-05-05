@@ -3,40 +3,30 @@ import {Scope} from "./Scope";
 
 export class List {
 
-    constructor(private scope: Scope, private values: any[] = [], lazy: boolean = false) {
-        if (!lazy) {
-            for (let index = 0; index < values.length; index++) {
-                this.get(index);
-            }
-        }
+    constructor(private values: any[] = []) {
     }
 
     add(value: any): void {
         this.values.push(value);
     }
 
-    get(index: number, lazy: boolean = false): any {
-        let value = this.values[index];
+    get(index: number): any {
+        return this.values[index];
+    }
 
-        if ((!lazy) && (value instanceof Command)) {
-            try {
-                value = (value as Command).invoke(this.scope);
-            }
-            catch (error) {
-                throw new Error(`Failed to initialize item ${index} of List: ${error}`);
-            }
+    forEach(callbackfn: (value: any, index: number, array: any[]) => void): void {
+        this.values.forEach(callbackfn);
+    }
 
-            this.values[index] = value;
-        }
-
-        return value;
+    join(separator?: string): string {
+        return this.values.join(separator);
     }
 
     set(index: number, value: any): void {
         this.values[index] = value;
     }
 
-    size(): number {
+    get size(): number {
         return this.values.length;
     }
 }

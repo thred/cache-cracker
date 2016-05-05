@@ -34,7 +34,7 @@ export class UnaryOperation extends Command {
         super(line, column,
             (scope) => {
                 return scope.invoke(name, {
-                    value: valueArg,
+                    value: valueArg.invoke(scope),
                 });
             }, () => `${symbol}${valueArg.describe()}`);
     }
@@ -51,8 +51,8 @@ export class BinaryOperation extends Command {
         super(line, column,
             (scope) => {
                 return scope.invoke(name, {
-                    left: leftArg,
-                    right: rightArg
+                    left: leftArg.invoke(scope),
+                    right: rightArg.invoke(scope)
                 });
             }, () => `${leftArg.describe()} ${symbol} ${rightArg.describe()}`);
     }
@@ -68,7 +68,54 @@ export class BinaryOperation extends Command {
 export class Call extends Command {
     constructor(line: number, column: number, procedure: Definitions.Procedure, arg: Command) {
         super(line, column, (scope) => {
-            return procedure.invoke(scope, arg);
+            let params = procedure.params;
+            let values = arg.invoke(scope);
+            let valuesAsMap: Map;
+
+            if (values instanceof Map) {
+                valuesAsMap = values as Map;
+            }
+            else if (values instanceof List) {
+                if (values.length > params.length) {
+                    throw new Error(Utils.formatError(line, column,
+                        `Too many arguments. Procedure only has ${params.length} parameters, not ${values.length} as specified: ${procedure.describe()}`));
+                }
+
+                valuesAsMap = new Map();
+
+                for (let index = 0; index < values.length; index++) {
+                    valuesAsMap.set(params[index].name, values.get(index, true));
+                }
+            }
+            else {
+                if (params.length <= 0) {
+                    throw new Error(Utils.formatError(line, column,
+                        `Too many arguments. Procedure does not define any parameters: ${procedure.describe()}`));
+                }
+
+                valuesAsMap = new Map();
+                valuesAsMap.set(params[0].name, values);
+            }
+
+            let args: { [name: string]: any } = {};
+
+            for (let param of params) {
+                let name = param.name;
+                let value = valuesAsMap.get(name);
+
+                if (value === undefined) {
+                    value = param.fallback;
+
+                    if (value === undefined) {
+                        throw new Error(Utils.formatError(line, column,
+                            `Required parameter "${name}" is missing in procedure call: ${procedure.describe()}`));
+                    }
+                }
+
+                args[name] = value;
+            }
+
+            return scope.invoke(procedure.name, args);
         }, () => `${name} ${arg.describe()}`);
     };
 }
@@ -85,56 +132,91 @@ export class Access extends Command {
 
 export class Chain extends Command {
     constructor(line: number, column: number, private segments: Command[]) {
-        super(line, column, (scope) => {
-            let values: any[] = [];
-            let segment = segments.shift();
-            let value = segment.invoke(scope);
-
-            while (true) {
-                if (value instanceof Identifier) {
-                    let variable = scope.required(value.name);
-
-                    if (value instanceof Definition) {
-                        if (!segments.length) {
-                            throw new Error(Utils.formatError(segment.line, segment.column,
-                                `Parameters are missing: ${(value as Definition).name}`));
-                        }
-
-                        segment = segments.shift();
-
-                        let parameter = segment.invoke(scope);
-
-                        value = (value as Definition).invoke(parameter);
-                    }
-                    // TODO implement variable access
-                    else {
-                        throw new Error(Utils.formatError(segment.line, segment.column,
-                            `Undefined reference: ${value.name}`));
-                    }
-
-                    continue;
-                }
-
-                values.push(value);
-
-                if (!segments.length) {
-                    break;
-                }
-
-                segment = segments.shift();
-                value = segment.invoke(scope);
-            }
-
-            return scope.invoke("chain", {
-                values: values
-            });
-        }, () => segments.map((segment) => segment.describe()).join(" "));
+        super(line, column,
+            (scope) => {
+                return scope.invoke("chain", {
+                    values: new List(segments.map((segment) => segment.invoke(scope)))
+                });
+            }, () => `${segments.map((segment) => segment.describe()).join(" ")}`);
     }
 
     toString(): string {
-        return `Chain(${this.segments.join(", ")})`;
+        return `Chain(${this.segments})`;
     }
 }
+
+
+// export class Chain extends Command {
+//     constructor(line: number, column: number, private segments: Command[]) {
+//         super(line, column, (scope) => {
+//             let values: any[] = [];
+
+//             for (let segment of segments) {
+//                 values.push(segment.invoke(scope));
+//             }
+
+
+//             let index = 0;
+
+//             while (true) {
+//                 if ((index))    
+//             }
+
+
+
+//             let values: any[] = [];
+//             let segment = segments.shift();
+//             let value = segment.invoke(scope);
+
+//             while (true) {
+
+
+//                 if (value instanceof Identifier) {
+//                     let variable = scope.required(value.name);
+
+//                     if (value instanceof Definition) {
+//                         if (!segments.length) {
+//                             throw new Error(Utils.formatError(segment.line, segment.column,
+//                                 `Parameters are missing: ${(value as Definition).name}`));
+//                         }
+
+//                         segment = segments.shift();
+
+//                         let parameter = segment.invoke(scope);
+
+//                         value = (value as Definition).invoke(parameter);
+//                     }
+//                     // TODO implement variable access
+//                     else {
+//                         throw new Error(Utils.formatError(segment.line, segment.column,
+//                             `Undefined reference: ${value.name}`));
+//                     }
+
+//                     continue;
+//                 }
+
+//                 values.push(value);
+
+//                 if (!segments.length) {
+//                     break;
+//                 }
+
+//                 segment = segments.shift();
+//                 value = segment.invoke(scope);
+//             }
+
+//             return scope.invoke("chain", {
+//                 values: values
+//             });
+
+//             return null;
+//         }, () => segments.map((segment) => segment.describe()).join(" "));
+//     }
+
+//     toString(): string {
+//         return `Chain(${this.segments.join(", ")})`;
+//     }
+// }
 
 export class AValue extends Command {
     constructor(line: number, column: number, private value: any) {
@@ -149,7 +231,7 @@ export class AValue extends Command {
 }
 
 export class ATuple extends Command {
-    constructor(line: number, column: number, private commands: Command[], private lazy: boolean = false) {
+    constructor(line: number, column: number, private commands: Command[]) {
         super(line, column,
             (scope) => {
                 if (commands.length === 0) {
@@ -160,9 +242,9 @@ export class ATuple extends Command {
                     return commands[0].invoke(scope);
                 }
 
-                return new List(scope, commands, lazy);
+                return commands.map((command => command.invoke(scope)));
             },
-            () => `(${commands.map((item) => item.describe()).join(", ")})`);
+            () => `(${commands.map((command) => command.describe()).join(", ")})`);
     }
 
     toString(): string {
@@ -171,12 +253,12 @@ export class ATuple extends Command {
 }
 
 export class AList extends Command {
-    constructor(line: number, column: number, private commands: Command[], private lazy: boolean = false) {
+    constructor(line: number, column: number, private commands: Command[]) {
         super(line, column,
             (scope) => {
-                return new List(scope, commands, lazy);
+                return commands.map((command => command.invoke(scope)));
             },
-            () => `[${commands.map((item) => item.describe()).join(", ")}]`);
+            () => `[${commands.map((command) => command.describe()).join(", ")}]`);
     }
 
     toString(): string {
@@ -188,10 +270,10 @@ export class AMap extends Command {
     constructor(line: number, column: number, private commands: {
         key: Command;
         value: Command;
-    }[], lazy: boolean = false) {
+    }[]) {
         super(line, column,
             (scope) => {
-                let map: { [name: string]: any } = {};
+                let map = new Map();
 
                 for (let command of commands) {
                     let key = command.key.invoke(scope);
@@ -201,10 +283,10 @@ export class AMap extends Command {
                             `Invalid key: ${key}`));
                     }
 
-                    map[key] = command.value.invoke(scope);
+                    map.set(key, command.value.invoke(scope));
                 }
 
-                return new Map(scope, map, lazy);
+                return map;
             },
             () => {
                 if (!this.commands.length) {
@@ -246,7 +328,7 @@ export class InUnit extends Command {
         super(line, column,
             (scope) => {
                 return scope.invoke("convert", {
-                    value: valueArg,
+                    value: valueArg.invoke(scope),
                     unit: unit
                 });
             }, () => `${valueArg.describe()} ${unit.symbols[0]}`);
@@ -262,7 +344,7 @@ export class StringChain extends Command {
         super(line, column,
             (scope) => {
                 return scope.invoke("concat", {
-                    values: segments
+                    values: new List(segments.map((segment) => segment.invoke(scope)))
                 });
             },
             () => `"${segments.map((segment) => segment.describe()).join("")}"`);
@@ -286,14 +368,14 @@ export class StringReferenceSegment extends Command {
 }
 
 export class StringPlaceholderSegment extends Command {
-    constructor(line: number, column: number, private argument: Command) {
+    constructor(line: number, column: number, private arg: Command) {
         super(line, column,
-            (scope) => argument.invoke(scope),
-            () => `\${${argument.describe()}}`);
+            (scope) => arg.invoke(scope),
+            () => `\${${arg.describe()}}`);
     }
 
     toString(): string {
-        return `StringPlaceholderSegment(${this.argument})`;
+        return `StringPlaceholderSegment(${this.arg})`;
     }
 }
 
