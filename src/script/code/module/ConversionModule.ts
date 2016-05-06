@@ -8,12 +8,12 @@ class ConversionModule extends Module {
 
     constructor() {
         super();
-        
+
         // TODO asArray
         // TODO asMap
 
         this.define(this.procedure("asQuantity", "Converts the value to a quantity.", [
-            this.parameter("value", "The value")
+            this.variable("value", "The value")
         ], (scope: Scope) => {
             let value = scope.required("value");
 
@@ -37,7 +37,7 @@ class ConversionModule extends Module {
         }));
 
         this.define(this.procedure("asString", "Converts the value to a string.", [
-            this.parameter("value", "The value")
+            this.variable("value", "The value")
         ], (scope: Scope) => {
             let value = scope.required("value");
 
@@ -54,7 +54,7 @@ class ConversionModule extends Module {
         }));
 
         this.define(this.procedure("asUnit", "Converts the value to a unit.", [
-            this.parameter("value", "The value")
+            this.variable("value", "The value")
         ], (scope: Scope) => {
             let value = scope.required("value");
 

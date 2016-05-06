@@ -320,6 +320,15 @@ export class Tokenizer {
             return token;
         }
 
+        if ((ch == ":") && (this.scanner.lookAhead() == "=")) {
+            token.type = "operator";
+            token.s = ch + this.scanner.next();
+
+            this.scanner.next();
+
+            return token;
+        }
+
         if (this.isBracket(ch)) {
             token.type = "brackets";
             token.s = ch;

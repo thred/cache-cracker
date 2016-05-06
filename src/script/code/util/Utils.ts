@@ -101,11 +101,6 @@ export function ceil(n: number, accuracy: number): number {
 
 export type Map = { [key: string]: any };
 
-export function isMap(value: any): boolean {
-    return ((value !== undefined) && (value !== null) && (typeof value !== "boolean") && (typeof value !== "number") &&
-        (typeof value !== "string") && (!Array.isArray(value)) && (!(value instanceof Quantity)) && (!(value instanceof Unit)));
-}
-
 export function isLetter(ch: string): boolean {
     if (!ch) {
         return false;

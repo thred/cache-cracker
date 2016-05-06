@@ -1,12 +1,9 @@
 import {Environment} from "./../Environment";
+import {Procedure} from "./../Procedure";
 import {Scope} from "./../Scope";
 
-import {Definition} from "./../definition/Definition";
-import {Parameter} from "./../definition/Parameter";
-import {Procedure} from "./../definition/Procedure";
-import {Variable} from "./../definition/Variable";
-
 import {Context} from "./../util/Context";
+import {Definition} from "./../util/Definition";
 
 export class Module {
 
@@ -15,20 +12,16 @@ export class Module {
     constructor() {
     }
 
-    define<AnyDefinition extends Procedure | Variable>(definition: AnyDefinition): AnyDefinition {
+    define(definition: Definition): Definition {
         return this._context.define(definition);
     }
 
-    parameter(name: string, description: string, defaultValue?: any): Parameter {
-        return new Variable(name, description, defaultValue);
+    procedure(name: string, description: string, params: Definition[], impl: (scope: Scope) => any): Definition {
+        return this.variable(name, description, new Procedure(params, impl));
     }
 
-    procedure(name: string, description: string, params: Parameter[], implementation: (scope: Scope) => any): Procedure {
-        return this._context.define(new Procedure(name, description, params, implementation));
-    }
-
-    variable(name: string, description: string, initialValue: any = null): Variable {
-        return this._context.define(new Variable(name, description, initialValue));
+    variable(name: string, description: string, initialValue: any = null): Definition {
+        return new Definition(name, description, initialValue);
     }
 
     populate(context: Context): void {

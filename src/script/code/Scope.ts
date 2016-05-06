@@ -3,7 +3,7 @@ import {Unit} from "./Unit";
 
 import {Command} from "./command/Command";
 
-import {Definition} from "./definition/Definition";
+import {Definition} from "./util/Definition";
 
 import * as Utils from "./util/Utils";
 

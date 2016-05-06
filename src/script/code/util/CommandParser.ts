@@ -19,16 +19,21 @@ import {ConvertCommand} from "./../command/ConvertCommand";
 import {IdentifierCommand} from "./../command/IdentifierCommand";
 import {MapCommand} from "./../command/MapCommand";
 import {QuantityCommand} from "./../command/QuantityCommand";
+import {ReferenceCommand} from "./../command/ReferenceCommand";
 import {StringCommand, StringCommandReferenceSegment, StringCommandPlaceholderSegment, StringCommandStringSegment} from "./../command/StringCommand";
 import {TupleCommand} from "./../command/TupleCommand";
 import {UnaryOperationCommand} from "./../command/UnaryOperationCommand";
 import {UnitCommand} from "./../command/UnitCommand";
 
+import {Parameter} from "./../definition/Parameter";
+import {Procedure} from "./../definition/Procedure";
+import {Variable} from "./../definition/Variable";
+
 import {msg} from "./../../Msg";
 
 enum Precedence {
     Undefined,
-    // Assignment,
+    Assignment,
     // Conditional,
     // LogicalOr,
     // LogicalAnd,
@@ -104,6 +109,11 @@ export class CommandParser {
             let leftAssociative: boolean = true;
 
             switch (token.s) {
+                case ":=":
+                    name = "assign";
+                    precedence = Precedence.Assignment;
+                    break;
+
                 case "+":
                     name = "add";
                     precedence = Precedence.Addition;
@@ -200,11 +210,11 @@ export class CommandParser {
 
     isExpression(context: Context, token: Token): boolean {
         return (this.isTuple(context, token)) || (this.isArray(context, token)) || (this.isMap(context, token)) || (this.isConstant(context, token)) ||
-            (this.isCall(context, token)) || (this.isAccess(context, token)) || (this.isUnit(context, token));
+            (this.isReference(context, token)) || (this.isUnit(context, token));
     }
 
     /**
-     *  Expression = Tuple | Array | Map | Constant | Call | Access | Unit. 
+     *  Expression = Tuple | Array | Map | Constant | Reference | Unit. 
      */
     private parseExpression(context: Context, leadingUnit?: Unit): Command {
         let token = this.tokenizer.get();
@@ -227,11 +237,8 @@ export class CommandParser {
         else if (this.isConstant(context, token)) {
             result = this.parseConstant(context);
         }
-        else if (this.isCall(context, token)) {
-            result = this.parseCall(context);
-        }
-        else if (this.isAccess(context, token)) {
-            result = this.parseAccess(context);
+        else if (this.isReference(context, token)) {
+            result = this.parseReference(context);
         }
         else if (this.isUnit(context, token)) {
             result = new UnitCommand(token.line, token.column, this.parseUnit(context));
@@ -502,6 +509,44 @@ export class CommandParser {
     }
 
     /**
+     * Reference = identifier [ Statement ].
+     */
+    private parseReference(context: Context): Command {
+        let startToken = this.tokenizer.get();
+
+        if (!this.isReference(context, startToken)) {
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected reference, but found: ${startToken.s}`));
+        }
+
+        let name = startToken.s;
+        let definition = context.get(name);
+        let token = this.tokenizer.nextExpressionToken();
+
+        if ((definition === undefined) || (definition === null)) {
+            if (this.isAssignment(context, token)) {
+                
+            }
+        }
+
+
+        if (this.isStatement(context, token)) {
+            if (definition instanceof Procedure) {
+                let procedure = definition as Procedure;
+                let args = this.parseStatement(context);
+
+                return new CallCommand(startToken.line, startToken.column, procedure.createContext(context), procedure, args);
+            }
+
+            return new ReferenceCommand(startToken.line, startToken.column, name, definition);
+        }
+
+
+        else if ((definition === undefined) || (definition === null)) {
+            throw new Error(Utils.formatError(startToken.line, startToken.column, `Undefined reference: ${name}`));
+        }
+    }
+
+    /**
      * Call = word Statement.
      */
     private parseCall(context: Context): Command {
@@ -602,6 +647,10 @@ export class CommandParser {
         return (token.s === "+") || (token.s === "-");
     }
 
+    isAssignment(context: Context, token: Token): boolean {
+        return this.isOperator(context, token, ":=");
+    }
+
     isOperator(context: Context, token: Token, operator?: string): boolean {
         if (token.type === "operator") {
             return (!operator) || (operator === token.s);
@@ -680,6 +729,10 @@ export class CommandParser {
 
     isString(context: Context, token: Token): boolean {
         return token.type === "delimiter";
+    }
+
+    isReference(context: Context, token: Token): boolean {
+        return token.type === "word";
     }
 
     isCall(context: Context, token: Token): boolean {

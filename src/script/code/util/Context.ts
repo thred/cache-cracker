@@ -2,9 +2,7 @@ import * as Utils from "./Utils";
 
 import {Scope} from "./../Scope";
 
-import {Definition} from "./../definition/Definition";
-import {Procedure} from "./../definition/Procedure";
-import {Variable} from "./../definition/Variable";
+import {Definition} from "./../util/Definition";
 
 export class Context {
 
