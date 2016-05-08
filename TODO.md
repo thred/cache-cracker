@@ -11,6 +11,7 @@
 * Fix Map and Array parsing
 * Implement asMap, asArray
 * Implement UnitParser like QuantityParser
+* Store Types in context, too
 
 A() = 5
 A() = 6

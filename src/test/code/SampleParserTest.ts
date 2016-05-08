@@ -4,7 +4,8 @@ import {testScript} from "./CodeTestUtils";
 
 describe("Parser (Sample)", () => {
 
-    testScript("language", "en-US");
+    testScript("abs -2", "2");
+    // testScript("language", "en-US");
 
 
 });

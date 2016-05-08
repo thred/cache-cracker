@@ -1,8 +1,10 @@
 import {Command} from "./Command";
 
+import {Types} from "./../Type";
+
 export class ArrayCommand extends Command {
     constructor(line: number, column: number, private commands: Command[]) {
-        super(line, column,
+        super(line, column, Types.LIST,
             (scope) => {
                 return commands.map((command => command.execute(scope)));
             },

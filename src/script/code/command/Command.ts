@@ -1,23 +1,29 @@
 import {Scope} from "./../Scope";
+import {Type} from "./../Type";
 
 import * as Utils from "./../util/Utils";
 
 export abstract class Command implements Utils.Descripted {
 
-    constructor(private _line: number, private _column: number, private _implementation: (scope: Scope) => any, private _describe: (language?: string) => string) {
+    constructor(private _line: number, private _column: number, private _type: Type,
+        private _impl: (scope: Scope) => any, private _describe: (language?: string) => string) {
     }
 
-    get line() {
+    get line(): number {
         return this._line;
     }
 
-    get column() {
+    get column(): number {
         return this._column;
+    }
+
+    get type(): Type {
+        return this._type;
     }
 
     execute(scope: Scope): any {
         try {
-            return this._implementation(scope);
+            return this._impl(scope);
         }
         catch (error) {
             throw new Error(Utils.formatError(this._line, this._column, `Invocation failed: ${this.describe()}`, error));

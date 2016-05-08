@@ -1,5 +1,6 @@
 import {Module} from "./Module";
 
+import {Definition} from "./../Definition";
 import {Quantity} from "./../Quantity";
 import {Scope} from "./../Scope";
 import {Unit} from "./../Unit";
@@ -9,12 +10,21 @@ class ConversionModule extends Module {
     constructor() {
         super();
 
-        // TODO asArray
-        // TODO asMap
+        // this.define(Definition.procedure("as", "Converts the value to the specified type or unit."), [
+        //     Definition.any("value", "The value to be converted."),
+        //     Definition.of("target", "Type | Unit", "The type or unit the value should be convertered to.")
+        // ], Definition.any("any", "The result of the conversion"), (scope: Scope) => {
 
-        this.define(this.procedure("asQuantity", "Converts the value to a quantity.", [
-            this.variable("value", "The value")
-        ], (scope: Scope) => {
+        // });
+        
+        // TODO asBoolean
+        // TODO asList
+        // TODO asMap
+        // TODO asProcedure
+
+        this.define(Definition.procedure("asQuantity", "Converts the value to a quantity.", [
+            Definition.any("value", "The value, interpretable as quantity")
+        ], Definition.quantity("quantity", "The value as Quantity"), (scope: Scope) => {
             let value = scope.required("value");
 
             if (value === null) {
@@ -30,15 +40,15 @@ class ConversionModule extends Module {
             }
 
             if (typeof value === "string") {
-                return Quantity.parse(scope.requiredAsString("language"), value as string);
+                return Quantity.parse(scope.requiredAsText("language"), value as string);
             }
 
             throw new Error(`Conversion to Quantity failed: ${value}`);
         }));
 
-        this.define(this.procedure("asString", "Converts the value to a string.", [
-            this.variable("value", "The value")
-        ], (scope: Scope) => {
+        this.define(Definition.procedure("asText", "Converts the value to a text.", [
+            Definition.any("value", "The value, interpretable as text")
+        ], Definition.text("text", "The value as Text"), (scope: Scope) => {
             let value = scope.required("value");
 
             if (!(value)) {
@@ -53,9 +63,9 @@ class ConversionModule extends Module {
             return value.toString();
         }));
 
-        this.define(this.procedure("asUnit", "Converts the value to a unit.", [
-            this.variable("value", "The value")
-        ], (scope: Scope) => {
+        this.define(Definition.procedure("asUnit", "Converts the value to a unit.", [
+            Definition.any("value", "The value, interpretable as value")
+        ], Definition.unit("unit", "The value as Unit"), (scope: Scope) => {
             let value = scope.required("value");
 
             if (value === null) {

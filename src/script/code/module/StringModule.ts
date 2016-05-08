@@ -1,5 +1,6 @@
 import {Module} from "./Module";
 
+import {Definition} from "./../Definition";
 import {Scope} from "./../Scope";
 
 class StringModule extends Module {
@@ -7,16 +8,17 @@ class StringModule extends Module {
     constructor() {
         super();
 
-        this.define(this.procedure("concat", "Concatenates the specified array as strings.", [
-            this.variable("values", "An array of values")
-        ], (scope: Scope) => {
-            let values = scope.requiredAsArray("values")
+        this.define(Definition.procedure("concat", "Concatenates the specified list as texts.", [
+            Definition.any("values", "A list of values"),
+            Definition.any("separator", "An optional separator", "")
+        ], Definition.text("text", "The concatenated values"), (scope: Scope) => {
+            let values = scope.requiredAsList("values")
 
             if (values === null) {
                 return null;
             }
 
-            return values.join("");
+            return values.join(scope.getAsText("separator"));
         }));
     }
 }

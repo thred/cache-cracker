@@ -1,8 +1,8 @@
 import * as Utils from "./Utils";
 
+import {Definition} from "./../Definition";
 import {Scope} from "./../Scope";
-
-import {Definition} from "./../util/Definition";
+import {Type, Types} from "./../Type";
 
 export class Context {
 
@@ -33,26 +33,6 @@ export class Context {
         return new Context(this);
     }
 
-    isProcedure(name: string): boolean {
-        let definition = this.get(name);
-
-        if (!definition) {
-            return false;
-        }
-
-        return definition instanceof Procedure;
-    }
-
-    isVariable(name: string): boolean {
-        let definition = this.get(name);
-
-        if (!definition) {
-            return false;
-        }
-
-        return definition instanceof Variable;
-    }
-
     get(name: string): Definition {
         let definition = this._definitions[name];
 
@@ -68,44 +48,18 @@ export class Context {
         return definition;
     }
 
-    getAsProcedure(name: string): Procedure {
-        let definition = this.get(name);
+    required(name: string, type?: Type): Definition {
+        let definition = Utils.required(this.get(name), `Required definition is not defined: ${name}`);
 
-        if ((definition === undefined) || (definition === null)) {
-            return (definition as Procedure);
-        }
-
-        if (!(definition instanceof Procedure)) {
-            throw new Error(`Definition is not a procedure: ${name}`);
-        }
-
-        return (definition as Procedure);
-    }
-
-    getAsVariable(name: string): Variable {
-        let definition = this.get(name);
-
-        if ((definition === undefined) || (definition === null)) {
-            return definition;
-        }
-
-        if (!(definition instanceof Variable)) {
-            throw new Error(`Definition is not a variable: ${name}`);
+        if (!type.accepts(definition.type)) {
+            throw new Error(`Required definition does not match type "${type.describe()}": ${definition.describe()}`)
         }
 
         return definition;
     }
 
-    required(name: string): Definition {
-        return Utils.required(this.get(name), `Required definition is not defined: ${name}`);
-    }
-
-    requiredAsProcedure(name: string): Procedure {
-        return Utils.required(this.getAsProcedure(name), `Required procedure is not defined: ${name}`);
-    }
-
-    requiredAsVariable(name: string): Variable {
-        return Utils.required(this.getAsVariable(name), `Required variable is not defined: ${name}`);
+    requiredProcedure(name: string): Definition {
+        return this.required(name, Types.PROCEDURE);
     }
 
     define<AnyDefinition extends Definition>(definition: AnyDefinition): AnyDefinition {

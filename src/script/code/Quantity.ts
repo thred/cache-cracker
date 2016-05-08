@@ -15,8 +15,16 @@ export class Quantity implements Utils.Descripted {
 
     static ONE: Quantity = new Quantity(1);
 
-    static parse(language: string, s: string): Quantity {
-        return new QuantityParser(language, s).parseSignedQuantity();
+    static of(value: number, unit?: Unit) {
+        return new Quantity(value, unit);
+    }
+
+    static parse(language: string, quantity: Quantity | string): Quantity {
+        if (quantity instanceof Quantity) {
+            return quantity;
+        }
+
+        return new QuantityParser(language, quantity as string).parseSignedQuantity();
     }
 
     constructor(private _value: number, private _unit: Unit = Units.UNDEFINED) {

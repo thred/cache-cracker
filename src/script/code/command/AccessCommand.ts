@@ -1,18 +1,18 @@
 import {Command} from "./Command";
 
+import {Definition} from "./../Definition";
+
 import * as Utils from "./../util/Utils";
 
 export class AccessCommand extends Command {
-    constructor(line: number, column: number, private name: string) {
-        super(line, column, (scope) => {
-
-            throw new Error("Implement me!");
-
-        }, () => `${name}`);
+    constructor(line: number, column: number, private definition: Definition) {
+        super(line, column, definition.type, (scope) => {
+            return scope.get(definition.name);
+        }, () => `${definition.name}`);
     };
 
     toString(): string {
-        return `AccessCommand(${Utils.toEscapedStringWithQuotes(this.name)})`;
+        return `AccessCommand(${Utils.toEscapedStringWithQuotes(this.definition.name)})`;
     }
 }
 

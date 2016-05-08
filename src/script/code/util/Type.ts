@@ -1,97 +1,152 @@
-import {Procedure} from "./../Procedure";
-import {Quantity} from "./../Quantity";
-import {Unit} from "./../Unit";
+// import {Procedure} from "./../Procedure";
+// import {Quantity} from "./../Quantity";
+// import {Unit} from "./../Unit";
 
-export type TypeName = "Boolean" | "List" | "Map" | "Procedure" | "Quantity" | "Text" | "Unit";
+// export type Name = "Any" | "Bool" | "List" | "Map" | "Procedure" | "Quantity" | "Text" | "Unit";
 
-export class Type {
-    
-    static of(name: TypeName | TypeName[]): Type {
-        return new Type(name);
-    }
-    
-    private _names: TypeName[] = [];
-    
-    constructor(name: TypeName | TypeName[]) {
-        this.set(name);
-    }
-    
-    add(name: TypeName | TypeName[]): this {
-        if (Array.isArray(name)) {
-            (name as TypeName[]).forEach((current) => this.add(current));
-        }
-        
-        if (!this.contains(name as TypeName)) {
-            this._names.push(name as TypeName);        
-        }
-        
-        return this;
-    }
-    
-    isCompatible(value: any) {
-        for (let name of this._names) {
-            switch(name) {
-                case "Boolean":
-                    if (typeof value === "boolean") {
-                        return true;
-                    }
-                    break;
-                    
-                case "List":
-                    if ()
-                case "Procedure":
-                    if (value instanceof Procedure)
-            }
-        }
-    }
-    
-    is(name: TypeName): boolean {
-        return (this._names.length === 1) && (this._names[0] === name);
-    }
-    
-    contains(name: TypeName): boolean {
-        return this._names.indexOf(name) >= 0;
-    }
+// export function union(type: Name | Name[], otherType: Name | Name[]): Name[] {
+//     let result = ((Array.isArray(type)) ? type : [type]);
 
-    set(name: TypeName | TypeName[]): this {
-        if (Array.isArray(name)) {
-            this._names = name;
-        }
-        else {
-            this._names = [name];
-        }
-        
-        return this;
-    }
-}
+//     if (Array.isArray(otherType)) {
+//         result.concat(otherType);
+//     }
+//     else {
+//         result.push(otherType);
+//     }
 
-function isCompatible(typeName: TypeName, value: any) {
-                switch(name) {
-                case "Boolean":
-                    return (typeof value === "boolean");
-                    
-                case "List":
-                    return (Array.isArray(value));
-                    
-                case "Procedure":
-                    return (value instanceof Procedure);    
-                    
-                case "Quantity":
-                    return (value instanceof Quantity );    
-                    
-                case "Unit":
-                    return (value instanceof Unit);    
-                    
-                case "Map":
-                    return 
-                    return 
-                case "Procedure":
-                    if (value instanceof Procedure)
-            }
+//     return result;
+// }
 
-}
+// export function contains(type: Name | Name[], necessaryType: Name): boolean {
+//     if (Array.isArray(type)) {
+//         return (type as Name[]).some((currentType) => is(currentType, necessaryType));
+//     }
 
-export function isMap(value: any): boolean {
-    return (typeof value !== "boolean") && (typeof value !== "number") && (typeof value !== "string") && 
-        (!Array.isArray(value)) && (!(value instanceof Procedure)) && (!(value instanceof Quantity)) && (!(value instanceof Unit));
-}
+//     return type === necessaryType;
+// }
+
+// export function containsOf(type: Name | Name[], value: any): boolean {
+//     return contains(type, of(value));
+// }
+
+// export function is(type: Name | Name[], necessaryType: Name | Name[]): boolean {
+//     if (Array.isArray(type)) {
+//         return (type as Name[]).every((currentType) => is(currentType, necessaryType));
+//     }
+
+//     if (Array.isArray(necessaryType)) {
+//         return (necessaryType as Name[]).every((currentNecessaryType) => is(type, currentNecessaryType));
+//     }
+
+//     return (type === "Any") || (type === necessaryType);
+// }
+
+// export function isOf(type: Name | Name[], value: any): boolean {
+//     return is(type, of(value));
+// }
+
+// export function of(value: any): Name {
+//     if (!isOfAny(value)) {
+//         return "Any";
+//     }
+
+//     if (isOfBool(value)) {
+//         return "Bool";
+//     }
+
+//     if (isOfList(value)) {
+//         return "List";
+//     }
+
+//     if (isOfProcedure(value)) {
+//         return "Procedure";
+//     }
+
+//     if (isOfQuantity(value)) {
+//         return "Quantity";
+//     }
+
+//     if (isOfText(value)) {
+//         return "Text";
+//     }
+
+//     if (isOfUnit(value)) {
+//         return "Unit";
+//     }
+
+//     if (isOfMap(value)) {
+//         return "Map";
+//     }
+
+//     throw new Error(`Undefined type: ${value} (${typeof value})`);
+// }
+
+// // function isAssignable(type: Name | Name[], value: any): boolean {
+// //     if (Array.isArray(type)) {
+// //         for (let currentType of type) {
+// //             if (isAssignable(type, value)) {
+// //                 return true;
+// //             }
+// //         }
+
+// //         return false;
+// //     }
+
+// //     switch (name) {
+// //         case "Bool":
+// //             return isBool(value);
+
+// //         case "List":
+// //             return isList(value);
+
+// //         case "Map":
+// //             return isMap(value);
+
+// //         case "Procedure":
+// //             return isProcedure(value);
+
+// //         case "Quantity":
+// //             return isQuantity(value);
+
+// //         case "Text":
+// //             return isText(value);
+
+// //         case "Unit":
+// //             return isUnit(value);
+
+// //         default:
+// //             throw new Error(`Unsupported type name: ${name}`);
+// //     }
+// // }
+
+// export function isOfAny(value: any) {
+//     return (value !== undefined) && (value !== null);
+// }
+
+// export function isOfBool(value: any) {
+//     return typeof value === "boolean";
+// }
+
+// export function isOfList(value: any) {
+//     return Array.isArray(value);
+// }
+
+// export function isOfMap(value: any) {
+//     return (value instanceof Object) && (!isOfList(value)) && (!isOfProcedure(value)) && (!isOfQuantity(value)) && (!isOfUnit(value));
+// }
+
+// export function isOfProcedure(value: any) {
+//     return value instanceof Procedure;
+// }
+
+// export function isOfQuantity(value: any) {
+//     return value instanceof Quantity;
+// }
+
+// export function isOfText(value: any) {
+//     return typeof value === "string";
+// }
+
+// export function isOfUnit(value: any) {
+//     return value instanceof Unit;
+// }

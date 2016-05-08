@@ -36,10 +36,12 @@ export class Tokenizer {
     private _digitSeparators: string = DEFAULT_DIGIT_SEPARATORS;
     private _reservedCharacters: string = DEFAULT_RESERVED_CHARACTERS;
 
+    protected scanner: Scanner;
     protected token: Token;
     protected nextToken: Token;
 
-    constructor(protected scanner: Scanner) {
+    constructor(source: Scanner | string) {
+        this.scanner = Scanner.of(source);
     }
 
     whitespaces(whitespaces: string): Tokenizer {

@@ -1,20 +1,23 @@
 import {BlockCommand} from "./BlockCommand";
 import {Command} from "./Command";
 
-import {Procedure} from "./../definition/Procedure";
+import {Definition} from "./../Definition";
+import {Procedure} from "./../Procedure";
+import {Types} from "./../Type";
 
 import {Context} from "./../util/Context";
 
 import * as Utils from "./../util/Utils";
 
 export class CallCommand extends BlockCommand {
-    constructor(line: number, column: number, context: Context, private procedure: Procedure, private arg: Command) {
-        super(line, column, context, (scope) => {
+    constructor(line: number, column: number, context: Context, private definition: Definition, private arg: Command) {
+        super(line, column, definition.type.toDistinctType().param, context, (scope) => {
+            let procedure = definition.initialValue as Procedure;
             let params = procedure.params;
             let values = arg.execute(scope);
             let valuesAsMap: Utils.Map;
 
-            if (Utils.isMap(values)) {
+            if (Types.MAP.acceptsValue(values)) {
                 valuesAsMap = values as Utils.Map;
             }
             else if (Array.isArray(values)) {
@@ -54,11 +57,13 @@ export class CallCommand extends BlockCommand {
                 }
             }
 
-            return scope.invoke(procedure.name);
-        }, (language?: string) => `${procedure.name} ${this.arg.describe(language)}`);
+            return scope.invoke(definition.name);
+        }, (language?: string) => `${definition.name} ${this.arg.describe(language)}`);
+
+        //TODO add checks here
     };
 
     toString(): string {
-        return `CallCommand(${Utils.toEscapedStringWithQuotes(this.procedure.name)}, ${this.arg})`;
+        return `CallCommand(${Utils.toEscapedStringWithQuotes(this.definition.name)}, ${this.arg})`;
     }
 }

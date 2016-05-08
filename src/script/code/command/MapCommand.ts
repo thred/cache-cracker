@@ -1,5 +1,7 @@
 import {Command} from "./Command";
 
+import {Types} from "./../Type";
+
 import * as Utils from "./../util/Utils";
 
 export class MapCommand extends Command {
@@ -7,7 +9,7 @@ export class MapCommand extends Command {
         key: Command;
         value: Command;
     }[]) {
-        super(line, column,
+        super(line, column, Types.MAP,
             (scope) => {
                 let map: Utils.Map = {};
 

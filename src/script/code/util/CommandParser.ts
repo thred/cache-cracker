@@ -4,7 +4,10 @@ import {Token, Tokenizer} from "./Tokenizer";
 
 import * as Utils from "./Utils";
 
+import {Definition} from "./../Definition";
+import {Procedure} from "./../Procedure";
 import {Quantity} from "./../Quantity";
+import {Types} from "./../Type";
 import {Unit} from "./../Unit";
 
 import * as Units from "./../Units";
@@ -20,14 +23,10 @@ import {IdentifierCommand} from "./../command/IdentifierCommand";
 import {MapCommand} from "./../command/MapCommand";
 import {QuantityCommand} from "./../command/QuantityCommand";
 import {ReferenceCommand} from "./../command/ReferenceCommand";
-import {StringCommand, StringCommandReferenceSegment, StringCommandPlaceholderSegment, StringCommandStringSegment} from "./../command/StringCommand";
+import {TextCommand, TextCommandReferenceSegment, TextCommandPlaceholderSegment, TextCommandStringSegment} from "./../command/TextCommand";
 import {TupleCommand} from "./../command/TupleCommand";
 import {UnaryOperationCommand} from "./../command/UnaryOperationCommand";
 import {UnitCommand} from "./../command/UnitCommand";
-
-import {Parameter} from "./../definition/Parameter";
-import {Procedure} from "./../definition/Procedure";
-import {Variable} from "./../definition/Variable";
 
 import {msg} from "./../../Msg";
 
@@ -85,10 +84,10 @@ export class CommandParser {
             let arg = this.parseExpressionChain(context);
 
             if (token.s === "+") {
-                expression = new UnaryOperationCommand(token.line, token.column, "positiveOf", token.s, arg);
+                expression = new UnaryOperationCommand(token.line, token.column, context.requiredProcedure("positiveOf"), token.s, arg);
             }
             else if (token.s === "-") {
-                expression = new UnaryOperationCommand(token.line, token.column, "negativeOf", token.s, arg);
+                expression = new UnaryOperationCommand(token.line, token.column, context.requiredProcedure("negativeOf"), token.s, arg);
             }
             else {
                 throw new Error(Utils.formatError(token.line, token.column, `Unsupported unary operation: ${token.s}`));
@@ -159,7 +158,7 @@ export class CommandParser {
 
             this.tokenizer.nextExpressionToken();
 
-            expression = new BinaryOperationCommand(token.line, token.column, name, symbol, expression, this.parseStatement(context, precedence, null));
+            expression = new BinaryOperationCommand(token.line, token.column, context.requiredProcedure(name), symbol, expression, this.parseStatement(context, precedence, null));
 
             token = this.tokenizer.get();
         }
@@ -443,7 +442,7 @@ export class CommandParser {
     /**
      * String = delimiter { string | reference | ( "${" Expression "}") } delimiter. 
      */
-    private parseString(context: Context): StringCommand {
+    private parseString(context: Context): TextCommand {
         let startToken = this.tokenizer.get();
 
         if (!this.isString(context, startToken)) {
@@ -465,7 +464,7 @@ export class CommandParser {
             }
 
             if (token.type === "string") {
-                expressions.push(new StringCommandStringSegment(token.line, token.column, token.s));
+                expressions.push(new TextCommandStringSegment(token.line, token.column, token.s));
 
                 token = this.tokenizer.nextStringToken();
 
@@ -475,7 +474,7 @@ export class CommandParser {
             if (token.type === "reference") {
                 let name = token.s;
 
-                expressions.push(new StringCommandReferenceSegment(token.line, token.column, name))
+                expressions.push(new TextCommandReferenceSegment(token.line, token.column, name))
 
                 token = this.tokenizer.nextStringToken();
 
@@ -489,7 +488,7 @@ export class CommandParser {
                     throw new Error(Utils.formatError(token.line, token.column, "Unclosed block"));
                 }
 
-                expressions.push(new StringCommandPlaceholderSegment(token.line, token.column, this.parseStatement(context)));
+                expressions.push(new TextCommandPlaceholderSegment(token.line, token.column, this.parseStatement(context)));
 
                 token = this.tokenizer.get();
 
@@ -505,7 +504,7 @@ export class CommandParser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected string content, but found: ${token.s}`));
         }
 
-        return new StringCommand(startToken.line, startToken.column, expressions);
+        return new TextCommand(startToken.line, startToken.column, expressions);
     }
 
     /**
@@ -523,64 +522,69 @@ export class CommandParser {
         let token = this.tokenizer.nextExpressionToken();
 
         if ((definition === undefined) || (definition === null)) {
+            if (!this.isAssignment(context, token)) {
+                throw new Error(Utils.formatError(startToken.line, startToken.column, `Undefined reference: ${name}`));
+            }
+
+            definition = Definition.any(name, "");
+
+            return new ReferenceCommand(startToken.line, startToken.column, definition);
+        }
+
+        if (Types.PROCEDURE.accepts(definition.type)) {
             if (this.isAssignment(context, token)) {
-                
-            }
-        }
-
-
-        if (this.isStatement(context, token)) {
-            if (definition instanceof Procedure) {
-                let procedure = definition as Procedure;
-                let args = this.parseStatement(context);
-
-                return new CallCommand(startToken.line, startToken.column, procedure.createContext(context), procedure, args);
+                return new ReferenceCommand(startToken.line, startToken.column, definition);
             }
 
-            return new ReferenceCommand(startToken.line, startToken.column, name, definition);
+            let args = this.parseStatement(context);
+            let procedure: Procedure = definition.initialValue;
+
+            if (!procedure) {
+                // FIXME dynamic methods
+                throw new Error("Dynamic method not yet implemented");
+            }
+
+            return new CallCommand(startToken.line, startToken.column, procedure.createContext(context), definition, args);
         }
 
-
-        else if ((definition === undefined) || (definition === null)) {
-            throw new Error(Utils.formatError(startToken.line, startToken.column, `Undefined reference: ${name}`));
-        }
+        return new AccessCommand(startToken.line, startToken.column, definition);
     }
 
-    /**
-     * Call = word Statement.
-     */
-    private parseCall(context: Context): Command {
-        let startToken = this.tokenizer.get();
+    // /**
+    //  * Call = word Statement.
+    //  */
+    // private parseCall(context: Context): Command {
+    //     let startToken = this.tokenizer.get();
 
-        if (!this.isCall(context, startToken)) {
-            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected call, but found: ${startToken.s}`));
-        }
+    //     if (!this.isCall(context, startToken)) {
+    //         throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected call, but found: ${startToken.s}`));
+    //     }
 
-        let procedure = context.requiredAsProcedure(startToken.s);
+    //     let procedure = context.requiredAsProcedure(startToken.s);
 
-        this.tokenizer.nextExpressionToken();
+    //     this.tokenizer.nextExpressionToken();
 
-        let args = this.parseStatement(context);
+    //     let args = this.parseStatement(context);
 
-        return new CallCommand(startToken.line, startToken.column, procedure.createContext(), procedure, args);
-    }
+    //     return new CallCommand(startToken.line, startToken.column, procedure.createContext(), procedure, args);
+    // }
 
-    /**
-     * Access = word.
-     */
-    private parseAccess(context: Context): Command {
-        let startToken = this.tokenizer.get();
+    // /**
+    //  * Access = word.
+    //  */
+    // private parseAccess(context: Context): Command {
+    //     let startToken = this.tokenizer.get();
 
-        if (!this.isAccess(context, startToken)) {
-            throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected access, but found: ${startToken.s}`));
-        }
+    //     if (!this.isAccess(context, startToken)) {
+    //         throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected access, but found: ${startToken.s}`));
+    //     }
 
-        let variable = context.get(startToken.s);
+    //     let variable = context.get(startToken.s);
 
-        this.tokenizer.nextExpressionToken();
+    //     this.tokenizer.nextExpressionToken();
 
-        return new AccessCommand(startToken.line, startToken.column, variable.name);
-    }
+    //     return new AccessCommand(startToken.line, startToken.column, variable.name);
+    // }
 
     /**
      * Unit = unit { [ "/" ] unit }.
@@ -735,21 +739,21 @@ export class CommandParser {
         return token.type === "word";
     }
 
-    isCall(context: Context, token: Token): boolean {
-        if (token.type !== "word") {
-            return false;
-        }
+    // isCall(context: Context, token: Token): boolean {
+    //     if (token.type !== "word") {
+    //         return false;
+    //     }
 
-        return context.isProcedure(token.s);
-    }
+    //     return context.isProcedure(token.s);
+    // }
 
-    isAccess(context: Context, token: Token): boolean {
-        if (token.type !== "word") {
-            return false;
-        }
+    // isAccess(context: Context, token: Token): boolean {
+    //     if (token.type !== "word") {
+    //         return false;
+    //     }
 
-        return context.isVariable(token.s);
-    }
+    //     return context.isVariable(token.s);
+    // }
 
     isUnit(context: Context, token: Token): boolean {
         if ((token.type !== "word") && (token.type !== "delimiter") && (token.type !== "separator") && (token.type !== "operator")) {

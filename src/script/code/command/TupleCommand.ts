@@ -1,8 +1,10 @@
 import {Command} from "./Command";
 
+import {Types} from "./../Type";
+
 export class TupleCommand extends Command {
     constructor(line: number, column: number, private commands: Command[]) {
-        super(line, column,
+        super(line, column, Types.ANY,
             (scope) => {
                 if (commands.length === 0) {
                     return null; // FIXME what is an empty Tuple? NULL, NIL, EMPTY, (), [], ... ?

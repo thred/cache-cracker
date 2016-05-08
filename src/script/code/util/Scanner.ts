@@ -1,4 +1,13 @@
 export class Scanner {
+
+    static of(source: Scanner | string, startOffset?: number, startLine?: number, startColumn?: number): Scanner {
+        if (source instanceof Scanner) {
+            return source;
+        }
+
+        return new Scanner(source as string, startOffset, startLine, startColumn);
+    }
+
     private pos: number;
     private _offset: number;
     private _line: number;

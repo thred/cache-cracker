@@ -5,6 +5,34 @@ export let precision = 8;
 
 export let language = "en-US";
 
+export function required<Any>(value: Any, message?: string): Any {
+    if (value !== undefined) {
+        return value;
+    }
+
+    if (typeof message === "string") {
+        throw new Error(message);
+    }
+
+    throw new Error("Required value is not defined")
+}
+
+export function requiredNotNull<Any>(value: Any, message?: string): Any {
+    if ((value !== undefined) && (value !== null)) {
+        return value;
+    }
+
+    if (typeof message === "string") {
+        throw new Error(message);
+    }
+
+    if (value === undefined) {
+        throw new Error("Required value is not defined")
+    }
+
+    throw new Error("Required value is null")
+}
+
 export interface Descripted {
 
     describe(language?: string): string;
@@ -247,23 +275,11 @@ export function toEscapedString(s: string): string {
     return result;
 }
 
-export function required<Any>(value: Any, message?: string): Any {
-    if (value !== undefined) {
-        return value;
-    }
-
-    if (typeof message === "string") {
-        throw new Error(message);
-    }
-
-    throw new Error("Required value is not defined")
-}
-
 export function formatError(line: number, column: number, message: string, cause?: any) {
     let result = `[Ln ${line}, Col ${column}] ${message}`;
 
     if (cause) {
-        result += `\n\tcaused by ${cause}`;
+        result += `\n\tcaused by ${indent(cause.stack.toString())}`;
     }
 
     return result;
