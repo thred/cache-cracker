@@ -35,7 +35,7 @@ class MathModule extends Module {
                     }
 
                     if (leadingUnit.subUnit) {
-                        value = scope.invoke("convert", {
+                        value = scope.requiredAsProcedure("convert").invoke(scope, {
                             value: value,
                             unit: leadingUnit.subUnit
                         });

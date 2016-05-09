@@ -86,75 +86,6 @@ export class Scope {
         return this.getAs(name, Types.UNIT, defaultValue);
     }
 
-    invoke(name: string, arg: any): any {
-        let procedure: Procedure = this.requiredAsProcedure(name);
-        let params = procedure.params;
-        let map: Utils.Map;
-        let type: Type = Type.of(arg);
-
-        if ((Types.BOOL.accepts(type)) || (Types.PROCEDURE.accepts(type)) || (Types.QUANTITY.accepts(type)) ||
-            (Types.TEXT.accepts(type)) || (Types.TYPE.accepts(type)) || (Types.UNIT.accepts(type))) {
-
-            if (1 > params.length) {
-                throw new Error(`Too many arguments in procedure call (${1} > ${params.length}): ${procedure.describe()}`);
-            }
-
-            map = {};
-
-            map[params[0].name] = arg;
-        }
-        else if (Types.LIST.accepts(type)) {
-            let list = arg as any[];
-
-            if (list.length > params.length) {
-                throw new Error(`Too many arguments in procedure call (${list} > ${params.length}): ${procedure.describe()}`);
-            }
-
-            map = {};
-
-            for (let index = 0; index < list.length; index++) {
-                map[params[index].name] = list[index];
-            }
-        }
-        else if (Types.MAP.accepts(type)) {
-            map = arg as Utils.Map;
-        }
-        else {
-            throw new Error(`Unsupported argument type "${type}" with procedure call: ${procedure.describe()}`);
-        }
-
-        let childScope = this.derive();
-
-        for (let param of params) {
-            let name = param.name;
-            let value = map[name];
-
-            if (value === undefined) {
-                if (param.initialValue === undefined) {
-                    throw new Error(`Required argument "${name}" is missing in procedure call: ${procedure.describe()}`);
-                }
-
-                value = param.initialValue;
-            }
-
-            try {
-                value = this.as(param.type, value);
-            }
-            catch (error) {
-                throw new Error(`Argument "${name}" cannot be converted to "${param.type}" for procedure call: ${procedure.describe()}.\n\tCaused by ${Utils.indent(error.stack.toString())}`);
-            }
-
-            childScope.set(name, value);
-        }
-
-        try {
-            return procedure.invoke(childScope);
-        }
-        catch (error) {
-            throw new Error(`Invocation failed: ${name}.\n\tcaused by ${Utils.indent(error.stack.toString())}`);
-        }
-    }
-
     required(name: string): any {
         return Utils.required(this.get(name), `Required value is not defined: ${name}`);
     }
@@ -223,7 +154,7 @@ export class Scope {
         let distinctType = type.toDistinctType();
 
         try {
-            return this.invoke("as" + distinctType.name, { value: value, param: distinctType.param });
+            return this.requiredAsProcedure("as" + distinctType.name).invoke(this, { value: value, param: distinctType.param });
         }
         catch (error) {
             throw new Error(`Conversion to ${type} failed: ${value}\n\tcaused by ${Utils.indent(error.stack.toString())}`);

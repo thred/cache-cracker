@@ -9,17 +9,16 @@ export class BinaryOperationCommand extends Command {
     constructor(line: number, column: number, private definition: Definition, private symbol: string, private leftArg: Command, private rightArg: Command) {
         super(line, column, definition.type.toDistinctType().param,
             (scope) => {
-                return scope.invoke(definition.name, {
-                    left: leftArg.execute(scope),
-                    right: rightArg.execute(scope)
-                });
+                try {
+                    return scope.requiredAsProcedure(definition.name).invoke(scope, {
+                        left: leftArg.execute(scope),
+                        right: rightArg.execute(scope)
+                    });
+                }
+                catch (error) {
+                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${definition.name}`, error));
+                }
             }, () => `${leftArg.describe()} ${symbol} ${rightArg.describe()}`);
-
-        // let procedure: Procedure = definition.initialValue();
-
-        //FIXME check params
-        // if ((procedure.params))
-        //     if (!definition.)
     }
 
     toString(): string {

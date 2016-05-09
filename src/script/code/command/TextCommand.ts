@@ -8,9 +8,14 @@ export class TextCommand extends Command {
     constructor(line: number, column: number, private segments: Command[]) {
         super(line, column, Types.TEXT,
             (scope) => {
-                return scope.invoke("concat", {
-                    values: segments.map((segment) => segment.execute(scope))
-                });
+                try {
+                    return scope.requiredAsProcedure("concat").invoke(scope, {
+                        values: segments.map((segment) => segment.execute(scope))
+                    });
+                }
+                catch (error) {
+                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${"concat"}`, error));
+                }
             },
             () => `"${segments.map((segment) => segment.describe()).join("")}"`);
     }

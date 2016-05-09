@@ -3,14 +3,21 @@ import {Command} from "./Command";
 import {Types} from "./../Type";
 import {Unit} from "./../Unit";
 
+import * as Utils from "./../util/Utils";
+
 export class ConvertCommand extends Command {
     constructor(line: number, column: number, private valueArg: Command, private unit: Unit) {
         super(line, column, Types.QUANTITY,
             (scope) => {
-                return scope.invoke("convert", {
-                    value: valueArg.execute(scope),
-                    unit: unit
-                });
+                try {
+                    return scope.requiredAsProcedure("convert").invoke(scope, {
+                        value: valueArg.execute(scope),
+                        unit: unit
+                    });
+                }
+                catch (error) {
+                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${"convert"}`, error));
+                }
             }, () => `${valueArg.describe()} ${unit.symbols[0]}`);
     }
 

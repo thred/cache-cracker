@@ -8,9 +8,14 @@ export class UnaryOperationCommand extends Command {
     constructor(line: number, column: number, private definition: Definition, private symbol: string, private valueArg: Command) {
         super(line, column, definition.type.toDistinctType().param,
             (scope) => {
-                return scope.invoke(definition.name, {
-                    value: valueArg.execute(scope),
-                });
+                try {
+                    return scope.requiredAsProcedure(definition.name).invoke(scope, {
+                        value: valueArg.execute(scope),
+                    });
+                }
+                catch (error) {
+                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${definition.name}`, error));
+                }
             }, () => `${symbol}${valueArg.describe()}`);
     }
 

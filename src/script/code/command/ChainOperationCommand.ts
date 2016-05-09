@@ -8,9 +8,14 @@ export class ChainOperationCommand extends Command {
     constructor(line: number, column: number, private segments: Command[]) {
         super(line, column, Types.QUANTITY,
             (scope) => {
-                return scope.invoke("chain", {
-                    values: segments.map((segment) => segment.execute(scope))
-                });
+                try {
+                    return scope.requiredAsProcedure("chain").invoke(scope, {
+                        values: segments.map((segment) => segment.execute(scope))
+                    });
+                }
+                catch (error) {
+                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${"chain"}`, error));
+                }
             }, () => `${segments.map((segment) => segment.describe()).join(" ")}`);
     }
 
