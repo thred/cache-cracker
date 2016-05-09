@@ -1,6 +1,14 @@
 import {Quantity} from "./../Quantity"
 import {Unit} from "./../Unit"
 
+export type Map = { [key: string]: any };
+
+export interface Descripted {
+
+    describe(language?: string): string;
+
+}
+
 export let precision = 8;
 
 export let language = "en-US";
@@ -33,13 +41,7 @@ export function requiredNotNull<Any>(value: Any, message?: string): Any {
     throw new Error("Required value is null")
 }
 
-export interface Descripted {
-
-    describe(language?: string): string;
-
-}
-
-export function describe(object: any): string {
+export function describe(object: any, language?: string): string {
     if (object === undefined) {
         return "undefined";
     }
@@ -60,47 +62,24 @@ export function describe(object: any): string {
         return toEscapedStringWithQuotes(object as string);
     }
 
+    if (typeof object["describe"] === "function") {
+        return (object as Descripted).describe(language);
+    }
+
     if (Array.isArray(object)) {
-        let s = "[";
-        let found: boolean = false;
-
-        for (let item of (object as any[])) {
-            let value = describe(item);
-
-            if (found) {
-                s += ", ";
-            }
-
-            s += indent(value);
-            found = true;
-        }
-
-        s += "]";
-
-        return s;
+        return `[${(object as any[]).map((item) => indent(describe(item, language))).join(", ")}]`;
     }
 
-    let s = "{";
-    let found: boolean = false;
+    //return `{${(object as {[key: string]: any}).map((item) => indent(describe(item, language))).join(", ")}]`;
 
-    for (let name in object) {
-        let value = describe(object[name]);
+    let map = object as { [key: string]: any };
+    let keys = Object.keys(map);
 
-        if (found) {
-            s += ",";
-        }
-
-        s += "\n\t" + indent(toKey(name)) + ": " + indent(value);
-        found = true;
+    if (keys.length === 0) {
+        return "{}";
     }
 
-    if (found) {
-        s += "\n";
-    }
-
-    s += "}";
-
-    return s;
+    return `{${Object.keys(map).map((key) => `\n\t${toEscapedStringWithQuotes(key)}: ${indent(describe(map[key], language))}`).join("")}\n}`;
 }
 
 export function round(n: number, accuracy: number): number {
@@ -126,8 +105,6 @@ export function ceil(n: number, accuracy: number): number {
 
     return Math.ceil(n / accuracy) * accuracy;
 }
-
-export type Map = { [key: string]: any };
 
 export function isLetter(ch: string): boolean {
     if (!ch) {
@@ -285,10 +262,10 @@ export function formatError(line: number, column: number, message: string, cause
     return result;
 }
 
-export function indent(s: string) {
+export function indent(s: string, t: string = "  ") {
     if ((s === undefined) || (s === null)) {
         return s;
     }
 
-    return s.replace("\n", "\n\t");
+    return s.replace(/\n/g, "\n" + t);
 }

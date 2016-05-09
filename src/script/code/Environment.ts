@@ -7,7 +7,7 @@ import {Module} from "./module/Module";
 
 import * as ConversionModule from "./module/ConversionModule";
 import * as MathModule from "./module/MathModule";
-import * as StringModule from "./module/StringModule";
+import * as TextModule from "./module/TextModule";
 
 import {CommandParser} from "./util/CommandParser";
 import {Context} from "./util/Context";
@@ -15,15 +15,15 @@ import {Scanner} from "./util/Scanner";
 
 export class Environment {
 
-    static DEFAULT: Environment = new Environment().include(ConversionModule.MODULE).include(MathModule.MODULE).include(StringModule.MODULE);
+    static DEFAULT: Environment = new Environment().include(ConversionModule.MODULE, MathModule.MODULE, TextModule.MODULE);
 
     _context: Context = new Context(null);
 
     constructor() {
     }
 
-    include(module: Module): this {
-        module.populate(this._context);
+    include(...modules: Module[]): this {
+        modules.forEach((module) => module.populate(this._context));
 
         return this;
     }

@@ -3,12 +3,14 @@
 import {Environment} from "../../script/code/Environment";
 import {Scope} from "../../script/code/Scope";
 
+import * as Utils from "../../script/code/util/Utils";
+
 import {assert} from "chai";
 
 export function testScript(source: string, expected: string, verify?: (value: any, error?: any) => boolean): Scope {
     let scope = new Scope(null);
 
-    it(`${source} => ${expected}`, () => {
+    it(`${Utils.indent(source, "      ")} => ${Utils.indent(expected, "      ")}`, () => {
         let description = source;
 
         if (source.indexOf(":") >= 0) {
