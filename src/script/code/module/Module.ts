@@ -1,9 +1,8 @@
+import {Context} from "./../Context";
 import {Definition} from "./../Definition";
 import {Environment} from "./../Environment";
 import {Procedure} from "./../Procedure";
 import {Scope} from "./../Scope";
-
-import {Context} from "./../util/Context";
 
 export class Module {
 

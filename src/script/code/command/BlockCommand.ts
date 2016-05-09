@@ -1,9 +1,8 @@
 import {Command} from "./Command";
 
+import {Context} from "./../Context";
 import {Scope} from "./../Scope";
 import {Type} from "./../Type";
-
-import {Context} from "./../util/Context";
 
 import * as Utils from "./../util/Utils";
 

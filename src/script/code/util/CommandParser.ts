@@ -1,9 +1,9 @@
-import {Context} from "./Context";
 import {Scanner} from "./Scanner";
 import {Token, Tokenizer} from "./Tokenizer";
 
 import * as Utils from "./Utils";
 
+import {Context} from "./../Context";
 import {Definition} from "./../Definition";
 import {Procedure} from "./../Procedure";
 import {Quantity} from "./../Quantity";
@@ -56,7 +56,7 @@ export class CommandParser {
 
     private tokenizer: Tokenizer;
 
-    constructor(scanner: Scanner) {
+    constructor(scanner: Scanner | string) {
         this.tokenizer = new Tokenizer(scanner);
 
         this.tokenizer.nextExpressionToken();

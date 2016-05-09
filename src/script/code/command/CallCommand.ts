@@ -1,11 +1,10 @@
 import {BlockCommand} from "./BlockCommand";
 import {Command} from "./Command";
 
+import {Context} from "./../Context";
 import {Definition} from "./../Definition";
 import {Procedure} from "./../Procedure";
 import {Type, Types} from "./../Type";
-
-import {Context} from "./../util/Context";
 
 import * as Utils from "./../util/Utils";
 
