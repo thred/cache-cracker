@@ -7,9 +7,7 @@ import * as Utils from "../../script/code/util/Utils";
 
 import {assert} from "chai";
 
-export function testScript(source: string, expected: string, verify?: (value: any, error?: any) => boolean): Scope {
-    let scope = new Scope(null);
-
+export function testScript(source: string, expected: string, verify?: (value: any, error?: any) => boolean): void {
     it(`${Utils.indent(source, "      ")} => ${Utils.indent(expected, "      ")}`, () => {
         let description = source;
 
@@ -18,7 +16,9 @@ export function testScript(source: string, expected: string, verify?: (value: an
             source = source.substring(0, source.indexOf(":")).trim();
         }
 
-        let script = Environment.DEFAULT.parse(source);
+        let context = Environment.DEFAULT.createContext();
+        let scope = context.createScope();
+        let script = context.parse(source);
 
         assert.equal(script.describe(), description);
 
@@ -41,8 +41,6 @@ export function testScript(source: string, expected: string, verify?: (value: an
             }
         }
     });
-
-    return scope;
 }
 
 
