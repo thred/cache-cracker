@@ -84,10 +84,10 @@ export class CommandParser {
             let arg = this.parseExpressionChain(context);
 
             if (token.s === "+") {
-                expression = new UnaryOperationCommand(token.line, token.column, context.requiredProcedure("positiveOf"), token.s, arg);
+                expression = new UnaryOperationCommand(token.line, token.column, context.required("positiveOf", Types.PROCEDURE), token.s, arg);
             }
             else if (token.s === "-") {
-                expression = new UnaryOperationCommand(token.line, token.column, context.requiredProcedure("negativeOf"), token.s, arg);
+                expression = new UnaryOperationCommand(token.line, token.column, context.required("negativeOf", Types.PROCEDURE), token.s, arg);
             }
             else {
                 throw new Error(Utils.formatError(token.line, token.column, `Unsupported unary operation: ${token.s}`));
@@ -158,7 +158,7 @@ export class CommandParser {
 
             this.tokenizer.nextExpressionToken();
 
-            expression = new BinaryOperationCommand(token.line, token.column, context.requiredProcedure(name), symbol, expression, this.parseStatement(context, precedence, null));
+            expression = new BinaryOperationCommand(token.line, token.column, context.required(name, Types.PROCEDURE), symbol, expression, this.parseStatement(context, precedence, null));
 
             token = this.tokenizer.get();
         }
@@ -537,14 +537,8 @@ export class CommandParser {
             }
 
             let args = this.parseStatement(context);
-            let procedure: Procedure = definition.initialValue;
 
-            if (!procedure) {
-                // FIXME dynamic methods
-                throw new Error("Dynamic method not yet implemented");
-            }
-
-            return new CallCommand(startToken.line, startToken.column, procedure.createContext(context), definition, args);
+            return new CallCommand(startToken.line, startToken.column, definition, args);
         }
 
         return new AccessCommand(startToken.line, startToken.column, definition);

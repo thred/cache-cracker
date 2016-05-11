@@ -4,7 +4,7 @@ import {Script} from "./Script";
 
 import {Command} from "./command/Command";
 
-import {Module} from "./module/Module";
+import {Module} from "./Module";
 
 import * as ConversionModule from "./module/ConversionModule";
 import * as MathModule from "./module/MathModule";

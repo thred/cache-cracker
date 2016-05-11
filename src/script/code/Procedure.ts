@@ -7,11 +7,7 @@ import * as Utils from "./util/Utils";
 
 export class Procedure implements Utils.Descripted {
 
-    static of(params: Definition[], result: Definition, impl?: (scope: Scope) => any) {
-        return new Procedure(params, result, impl);
-    }
-
-    constructor(private _params: Definition[], private _result: Definition, private _impl?: (scope: Scope) => any) {
+    constructor(private _scope: Scope, private _params: Definition[], private _result: Definition, private _impl?: (scope: Scope) => any) {
     }
 
     get params(): Definition[] {
@@ -36,13 +32,13 @@ export class Procedure implements Utils.Descripted {
         let context = new Context(parent);
 
         for (let param of this._params) {
-            context.define(param);
+            context.register(param);
         }
 
         return context;
     }
 
-    invoke(scope: Scope, arg: any): any {
+    invoke(xscope: Scope, arg: any): any {
         let map: Utils.Map;
         let type: Type = Type.of(arg);
 
@@ -77,32 +73,35 @@ export class Procedure implements Utils.Descripted {
             throw new Error(`Unsupported argument type "${type}" with procedure call: ${this.describe()}`);
         }
 
-        let childScope = scope.derive();
+        let parentScope = this._scope;
+        let scope = parentScope.derive();
 
         for (let param of this.params) {
             let name = param.name;
             let value = map[name];
 
             if (value === undefined) {
-                if (param.initialValue === undefined) {
+                let initialValue = param.createInitialValue(scope);
+
+                if (param.createInitialValue(scope) === undefined) {
                     throw new Error(`Required argument "${name}" is missing in procedure call: ${this.describe()}`);
                 }
 
-                value = param.initialValue;
+                value = initialValue;
             }
 
             try {
-                value = scope.as(param.type, value);
+                value = parentScope.as(param.type, value);
             }
             catch (error) {
                 throw new Error(`Argument "${name}" cannot be converted to "${param.type}" for procedure call: ${this.describe()}.\n\tCaused by ${Utils.indent(error.stack.toString())}`);
             }
 
-            childScope.set(name, value);
+            scope.set(name, value);
         }
 
         try {
-            return this._impl(childScope);
+            return this._impl(scope);
         }
         catch (error) {
             throw new Error(`Failed to invoke procedure.\n\tCaused by ${Utils.indent(error.stack.toString())}`);

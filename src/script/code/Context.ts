@@ -10,17 +10,29 @@ import * as Utils from "./util/Utils";
 
 /**
  * A `Context` holds the compile time information of all variables: these are the predefined `Definition`s
- * from the `Module`s and the `Definition`s creates by compiling the script. A `Context` is a member of a
- * hierachy, liked by the parent property. 
+ * from the `Module`s and the `Definition`s created by compiling the script. A `Context` is a member of a
+ * hierachy, linked by the parent property. 
  * 
  * When compiling a script, each `Procedure` gets it's own `Context` linked to it's parent. The inner `Context`
- * is holding the parameters and the local variables. In fact any block has it's own context. 
+ * is holding the parameters and the local variables. In fact any block has it's own context (yes, any block).
  */
 export class Context {
 
     private _definitions: { [name: string]: Definition } = {};
 
     constructor(private _parent: Context) {
+    }
+
+    /**
+     * Register one or more new `Definition`s.
+     * 
+     * @param definitions the `Definition`s to register
+     * @returns the `Context` itself
+     */
+    register(...definitions: Definition[]): this {
+        definitions.forEach((definition) => this._definitions[definition.name] = definition);
+
+        return this;
     }
 
     /**
@@ -69,7 +81,7 @@ export class Context {
         let scope = new Scope(parentScope);
 
         for (let name in this._definitions) {
-            scope.set(name, this._definitions[name].initialValue);
+            scope.set(name, this._definitions[name].createInitialValue(scope) || null);
         }
 
         return scope;
@@ -124,23 +136,21 @@ export class Context {
         return definition;
     }
 
+    /**
+     * 
+     * @param name the name of the `Definition`
+     * @param type an optional `Type` to verify the `Definition` 
+     * @returns the `Definition` with the specified name. Asks it's parent `Context` if this
+     *      `Context` does not contain it. If the `Definition` is missing, it will raise an error.
+     */
     required(name: string, type?: Type): Definition {
         let definition = Utils.required(this.get(name), `Required definition is not defined: ${name}`);
 
-        if (!type.accepts(definition.type)) {
+        if ((type) && (!type.accepts(definition.type))) {
             throw new Error(`Required definition does not match type "${type.describe()}": ${definition.describe()}`)
         }
 
         return definition;
     }
 
-    requiredProcedure(name: string): Definition {
-        return this.required(name, Types.PROCEDURE);
-    }
-
-    define<AnyDefinition extends Definition>(definition: AnyDefinition): AnyDefinition {
-        this._definitions[definition.name] = definition;
-
-        return definition;
-    }
 }

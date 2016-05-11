@@ -9,61 +9,57 @@ import * as Utils from "./util/Utils";
 export class Definition implements Utils.Descripted {
 
     static of(name: string, type: Type | string, description: string, initialValue?: any): Definition {
-        return new Definition(name, Type.parse(initialValue), description, initialValue);
+        return new Definition(name, Type.parse(initialValue), description, (scope: Scope) => initialValue);
     }
 
     static detect(name: string, description: string, initialValue?: any): Definition {
-        return new Definition(name, Type.of(initialValue), description, initialValue);
+        return new Definition(name, Type.of(initialValue), description, (scope: Scope) => initialValue);
     }
 
     static any(name: string, description: string, initialValue?: any) {
-        return new Definition(name, Types.ANY, description, initialValue);
+        return new Definition(name, Types.ANY, description, (scope: Scope) => initialValue);
     }
 
     static bool(name: string, description: string, initialValue?: boolean) {
-        return new Definition(name, Types.BOOL, description, initialValue);
+        return new Definition(name, Types.BOOL, description, (scope: Scope) => initialValue);
     }
 
     static list(name: string, description: string, initialValue?: any[]) {
-        return new Definition(name, Types.LIST, description, initialValue);
+        return new Definition(name, Types.LIST, description, (scope: Scope) => initialValue);
     }
 
     static map(name: string, description: string, initialValue?: Object) {
-        return new Definition(name, Types.MAP, description, initialValue);
+        return new Definition(name, Types.MAP, description, (scope: Scope) => initialValue);
     }
 
     static procedure(name: string, description: string, params: Definition[], result: Definition, impl: (scope: Scope) => any): Definition {
-        return new Definition(name, new DistinctType("Procedure", result.type), description, new Procedure(params, result, impl));
+        return new ProcedureDefinition(name, new DistinctType("Procedure", result.type), description, params, result, impl);
     }
 
     static quantity(name: string, description: string, initialValue?: Quantity) {
-        return new Definition(name, Types.QUANTITY, description, initialValue);
+        return new Definition(name, Types.QUANTITY, description, (scope: Scope) => initialValue);
     }
 
     static text(name: string, description: string, initialValue?: string) {
-        return new Definition(name, Types.TEXT, description, initialValue);
+        return new Definition(name, Types.TEXT, description, (scope: Scope) => initialValue);
     }
 
     static type(name: string, description: string, initialValue?: Type) {
-        return new Definition(name, Types.TYPE, description, initialValue);
+        return new Definition(name, Types.TYPE, description, (scope: Scope) => initialValue);
     }
 
     static unit(name: string, description: string, initialValue?: Unit) {
-        return new Definition(name, Types.UNIT, description, initialValue);
+        return new Definition(name, Types.UNIT, description, (scope: Scope) => initialValue);
     }
 
     private _type: Type;
 
-    constructor(private _name: string, type: Type | string, private _description: string, private _initialValue?: any) {
+    constructor(private _name: string, type: Type | string, private _description: string, private _initialValueProvider?: (scope: Scope) => any) {
         if (!Utils.isIdentifier(_name)) {
             throw new Error(`Invalid name for definition: ${_name}`);
         }
 
         this._type = Type.parse(type);
-
-        if (!this._type.acceptsValue(_initialValue)) {
-            throw new Error(`Type is not compatible with initial value: ${type} / ${Type.parse(_initialValue)} (of ${_initialValue})`)
-        }
     }
 
     get name(): string {
@@ -78,8 +74,18 @@ export class Definition implements Utils.Descripted {
         return this._description;
     }
 
-    get initialValue(): any {
-        return this._initialValue;
+    createInitialValue(scope: Scope): any {
+        if (!this._initialValueProvider) {
+            return undefined;
+        }
+
+        let initialValue = this._initialValueProvider(scope);
+
+        if (!this._type.acceptsValue(initialValue)) {
+            throw new Error(`Type is not compatible with initial value: ${this._type} / ${Type.parse(initialValue)} (of ${Utils.describe(initialValue)})`);
+        }
+
+        return initialValue;
     }
 
     describe(language?: string): string {
@@ -90,6 +96,15 @@ export class Definition implements Utils.Descripted {
         }
 
         return description;
+    }
+}
+
+class ProcedureDefinition extends Definition {
+
+    constructor(name: string, type: Type | string, description: string, private _params: Definition[], private _result: Definition, private _impl?: (scope: Scope) => any) {
+        super(name, type, description, (scope: Scope) => {
+            return new Procedure(scope, _params, _result, _impl);
+        });
     }
 
 }

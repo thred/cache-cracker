@@ -8,12 +8,12 @@ import * as Utils from "./../util/Utils";
 
 export class BlockCommand extends Command {
 
-    constructor(line: number, column: number, type: Type, private context: Context, implementation: (scope: Scope) => any, describe: (language?: string) => string) {
-        super(line, column, type, implementation, describe);
+    constructor(line: number, column: number, type: Type, impl: (scope: Scope) => any, describe: (language?: string) => string) {
+        super(line, column, type, impl, describe);
     }
 
     execute(scope: Scope): any {
-        let childScope = this.context.createScope(scope);
+        let childScope = scope.derive();
 
         return super.execute(childScope);
     }

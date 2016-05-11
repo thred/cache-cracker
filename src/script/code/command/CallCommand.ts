@@ -9,8 +9,8 @@ import {Type, Types} from "./../Type";
 import * as Utils from "./../util/Utils";
 
 export class CallCommand extends BlockCommand {
-    constructor(line: number, column: number, context: Context, private definition: Definition, private arg: Command) {
-        super(line, column, definition.type.toDistinctType().param, context, (scope) => {
+    constructor(line: number, column: number, private definition: Definition, private arg: Command) {
+        super(line, column, definition.type.toDistinctType().param, (scope) => {
             try {
                 return scope.requiredAsProcedure(definition.name).invoke(scope, arg.execute(scope));
             }

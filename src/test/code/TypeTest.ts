@@ -51,14 +51,14 @@ describe("Type", () => {
     testOf({ one: Quantity.of(1), two: Quantity.of(2), three: Quantity.of(3) }, Types.MAP);
     testOf({ one: Quantity.of(1), two: Quantity.of(2), three: Quantity.of(3) }, "Map<?>");
 
-    testOf(Procedure.of([], Definition.bool("bool", ""), () => null), "Procedure<Bool>");
-    testOf(Procedure.of([], Definition.list("list", ""), () => null), "Procedure<List<?>>");
-    testOf(Procedure.of([], Definition.map("map", ""), () => null), "Procedure<Map<?>>");
-    testOf(Procedure.of([], Definition.procedure("procedure", "", [], Definition.bool("bool", ""), () => null), () => null), "Procedure<Procedure<Bool>>");
-    testOf(Procedure.of([], Definition.quantity("value", ""), () => null), "Procedure<Quantity>");
-    testOf(Procedure.of([], Definition.text("value", ""), () => null), "Procedure<Text>");
-    testOf(Procedure.of([], Definition.type("value", ""), () => null), "Procedure<Type>");
-    testOf(Procedure.of([], Definition.unit("value", ""), () => null), "Procedure<Unit>");
+    testOf(new Procedure(null, [], Definition.bool("bool", ""), () => null), "Procedure<Bool>");
+    testOf(new Procedure(null, [], Definition.list("list", ""), () => null), "Procedure<List<?>>");
+    testOf(new Procedure(null, [], Definition.map("map", ""), () => null), "Procedure<Map<?>>");
+    testOf(new Procedure(null, [], Definition.procedure("procedure", "", [], Definition.bool("bool", ""), () => null), () => null), "Procedure<Procedure<Bool>>");
+    testOf(new Procedure(null, [], Definition.quantity("value", ""), () => null), "Procedure<Quantity>");
+    testOf(new Procedure(null, [], Definition.text("value", ""), () => null), "Procedure<Text>");
+    testOf(new Procedure(null, [], Definition.type("value", ""), () => null), "Procedure<Type>");
+    testOf(new Procedure(null, [], Definition.unit("value", ""), () => null), "Procedure<Unit>");
 
     testOf(Quantity.of(1), Types.QUANTITY);
     testOf(Quantity.of(2), "Quantity");

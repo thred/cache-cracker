@@ -1,6 +1,5 @@
-import {Module} from "./Module";
-
 import {Definition} from "./../Definition";
+import {Module} from "./../Module";
 import {Quantity} from "./../Quantity";
 import {Scope} from "./../Scope";
 import {Unit} from "./../Unit";
@@ -16,13 +15,13 @@ class ConversionModule extends Module {
         // ], Definition.any("any", "The result of the conversion"), (scope: Scope) => {
 
         // });
-        
+
         // TODO asBoolean
         // TODO asList
         // TODO asMap
         // TODO asProcedure
 
-        this.define(Definition.procedure("asQuantity", "Converts the value to a quantity.", [
+        this.register(Definition.procedure("asQuantity", "Converts the value to a quantity.", [
             Definition.any("value", "The value, interpretable as quantity")
         ], Definition.quantity("quantity", "The value as Quantity"), (scope: Scope) => {
             let value = scope.required("value");
@@ -46,7 +45,7 @@ class ConversionModule extends Module {
             throw new Error(`Conversion to Quantity failed: ${value}`);
         }));
 
-        this.define(Definition.procedure("asText", "Converts the value to a text.", [
+        this.register(Definition.procedure("asText", "Converts the value to a text.", [
             Definition.any("value", "The value, interpretable as text")
         ], Definition.text("text", "The value as Text"), (scope: Scope) => {
             let value = scope.required("value");
@@ -63,7 +62,7 @@ class ConversionModule extends Module {
             return value.toString();
         }));
 
-        this.define(Definition.procedure("asUnit", "Converts the value to a unit.", [
+        this.register(Definition.procedure("asUnit", "Converts the value to a unit.", [
             Definition.any("value", "The value, interpretable as value")
         ], Definition.unit("unit", "The value as Unit"), (scope: Scope) => {
             let value = scope.required("value");
