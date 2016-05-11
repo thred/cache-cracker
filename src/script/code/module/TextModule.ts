@@ -18,7 +18,7 @@ class TextModule extends Module {
             if (values === null) {
                 return null;
             }
-            console.log(`Separator: "${scope.getAsText("separator")}"`);
+
             return values.join(scope.getAsText("separator"));
         }));
     }

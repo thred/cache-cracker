@@ -9,7 +9,7 @@ import * as Utils from "./util/Utils";
 export class Definition implements Utils.Descripted {
 
     static of(name: string, type: Type | string, description: string, initialValue?: any): Definition {
-        return new Definition(name, Type.parse(initialValue), description, (scope: Scope) => initialValue);
+        return new Definition(name, Type.parse(type), description, (scope: Scope) => initialValue);
     }
 
     static detect(name: string, description: string, initialValue?: any): Definition {
@@ -33,6 +33,8 @@ export class Definition implements Utils.Descripted {
     }
 
     static procedure(name: string, description: string, params: Definition[], result: Definition, impl: (scope: Scope) => any): Definition {
+        result = result || Definition.of("void", Types.VOID, "Nothing");
+
         return new ProcedureDefinition(name, new DistinctType("Procedure", result.type), description, params, result, impl);
     }
 
