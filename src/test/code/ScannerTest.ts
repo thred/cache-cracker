@@ -1,8 +1,6 @@
 /// <reference path="../imports.d.ts" />
 
-import {Scanner} from "../../script/code/util/Scanner";
-
-import * as Tokenizer from "../../script/code/util/Tokenizer";
+import {Scanner} from "../../script/code/parser/Scanner";
 
 import {assert} from "chai";
 

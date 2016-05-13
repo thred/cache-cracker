@@ -1,8 +1,7 @@
-import {Command} from "./Command";
-
+import {Command} from "./../Command";
 import {Types} from "./../Type";
 
-import * as Utils from "./../util/Utils";
+import * as Utils from "./../Utils";
 
 export class TextCommand extends Command {
     constructor(line: number, column: number, private segments: Command[]) {

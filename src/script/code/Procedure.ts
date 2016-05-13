@@ -3,7 +3,7 @@ import {Definition} from "./Definition";
 import {Scope} from "./Scope";
 import {Type, Types} from "./Type";
 
-import * as Utils from "./util/Utils";
+import * as Utils from "./Utils";
 
 export class Procedure implements Utils.Descripted {
 

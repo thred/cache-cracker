@@ -1,7 +1,7 @@
 import {Scanner} from "./Scanner";
 import {Token, TypeTokenizer} from "./TypeTokenizer";
 
-import * as Utils from "./Utils";
+import * as Utils from "./../Utils";
 
 import {TypeName, Type, AnyType, DistinctType, OrType, VoidType, Types} from "./../Type";
 

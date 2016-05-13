@@ -2,9 +2,9 @@ import {Procedure} from "./Procedure";
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 
-import {TypeParser} from "./util/TypeParser";
+import * as Utils from "./Utils";
 
-import * as Utils from "./util/Utils";
+import {TypeParser} from "./parser/TypeParser";
 
 export type TypeName = "Any" | "Bool" | "List" | "Map" | "Procedure" | "Quantity" | "Text" | "Type" | "Unit" | "Void";
 

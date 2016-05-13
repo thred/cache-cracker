@@ -1,10 +1,10 @@
+import {Command} from "./Command";
 import {Context} from "./Context";
 import {Scope} from "./Scope";
 
-import {BlockCommand} from "./command/BlockCommand";
-import {Command} from "./command/Command";
+import * as Utils from "./Utils";
 
-import * as Utils from "./util/Utils";
+import {BlockCommand} from "./command/BlockCommand";
 
 export class Script implements Utils.Descripted {
 

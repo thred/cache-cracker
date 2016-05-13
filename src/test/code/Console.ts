@@ -5,10 +5,9 @@ import {Definition} from "../../script/code/Definition";
 import {Environment} from "../../script/code/Environment";
 import {Scope} from "../../script/code/Scope";
 
-import * as Utils from "../../script/code/util/Utils";
+import * as Utils from "../../script/code/Utils";
 
 import * as ReadLine from "readline";
-
 
 const con = ReadLine.createInterface({
     input: process.stdin,

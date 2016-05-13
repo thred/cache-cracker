@@ -1,12 +1,12 @@
 import {BlockCommand} from "./BlockCommand";
-import {Command} from "./Command";
 
+import {Command} from "./../Command";
 import {Context} from "./../Context";
 import {Definition} from "./../Definition";
 import {Procedure} from "./../Procedure";
 import {Type, Types} from "./../Type";
 
-import * as Utils from "./../util/Utils";
+import * as Utils from "./../Utils";
 
 export class CallCommand extends BlockCommand {
     constructor(line: number, column: number, private definition: Definition, private arg: Command) {

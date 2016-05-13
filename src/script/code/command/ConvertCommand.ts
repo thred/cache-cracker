@@ -1,9 +1,8 @@
-import {Command} from "./Command";
-
+import {Command} from "./../Command";
 import {Types} from "./../Type";
 import {Unit} from "./../Unit";
 
-import * as Utils from "./../util/Utils";
+import * as Utils from "./../Utils";
 
 export class ConvertCommand extends Command {
     constructor(line: number, column: number, private valueArg: Command, private unit: Unit) {

@@ -1,9 +1,8 @@
-import {Command} from "./Command";
-
+import {Command} from "./../Command";
 import {Definition} from "./../Definition";
 import {Types} from "./../Type";
 
-import * as Utils from "./../util/Utils";
+import * as Utils from "./../Utils";
 
 export class ReferenceCommand extends Command {
     constructor(line: number, column: number, private _definition: Definition) {

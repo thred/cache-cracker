@@ -7,8 +7,7 @@ import {Type, Types} from "../../script/code/Type";
 import {Unit} from "../../script/code/Unit";
 
 import * as Units from "../../script/code/Units";
-
-import * as Utils from "../../script/code/util/Utils";
+import * as Utils from "../../script/code/Utils";
 
 import {assert} from "chai";
 

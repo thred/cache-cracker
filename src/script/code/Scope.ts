@@ -1,12 +1,11 @@
 import {Definition} from "./Definition";
 import {Procedure} from "./Procedure";
 import {Quantity} from "./Quantity";
+import {Command} from "./Command";
 import {DistinctType, Type, Types} from "./Type";
 import {Unit} from "./Unit";
 
-import {Command} from "./command/Command";
-
-import * as Utils from "./util/Utils";
+import * as Utils from "./Utils";
 
 export class Scope {
 

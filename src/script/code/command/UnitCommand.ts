@@ -1,5 +1,4 @@
-import {Command} from "./Command";
-
+import {Command} from "./../Command";
 import {Types} from "./../Type";
 import {Unit} from "./../Unit";
 

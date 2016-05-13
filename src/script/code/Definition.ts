@@ -4,7 +4,7 @@ import {Scope} from "./Scope";
 import {Type, DistinctType, Types} from "./Type";
 import {Unit} from "./Unit";
 
-import * as Utils from "./util/Utils";
+import * as Utils from "./Utils";
 
 export class Definition implements Utils.Descripted {
 

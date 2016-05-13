@@ -3,10 +3,10 @@ import {Scope} from "./Scope";
 import {Script} from "./Script";
 import {Type, Types} from "./Type";
 
-import {CommandParser} from "./util/CommandParser";
-import {Scanner} from "./util/Scanner";
+import * as Utils from "./Utils";
 
-import * as Utils from "./util/Utils";
+import {CommandParser} from "./parser/CommandParser";
+import {Scanner} from "./parser/Scanner";
 
 /**
  * A `Context` holds the compile time information of all variables: these are the predefined `Definition`s

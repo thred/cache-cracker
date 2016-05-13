@@ -4,7 +4,7 @@ import {Quantity} from "./../Quantity";
 import {Scope} from "./../Scope";
 import {Unit} from "./../Unit";
 
-import * as Utils from "./../util/Utils";
+import * as Utils from "./../Utils";
 
 class MathModule extends Module {
 

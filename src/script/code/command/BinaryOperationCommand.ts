@@ -1,9 +1,8 @@
-import {Command} from "./Command";
-
+import {Command} from "./../Command";
 import {Definition} from "./../Definition";
 import {Procedure} from "./../Procedure";
 
-import * as Utils from "./../util/Utils";
+import * as Utils from "./../Utils";
 
 export class BinaryOperationCommand extends Command {
     constructor(line: number, column: number, private definition: Definition, private symbol: string, private leftArg: Command, private rightArg: Command) {

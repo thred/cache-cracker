@@ -1,8 +1,7 @@
-import {Command} from "./Command";
-
+import {Command} from "./../Command";
 import {Definition} from "./../Definition";
 
-import * as Utils from "./../util/Utils";
+import * as Utils from "./../Utils";
 
 export class AccessCommand extends Command {
     constructor(line: number, column: number, private definition: Definition) {

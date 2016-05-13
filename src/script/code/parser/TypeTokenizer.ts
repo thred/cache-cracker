@@ -1,6 +1,6 @@
 import {Scanner} from "./Scanner";
 
-import * as Utils from "./Utils";
+import * as Utils from "./../Utils";
 
 const DEFAULT_WHITESPACES: string = " \n\r\t\b\f\u00a0";
 

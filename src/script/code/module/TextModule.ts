@@ -2,7 +2,7 @@ import {Definition} from "./../Definition";
 import {Module} from "./../Module";
 import {Scope} from "./../Scope";
 
-import * as Utils from "./../util/Utils";
+import * as Utils from "./../Utils";
 
 class TextModule extends Module {
 

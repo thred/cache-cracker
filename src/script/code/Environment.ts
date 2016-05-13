@@ -1,17 +1,15 @@
+import {Command} from "./Command";
 import {Context} from "./Context";
+import {Module} from "./Module";
 import {Scope} from "./Scope";
 import {Script} from "./Script";
-
-import {Command} from "./command/Command";
-
-import {Module} from "./Module";
 
 import * as ConversionModule from "./module/ConversionModule";
 import * as MathModule from "./module/MathModule";
 import * as TextModule from "./module/TextModule";
 
-import {CommandParser} from "./util/CommandParser";
-import {Scanner} from "./util/Scanner";
+import {CommandParser} from "./parser/CommandParser";
+import {Scanner} from "./parser/Scanner";
 
 export class Environment {
 
