@@ -5,7 +5,10 @@ import {Definition} from "../../script/code/Definition";
 import {Environment} from "../../script/code/Environment";
 import {Scope} from "../../script/code/Scope";
 
+import * as Utils from "../../script/code/util/Utils";
+
 import * as ReadLine from "readline";
+
 
 const con = ReadLine.createInterface({
     input: process.stdin,
@@ -38,8 +41,8 @@ function parse(input: string) {
     try {
         let script = context.parse(input);
 
-        console.log("Reading: " + script.describe());
-        console.log("Result:  " + script.execute());
+        // console.log("Reading: " + script.describe());
+        console.log(Utils.describe(script.execute(scope)));
     }
     catch (error) {
         console.log(error.message);

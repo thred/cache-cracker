@@ -2,6 +2,7 @@
 
 ## Code
 
+* Comments: Comment can happen everywhere. Consume the whole comment in the Tokenizer and add it to the next token. Do not return comments as token.
 * NextExpressionToken should be called nextToken (rename all expression things)
 * Define Units via Definitions, Context and Scope
 * Parse methods of Quantity and Unit should accept objects instead of strings.
