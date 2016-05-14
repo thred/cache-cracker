@@ -1,6 +1,6 @@
 
 import {Scanner} from "./Scanner";
-import {Token, Tokenizer} from "./Tokenizer";
+import {Token, QuantityTokenizer} from "./QuantityTokenizer";
 
 import {Quantity} from "./../Quantity";
 import {Unit} from "./../Unit";
@@ -12,15 +12,23 @@ import {msg} from "./../../Msg";
 
 export class QuantityParser {
 
-    private tokenizer: Tokenizer;
+    private tokenizer: QuantityTokenizer;
 
-    constructor(private language: string, source: string) {
+    constructor(private language: string, source: Scanner | string) {
         let decimalSeparators = msg(language, "Global.decimalSeparators");
         let digitSeparators = msg(language, "Global.digitSeparators");
 
-        this.tokenizer = new Tokenizer(new Scanner(source)).decimalSeparators(decimalSeparators).digitSeparators(digitSeparators);
+        this.tokenizer = new QuantityTokenizer(source).decimalSeparators(decimalSeparators).digitSeparators(digitSeparators);
 
-        this.tokenizer.nextExpressionToken();
+        this.tokenizer.next();
+    }
+
+    isSignedQuantity(token: Token): boolean {
+        if (this.isUnaryOperator(token)) {
+            return true;
+        }
+
+        return this.isQuantity(token);
     }
 
     /**
@@ -28,6 +36,11 @@ export class QuantityParser {
      */
     parseSignedQuantity(): Quantity {
         let token = this.tokenizer.get();
+
+        if (!this.isSignedQuantity(token)) {
+            throw new Error(Utils.formatError(token.line, token.column, `Expected signed quantity, but found: ${token.s}`));
+        }
+
         let negative = false;
 
         if (this.isUnaryOperator(token)) {
@@ -35,7 +48,7 @@ export class QuantityParser {
                 negative = true;
             }
 
-            token = this.tokenizer.nextExpressionToken();
+            token = this.tokenizer.next();
         }
 
         let quantity = this.parseQuantity();
@@ -47,12 +60,27 @@ export class QuantityParser {
         return quantity;
     }
 
+    isQuantity(token: Token): boolean {
+        if (this.isNumber(token)) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      *  Quantity = Number { Unit [ Quantity ] }. 
      */
     parseQuantity(): Quantity {
-        let value = this.parseNumber();
         let token = this.tokenizer.get();
+
+        if (!this.isQuantity(token)) {
+            throw new Error(Utils.formatError(token.line, token.column, `Expected quantity, but found: ${token.s}`));
+        }
+
+        let value = this.parseNumber();
+
+        token = this.tokenizer.get();
 
         if (!this.isUnit(token)) {
             return new Quantity(value);
@@ -72,6 +100,10 @@ export class QuantityParser {
         return quantity;
     }
 
+    isNumber(token: Token): boolean {
+        return token.type === "number";
+    }
+
     /**
      * Number = number.
      */
@@ -82,13 +114,17 @@ export class QuantityParser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected number, but found: ${token.s}`));
         }
 
-        this.tokenizer.nextExpressionToken();
+        this.tokenizer.next();
 
         return token.n;
     }
 
+    isUnit(token: Token): boolean {
+        return Units.exists(token.s);
+    }
+
     /**
-     * Unit = unit { [ "/" ] unit }.
+     * Unit = unit { [ superscript-number | "^" number ] [ ( "*" | "/" ) unit ] }.
      */
     parseUnit(): Unit {
         let startToken = this.tokenizer.get();
@@ -98,15 +134,36 @@ export class QuantityParser {
         }
 
         let unitString = startToken.s;
-        let token = this.tokenizer.nextExpressionToken();
+        let token = this.tokenizer.next();
 
         while (true) {
-            if ((this.isOperator(token, "/")) && (this.isUnit(this.tokenizer.lookAheadExpressionToken()))) {
-                token = this.tokenizer.nextExpressionToken();
+            if (this.isSuperscriptNumber(token)) {
+                unitString += token.s;
 
-                unitString += "/" + token.s;
+                token = this.tokenizer.next();
+            }
+            else if (this.isOperator(token, "^")) {
+                unitString += token.s;
 
-                token = this.tokenizer.nextExpressionToken();
+                token = this.tokenizer.next();
+
+                if (!this.isNumber(token)) {
+                    throw new Error(Utils.formatError(token.line, token.column, `Expected number, but found: ${token.s}`));
+                }
+
+                unitString += token.s;
+
+                token = this.tokenizer.next();
+            }
+
+            if ((this.isOperator(token, "*\u22c5/")) && (this.isUnit(this.tokenizer.lookAhead()))) {
+                unitString += token.s;
+
+                token = this.tokenizer.next();
+
+                unitString += token.s;
+
+                token = this.tokenizer.next();
 
                 continue;
             }
@@ -114,7 +171,7 @@ export class QuantityParser {
             if (this.isUnit(token)) {
                 unitString += " " + token.s;
 
-                token = this.tokenizer.nextExpressionToken();
+                token = this.tokenizer.next();
 
                 continue;
             }
@@ -131,44 +188,31 @@ export class QuantityParser {
         return unit;
     }
 
-    isSignedQuantity(token: Token): boolean {
-        if (this.isUnaryOperator(token)) {
-            return true;
+    isSuperscriptNumber(token: Token): boolean {
+        return token.type === "superscript-number";
+    }
+
+    /**
+     * SuperscriptNumber = superscript-number.
+     */
+    parseSuperscriptNumber(): number {
+        let token = this.tokenizer.get();
+
+        if (!this.isNumber(token)) {
+            throw new Error(Utils.formatError(token.line, token.column, `Expected superscript number, but found: ${token.s}`));
         }
 
-        return this.isQuantity(token);
+        this.tokenizer.next();
+
+        return token.n;
     }
 
-    isQuantity(token: Token): boolean {
-        if (this.isNumber(token)) {
-            return true;
-        }
-
-        return false;
+    isUnaryOperator(token: Token, allowedOperators?: string): boolean {
+        return (token.type === "unary-operator") && ((!allowedOperators) || (allowedOperators.indexOf(token.s) >= 0));
     }
 
-    isUnaryOperator(token: Token): boolean {
-        if (!this.isOperator(token)) {
-            return false;
-        }
-
-        return (token.s === "+") || (token.s === "-");
-    }
-
-    isOperator(token: Token, operator?: string): boolean {
-        if (token.type === "operator") {
-            return (!operator) || (operator === token.s);
-        }
-
-        return false;
-    }
-
-    isNumber(token: Token): boolean {
-        return token.type === "number";
-    }
-
-    isUnit(token: Token): boolean {
-        return Units.exists(token.s);
+    isOperator(token: Token, allowedOperators?: string): boolean {
+        return (token.type === "operator") && ((!allowedOperators) || (allowedOperators.indexOf(token.s) >= 0));
     }
 
     isEnd(token: Token): boolean {

@@ -1,10 +1,10 @@
 /// <reference path="../imports.d.ts" />
 
-import {testScript} from "./CodeTestUtils";
+import * as Test from "./Test";
 
 describe("Parser (Sample)", () => {
 
-    testScript("random 1 m", "1 m");
+    Test.script("(15000 cm²) m²", "1.5 m²");
 
     // testScript("language", "en-US");
 

@@ -125,12 +125,12 @@ export class TypeParser {
         return new DistinctType(name as TypeName, param);
     }
 
-    isParam(token: Token, s?: string) {
-        return (token.type === "param") && ((!s) || (token.s === s));
+    isParam(token: Token, allowedParams?: string) {
+        return (token.type === "param") && ((!allowedParams) || (allowedParams.indexOf(token.s) >= 0));
     }
 
-    isOperator(token: Token, s?: string) {
-        return (token.type === "operator") && ((!s) || (token.s === s));
+    isOperator(token: Token, allowedOperators?: string) {
+        return (token.type === "operator") && ((!allowedOperators) || (allowedOperators.indexOf(token.s) >= 0));
     }
 
     isEnd(token: Token): boolean {

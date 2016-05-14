@@ -1,6 +1,8 @@
 import {Quantity} from "./Quantity"
 import {Unit} from "./Unit"
 
+const SUPERSCRIPT_DIGITS: string = "\u2070\u2071\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079"
+
 export type Map = { [key: string]: any };
 
 export interface Descripted {
@@ -246,6 +248,31 @@ export function toEscapedString(s: string): string {
                 else {
                     result += ch;
                 }
+        }
+    }
+
+    return result;
+}
+
+export function toSuperscriptNumber(n: number): string {
+    if ((n === undefined) || (n === null)) {
+        return n.toString();
+    }
+
+    let s = n.toFixed(0);
+    let result = "";
+
+    for (let i = 0; i < s.length; i++) {
+        let code = s.charCodeAt(i);
+
+        if (code === 45) { // -
+            s += "\u207b";
+        }
+        else if ((code >= 48) && (code <= 57)) {
+            s += SUPERSCRIPT_DIGITS[code - 48];
+        }
+        else {
+            throw new Error(`Unsupported superscript digit: ${code}`);
         }
     }
 

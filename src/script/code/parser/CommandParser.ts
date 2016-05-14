@@ -1,5 +1,5 @@
 import {Scanner} from "./Scanner";
-import {Token, Tokenizer} from "./Tokenizer";
+import {Token, CommandTokenizer} from "./CommandTokenizer";
 
 import {Command} from "./../Command";
 import {Context} from "./../Context";
@@ -54,16 +54,16 @@ enum Precedence {
 
 export class CommandParser {
 
-    private tokenizer: Tokenizer;
+    private tokenizer: CommandTokenizer;
 
     constructor(scanner: Scanner | string) {
-        this.tokenizer = new Tokenizer(scanner);
+        this.tokenizer = new CommandTokenizer(scanner);
 
-        this.tokenizer.nextExpressionToken();
+        this.tokenizer.next();
     }
 
     isStatement(context: Context, token: Token): boolean {
-        return (this.isUnaryOperator(context, token)) || (this.isExpressionChain(context, token));
+        return (this.isOperator(context, token, "+-")) || (this.isExpressionChain(context, token));
     }
 
     /**
@@ -78,8 +78,8 @@ export class CommandParser {
 
         let expression: Command;
 
-        if (this.isUnaryOperator(context, token)) {
-            this.tokenizer.nextExpressionToken();
+        if (this.isOperator(context, token, "+-")) {
+            this.tokenizer.next();
 
             let arg = this.parseExpressionChain(context);
 
@@ -151,7 +151,7 @@ export class CommandParser {
                 break;
             }
 
-            this.tokenizer.nextExpressionToken();
+            this.tokenizer.next();
 
             expression = new BinaryOperationCommand(token.line, token.column, context.required(name, Types.PROCEDURE), symbol, expression, this.parseStatement(context, precedence, null));
 
@@ -259,7 +259,7 @@ export class CommandParser {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected tuple, but found: ${startToken.s}`));
         }
 
-        let token = this.tokenizer.nextExpressionToken();
+        let token = this.tokenizer.next();
 
         while (true) {
             if (!this.isStatement(context, token)) {
@@ -274,14 +274,14 @@ export class CommandParser {
                 break;
             }
 
-            token = this.tokenizer.nextExpressionToken();
+            token = this.tokenizer.next();
         }
 
         if (!this.isClosingParentheses(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected end of tuple, but found: ${token.s}`));
         }
 
-        this.tokenizer.nextExpressionToken();
+        this.tokenizer.next();
 
         return new TupleCommand(startToken.line, startToken.column, commands);
     }
@@ -301,7 +301,7 @@ export class CommandParser {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected array, but found: ${startToken.s}`));
         }
 
-        let token = this.tokenizer.nextExpressionToken();
+        let token = this.tokenizer.next();
 
         while (true) {
             if (!this.isStatement(context, token)) {
@@ -316,14 +316,14 @@ export class CommandParser {
                 break;
             }
 
-            token = this.tokenizer.nextExpressionToken();
+            token = this.tokenizer.next();
         }
 
         if (!this.isClosingArray(context, token)) {
             throw new Error(Utils.formatError(token.line, token.column, `Expected end of array, but found: ${token.s}`));
         }
 
-        this.tokenizer.nextExpressionToken();
+        this.tokenizer.next();
 
         return new ArrayCommand(startToken.line, startToken.column, commands);
     }
@@ -346,7 +346,7 @@ export class CommandParser {
             throw new Error(Utils.formatError(startToken.line, startToken.column, `Expected map, but found: ${startToken.s}`));
         }
 
-        let token = this.tokenizer.nextExpressionToken();
+        let token = this.tokenizer.next();
 
         while (true) {
             if (!this.isKey(context, token)) {
@@ -361,7 +361,7 @@ export class CommandParser {
                 throw new Error(Utils.formatError(token.line, token.column, `Expected ":", but found: ${token.s}`));
             }
 
-            token = this.tokenizer.nextExpressionToken();
+            token = this.tokenizer.next();
 
             let value = this.parseStatement(context);
 
@@ -376,7 +376,7 @@ export class CommandParser {
                 break;
             }
 
-            token = this.tokenizer.nextExpressionToken();
+            token = this.tokenizer.next();
 
         }
 
@@ -384,7 +384,7 @@ export class CommandParser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected end of map, but found: ${token.s}`));
         }
 
-        this.tokenizer.nextExpressionToken();
+        this.tokenizer.next();
 
         return new MapCommand(startToken.line, startToken.column, commands);
     }
@@ -415,7 +415,7 @@ export class CommandParser {
     }
 
     isCall(context: Context, token: Token): boolean {
-        return token.type === "word";
+        return token.type === "identifier";
     }
 
     /**
@@ -429,7 +429,7 @@ export class CommandParser {
         }
 
         let name = startToken.s;
-        let token = this.tokenizer.nextExpressionToken();
+        let token = this.tokenizer.next();
 
         if (this.isAssignment(context, token)) {
             return this.parseAssigment(context, startToken.line, startToken.column, name);
@@ -464,7 +464,7 @@ export class CommandParser {
             throw new Error(Utils.formatError(line, column, `Expected assignment, but found: ${startToken.s}`));
         }
 
-        let token = this.tokenizer.nextExpressionToken();
+        let token = this.tokenizer.next();
         let definition = context.get(name);
         let command = this.parseStatement(context, Precedence.Assignment);
 
@@ -519,7 +519,7 @@ export class CommandParser {
             throw new Error(Utils.formatError(token.line, token.column, `Expected number, but found: ${token.s}`));
         }
 
-        this.tokenizer.nextExpressionToken();
+        this.tokenizer.next();
 
         return new QuantityCommand(token.line, token.column, new Quantity(token.n));
     }
@@ -539,7 +539,7 @@ export class CommandParser {
         }
 
         let expressions: Command[] = [];
-        let token = this.tokenizer.nextStringToken();
+        let token = this.tokenizer.nextOfString();
 
         while (true) {
             if (this.isEnd(context, token)) {
@@ -547,7 +547,7 @@ export class CommandParser {
             }
 
             if (token.type === "delimiter") {
-                token = this.tokenizer.nextExpressionToken();
+                token = this.tokenizer.next();
 
                 break;
             }
@@ -555,7 +555,7 @@ export class CommandParser {
             if (token.type === "string") {
                 expressions.push(new TextCommandStringSegment(token.line, token.column, token.s));
 
-                token = this.tokenizer.nextStringToken();
+                token = this.tokenizer.nextOfString();
 
                 continue;
             }
@@ -565,13 +565,13 @@ export class CommandParser {
 
                 expressions.push(new TextCommandReferenceSegment(token.line, token.column, name))
 
-                token = this.tokenizer.nextStringToken();
+                token = this.tokenizer.nextOfString();
 
                 continue;
             }
 
             if (this.isOpeningPlaceholder(context, token)) {
-                let blockToken = this.tokenizer.nextExpressionToken();
+                let blockToken = this.tokenizer.next();
 
                 if (this.isEnd(context, blockToken)) {
                     throw new Error(Utils.formatError(token.line, token.column, "Unclosed block"));
@@ -585,7 +585,7 @@ export class CommandParser {
                     throw new Error(Utils.formatError(token.line, token.column, `Expected closing placeholder, but found: ${token.s}`));
                 }
 
-                token = this.tokenizer.nextStringToken();
+                token = this.tokenizer.nextOfString();
 
                 continue;
             }
@@ -597,17 +597,13 @@ export class CommandParser {
     }
 
     isUnit(context: Context, token: Token): boolean {
-        if ((token.type !== "word") && (token.type !== "delimiter") && (token.type !== "separator") && (token.type !== "operator")) {
-            return false;
-        }
-
         return Units.exists(token.s);
     }
 
     /**
-     * Unit = unit { [ "/" ] unit }.
+     * Unit = unit { [ superscript-number | "^" number ] [ ( "*" | "/" ) unit ] }.
      */
-    private parseUnit(context: Context): Unit {
+    parseUnit(context: Context): Unit {
         let startToken = this.tokenizer.get();
 
         if (!this.isUnit(context, startToken)) {
@@ -615,15 +611,36 @@ export class CommandParser {
         }
 
         let unitString = startToken.s;
-        let token = this.tokenizer.nextExpressionToken();
+        let token = this.tokenizer.next();
 
         while (true) {
-            if ((this.isOperator(context, token, "/")) && (this.isUnit(context, this.tokenizer.lookAheadExpressionToken()))) {
-                token = this.tokenizer.nextExpressionToken();
+            if (this.isSuperscriptNumber(token)) {
+                unitString += token.s;
 
-                unitString += "/" + token.s;
+                token = this.tokenizer.next();
+            }
+            else if (this.isOperator(context, token, "^")) {
+                unitString += token.s;
 
-                token = this.tokenizer.nextExpressionToken();
+                token = this.tokenizer.next();
+
+                if (!this.isNumber(context, token)) {
+                    throw new Error(Utils.formatError(token.line, token.column, `Expected number, but found: ${token.s}`));
+                }
+
+                unitString += token.s;
+
+                token = this.tokenizer.next();
+            }
+
+            if ((this.isOperator(context, token, "*\u22c5/")) && (this.isUnit(context, this.tokenizer.lookAhead()))) {
+                unitString += token.s;
+
+                token = this.tokenizer.next();
+
+                unitString += token.s;
+
+                token = this.tokenizer.next();
 
                 continue;
             }
@@ -631,7 +648,7 @@ export class CommandParser {
             if (this.isUnit(context, token)) {
                 unitString += " " + token.s;
 
-                token = this.tokenizer.nextExpressionToken();
+                token = this.tokenizer.next();
 
                 continue;
             }
@@ -648,6 +665,18 @@ export class CommandParser {
         return unit;
     }
 
+    isSuperscriptNumber(token: Token): boolean {
+        return token.type === "superscript-number";
+    }
+
+    isIdentifier(context: Context, token: Token): boolean {
+        if (token.type !== "identifier") {
+            return false;
+        }
+
+        return Utils.isIdentifier(token.s);
+    }
+
     /**
      * Identifier = identifier.
      */
@@ -661,20 +690,8 @@ export class CommandParser {
         return new IdentifierCommand(token.line, token.column, token.s);
     }
 
-    isUnaryOperator(context: Context, token: Token): boolean {
-        if (!this.isOperator(context, token)) {
-            return false;
-        }
-
-        return (token.s === "+") || (token.s === "-");
-    }
-
-    isOperator(context: Context, token: Token, operator?: string): boolean {
-        if (token.type === "operator") {
-            return (!operator) || (operator === token.s);
-        }
-
-        return false;
+    isOperator(context: Context, token: Token, allowedOperators?: string): boolean {
+        return (token.type === "operator") && ((!allowedOperators) || (allowedOperators.indexOf(token.s) >= 0));
     }
 
     isOpeningParentheses(context: Context, token: Token) {
@@ -709,24 +726,16 @@ export class CommandParser {
         return this.isBrackets(context, token, "}");
     }
 
-    isBrackets(context: Context, token: Token, brackets?: string): boolean {
-        return (token.type === "brackets") && ((!brackets) || (brackets === token.s));
-    }
-
-    isIdentifier(context: Context, token: Token): boolean {
-        if (token.type !== "word") {
-            return false;
-        }
-
-        return Utils.isIdentifier(token.s);
+    isBrackets(context: Context, token: Token, allowedBrackets?: string): boolean {
+        return (token.type === "brackets") && ((!allowedBrackets) || (allowedBrackets.indexOf(token.s) >= 0));
     }
 
     isEnd(context: Context, token: Token): boolean {
         return token.type === "end";
     }
 
-    isSeparator(context: Context, token: Token, separator?: string): boolean {
-        return (token.type === "separator") && ((!separator) || (separator === token.s));
+    isSeparator(context: Context, token: Token, allowedSeparatros?: string): boolean {
+        return (token.type === "separator") && ((!allowedSeparatros) || (allowedSeparatros.indexOf(token.s) >= 0));
     }
 
 }
