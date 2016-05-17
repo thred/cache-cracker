@@ -6,7 +6,7 @@ import * as Utils from "./Utils";
 
 import {BlockCommand} from "./command/BlockCommand";
 
-export class Script implements Utils.Descripted {
+export class Script implements Utils.Scripted {
 
     constructor(private context: Context, private command: Command) {
     }
@@ -19,8 +19,8 @@ export class Script implements Utils.Descripted {
         return this.command.execute(scope);
     }
 
-    describe(language: string = Utils.language): string {
-        return this.command.describe(language);
+    toScript(accent: string): string {
+        return this.command.toScript(accent);
     }
 
     toString(): string {

@@ -1,7 +1,9 @@
 import {Command} from "./../Command";
+import {Msg, msg, defMsg} from "./../Msg";
 import {Types} from "./../Type";
 import {Unit} from "./../Unit";
 
+import * as Globals from "./../Globals";
 import * as Utils from "./../Utils";
 
 export class ConvertCommand extends Command {
@@ -9,19 +11,19 @@ export class ConvertCommand extends Command {
         super(line, column, Types.QUANTITY,
             (scope) => {
                 try {
-                    return scope.requiredAsProcedure("convert").invoke(scope, {
+                    return scope.requiredAsProcedure(Globals.PROCEDURE_CONVERT).invoke({
                         value: valueArg.execute(scope),
                         unit: unit
                     });
                 }
                 catch (error) {
-                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${"convert"}`, error));
+                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${msg(scope.accent, Globals.PROCEDURE_CONVERT)}`, error));
                 }
-            }, () => `${valueArg.describe()} ${unit.symbols[0]}`);
+            }, (accent) => `${Utils.toScript(accent, valueArg)} ${Utils.toScript(accent, unit)}`);
     }
 
     toString(): string {
-        return `ConvertCommand(${this.valueArg}, ${this.unit.symbols[0]})`;
+        return `ConvertCommand(${this.valueArg}, ${this.unit})`;
     }
 }
 

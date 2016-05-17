@@ -11,8 +11,10 @@ import * as Utils from "../../script/code/Utils";
 
 import {assert} from "chai";
 
+const accent: string = "en-US";
+
 export function testOf(value: any, typeOrString: Type | string): void {
-    it(`${Utils.indent(Utils.describe(value), "      ")} is ${Utils.indent(Utils.describe(typeOrString), "      ")}`, () => {
+    it(`${Utils.indent(Utils.toScript(accent, value), "      ")} is ${Utils.indent(Utils.toScript(accent, typeOrString), "      ")}`, () => {
         let type = Type.parse(typeOrString);
         let detectedType = Type.of(value);
 
@@ -24,11 +26,11 @@ export function testAccept(left: string, right: string, accept: boolean): void {
     it(`${Utils.indent(left, "      ")} is ${accept ? "" : "not "}accepting ${Utils.indent(right, "      ")}`, () => {
         let leftType = Type.parse(left);
 
-        assert.equal(leftType.describe(), left);
+        assert.equal(leftType.toScript(accent), left);
 
         let rightType = Type.parse(right);
 
-        assert.equal(rightType.describe(), right);
+        assert.equal(rightType.toScript(accent), right);
 
         assert.equal(leftType.accepts(rightType), accept);
     });
@@ -50,14 +52,14 @@ describe("Type", () => {
     testOf({ one: Quantity.of(1), two: Quantity.of(2), three: Quantity.of(3) }, Types.MAP);
     testOf({ one: Quantity.of(1), two: Quantity.of(2), three: Quantity.of(3) }, "Map<?>");
 
-    testOf(new Procedure(null, [], Definition.bool("bool", ""), () => null), "Procedure<Bool>");
-    testOf(new Procedure(null, [], Definition.list("list", ""), () => null), "Procedure<List<?>>");
-    testOf(new Procedure(null, [], Definition.map("map", ""), () => null), "Procedure<Map<?>>");
-    testOf(new Procedure(null, [], Definition.procedure("procedure", "", [], Definition.bool("bool", ""), () => null), () => null), "Procedure<Procedure<Bool>>");
-    testOf(new Procedure(null, [], Definition.quantity("value", ""), () => null), "Procedure<Quantity>");
-    testOf(new Procedure(null, [], Definition.text("value", ""), () => null), "Procedure<Text>");
-    testOf(new Procedure(null, [], Definition.type("value", ""), () => null), "Procedure<Type>");
-    testOf(new Procedure(null, [], Definition.unit("value", ""), () => null), "Procedure<Unit>");
+    testOf(new Procedure(null, [], Types.BOOL, () => null), "Procedure<Bool>");
+    testOf(new Procedure(null, [], Types.LIST, () => null), "Procedure<List<?>>");
+    testOf(new Procedure(null, [], Types.MAP, () => null), "Procedure<Map<?>>");
+    testOf(new Procedure(null, [], Type.parse("Procedure<Bool>"), () => null), "Procedure<Procedure<Bool>>");
+    testOf(new Procedure(null, [], Types.QUANTITY, () => null), "Procedure<Quantity>");
+    testOf(new Procedure(null, [], Types.TEXT, () => null), "Procedure<Text>");
+    testOf(new Procedure(null, [], Types.TYPE, () => null), "Procedure<Type>");
+    testOf(new Procedure(null, [], Types.UNIT, () => null), "Procedure<Unit>");
 
     testOf(Quantity.of(1), Types.QUANTITY);
     testOf(Quantity.of(2), "Quantity");

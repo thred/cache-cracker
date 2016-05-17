@@ -1,8 +1,10 @@
 /// <reference path="../imports.d.ts" />
 
+import {Context} from "../../script/code/Context";
 import {Environment} from "../../script/code/Environment";
 import {Quantity} from "../../script/code/Quantity";
 import {Scope} from "../../script/code/Scope";
+import {Script} from "../../script/code/Script";
 
 import * as Utils from "../../script/code/Utils";
 
@@ -26,11 +28,12 @@ export function script(source: string, expected: string, verify?: (value: any, e
             source = source.substring(0, source.indexOf(":")).trim();
         }
 
-        let context = Environment.DEFAULT.createContext();
-        let scope = context.createScope();
-        let script = context.parse(source);
+        let environment: Environment = Environment.DEFAULT;
+        let context: Context = environment.createContext();
+        let scope: Scope = context.createScope();
+        let script: Script = context.parse(source);
 
-        assert.equal(script.describe(), description);
+        assert.equal(script.toScript(environment.accent), description);
 
         try {
             let result = script.execute();
@@ -39,7 +42,7 @@ export function script(source: string, expected: string, verify?: (value: any, e
                 assert.isTrue(verify(result, null), `Verify failed for result ${result.toString()}`);
             }
             else {
-                assert.equal(result, expected);
+                assert.equal(Utils.toScript(environment.accent, result), expected);
             }
         }
         catch (error) {

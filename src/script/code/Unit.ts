@@ -1,3 +1,5 @@
+import * as Utils from "./Utils";
+
 export enum Type {
     Undefined,
     Angle,
@@ -10,7 +12,7 @@ export enum Type {
     Volume,
 };
 
-export class Unit {
+export class Unit implements Utils.Scripted {
 
     private _symbols: string[];
 
@@ -69,7 +71,7 @@ export class Unit {
         return (!unit.isUndefined()) && (this.isCompatible(unit)) && (unit.multiplier < this.multiplier);
     }
 
-    describe(language?: string): string {
+    toScript(accent: string): string {
         return this.symbols[0];
     }
 

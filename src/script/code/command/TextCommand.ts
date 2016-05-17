@@ -1,6 +1,8 @@
 import {Command} from "./../Command";
+import {Msg, msg, defMsg} from "./../Msg";
 import {Types} from "./../Type";
 
+import * as Globals from "./../Globals";
 import * as Utils from "./../Utils";
 
 export class TextCommand extends Command {
@@ -8,15 +10,15 @@ export class TextCommand extends Command {
         super(line, column, Types.TEXT,
             (scope) => {
                 try {
-                    return scope.requiredAsProcedure("concat").invoke(scope, {
-                        values: segments.map((segment) => segment.execute(scope))
+                    return scope.requiredAsProcedure(Globals.PROCEDURE_CONCAT).invoke({
+                        list: segments.map((segment) => segment.execute(scope))
                     });
                 }
                 catch (error) {
-                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${"concat"}`, error));
+                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${msg(scope.accent, Globals.PROCEDURE_CONCAT)}`, error));
                 }
             },
-            () => `"${segments.map((segment) => segment.describe()).join("")}"`);
+            (accent) => `"${segments.map((segment) => Utils.toScript(accent, segment)).join("")}"`);
     }
 
     toString(): string {
@@ -28,7 +30,7 @@ export class TextCommandReferenceSegment extends Command {
     constructor(line: number, column: number, private name: string) {
         super(line, column, Types.ANY,
             (scope) => scope.get(name),
-            () => `$${name}`);
+            (accent) => `$${name}`);
     }
 
     toString(): string {
@@ -40,7 +42,7 @@ export class TextCommandPlaceholderSegment extends Command {
     constructor(line: number, column: number, private arg: Command) {
         super(line, column, Types.ANY,
             (scope) => arg.execute(scope),
-            () => `\${${arg.describe()}}`);
+            (accent) => `\${${Utils.toScript(accent, arg)}}`);
     }
 
     toString(): string {
@@ -52,7 +54,7 @@ export class TextCommandStringSegment extends Command {
     constructor(line: number, column: number, private s: string) {
         super(line, column, Types.TEXT,
             (scope) => s,
-            () => Utils.toEscapedString(s));
+            (accent) => Utils.toEscapedString(s));
     }
 
     toString(): string {

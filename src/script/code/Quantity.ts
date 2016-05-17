@@ -1,5 +1,6 @@
 import {Unit} from "./Unit";
 
+import * as Globals from "./Globals";
 import * as Units from "./Units";
 import * as Utils from "./Utils";
 
@@ -8,7 +9,7 @@ import {QuantityParser} from "./parser/QuantityParser";
 /**
  * Holds a quantity.
  */
-export class Quantity implements Utils.Descripted {
+export class Quantity implements Utils.Scripted {
 
     static ZERO: Quantity = new Quantity(0);
 
@@ -50,14 +51,14 @@ export class Quantity implements Utils.Descripted {
             return new Quantity((this.value * this.unit.multiplier) / unit.multiplier, unit);
         }
 
-        throw new Error(`Conversion of ${this.describe()} in ${unit.symbols[0]} not supported`);
+        throw new Error(`Conversion of ${Utils.toScript(Globals.DEFAULT_ACCENT, this)} in ${Utils.toScript(Globals.DEFAULT_ACCENT, unit)} not supported`);
     }
 
     chain(other: Quantity): Quantity {
         let otherValue = other.value;
 
         if (this.unit.isUndefined()) {
-            throw new Error(`${this.describe()} and ${other} cannot be chained. The unit is missing`);
+            throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} and ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} cannot be chained. The unit is missing`);
         }
 
         let otherUnit = other.unit;
@@ -65,14 +66,14 @@ export class Quantity implements Utils.Descripted {
         if (otherUnit.isUndefined()) {
 
             if (!this.unit.subUnit) {
-                throw new Error(`${this.describe()} and ${other} cannot be chained. The unit does not defined a sub unit`);
+                throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} and ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} cannot be chained. The unit does not defined a sub unit`);
             }
 
             otherUnit = this.unit.subUnit;
         }
 
         if (!this.unit.isCompatible(otherUnit)) {
-            throw new Error(`${this.describe()} and ${other} cannot be chained. The units are not compatible`);
+            throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} and ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} cannot be chained. The units are not compatible`);
         }
 
         return new Quantity((this.value * this.unit.multiplier + otherValue * otherUnit.multiplier) / this.unit.multiplier, this.unit);
@@ -93,7 +94,7 @@ export class Quantity implements Utils.Descripted {
             return new Quantity((this.value * this.unit.multiplier + otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
         }
 
-        throw new Error(`${this.describe()} + ${other} not supported`);
+        throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} + ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} not supported`);
     }
 
     subtract(other: Quantity): Quantity {
@@ -111,7 +112,7 @@ export class Quantity implements Utils.Descripted {
             return new Quantity((this.value * this.unit.multiplier - otherValue * other.unit.multiplier) / this.unit.multiplier, this.unit);
         }
 
-        throw new Error(`${this.describe()} - ${other} not supported`);
+        throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} - ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} not supported`);
     }
 
     multiply(other: Quantity): Quantity {
@@ -131,7 +132,7 @@ export class Quantity implements Utils.Descripted {
             return new Quantity((this.value * this.unit.multiplier * otherValue * other.unit.multiplier) / unit.multiplier, unit);
         }
 
-        throw new Error(`${this.describe()} * ${other} not supported`);
+        throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} * ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} not supported`);
     }
 
     divide(other: Quantity): Quantity {
@@ -151,7 +152,7 @@ export class Quantity implements Utils.Descripted {
             return new Quantity(((this.value * this.unit.multiplier) / (otherValue * other.unit.multiplier)) / unit.multiplier, unit);
         }
 
-        throw new Error(`${this.describe()} / ${other} not supported`);
+        throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} / ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} not supported`);
     }
 
     power(other: Quantity): Quantity {
@@ -165,7 +166,7 @@ export class Quantity implements Utils.Descripted {
             }
         }
 
-        throw new Error(`${this.describe()} ^ ${other} not supported`);
+        throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} ^ ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} not supported`);
     }
 
     modulo(other: Quantity): Quantity {
@@ -183,7 +184,7 @@ export class Quantity implements Utils.Descripted {
             return new Quantity(((this.value * this.unit.multiplier) % (otherValue * other.unit.multiplier)) / this.unit.multiplier, this.unit);
         }
 
-        throw new Error(`${this.describe()} mod ${other} not supported`);
+        throw new Error(`${Utils.toScript(Globals.DEFAULT_ACCENT, this)} mod ${Utils.toScript(Globals.DEFAULT_ACCENT, other)} not supported`);
     }
 
     abs(): Quantity {
@@ -199,7 +200,7 @@ export class Quantity implements Utils.Descripted {
             return new Quantity(Utils.round(this._value, accuracy.value * accuracy.unit.multiplier / this._unit.multiplier), this._unit);
         }
 
-        throw new Error(`Rounding "${this.describe()}" to "${accuracy.describe()}" not supported`);
+        throw new Error(`Rounding "${Utils.toScript(Globals.DEFAULT_ACCENT, this)}" to "${accuracy.toScript(Globals.DEFAULT_ACCENT)}" not supported`);
     }
 
     floor(accuracy: Quantity = Quantity.ONE): Quantity {
@@ -211,7 +212,7 @@ export class Quantity implements Utils.Descripted {
             return new Quantity(Utils.floor(this._value, accuracy.value * accuracy.unit.multiplier / this._unit.multiplier), this._unit);
         }
 
-        throw new Error(`Rounding "${this.describe()}" to "${accuracy.describe()}" not supported`);
+        throw new Error(`Rounding "${Utils.toScript(Globals.DEFAULT_ACCENT, this)}" to "${accuracy.toScript(Globals.DEFAULT_ACCENT)}" not supported`);
     }
 
     ceil(accuracy: Quantity = Quantity.ONE): Quantity {
@@ -223,7 +224,7 @@ export class Quantity implements Utils.Descripted {
             return new Quantity(Utils.ceil(this._value, accuracy.value * accuracy.unit.multiplier / this._unit.multiplier), this._unit);
         }
 
-        throw new Error(`Rounding "${this.describe()}" to "${accuracy.describe()}" not supported`);
+        throw new Error(`Rounding "${Utils.toScript(Globals.DEFAULT_ACCENT, this)}" to "${accuracy.toScript(Globals.DEFAULT_ACCENT)}" not supported`);
     }
 
     equals(other: Quantity): boolean {
@@ -237,17 +238,17 @@ export class Quantity implements Utils.Descripted {
         return value.toPrecision(Utils.precision) === otherValue.toPrecision(Utils.precision);
     }
 
-    describe(language: string = Utils.language): string {
+    toScript(accent: string): string {
         if (this.unit.isUndefined()) {
             return `${parseFloat(this.value.toPrecision(Utils.precision))}`;
         }
 
-        return `${parseFloat(this.value.toPrecision(Utils.precision))} ${this.unit.symbols[0]}`;
+        return `${parseFloat(this.value.toPrecision(Utils.precision))} ${Utils.toScript(accent, this.unit)}`;
     }
 
 
     toString(): string {
-        return this.describe();
+        return Utils.toScript(Globals.DEFAULT_ACCENT, this);
     }
 
 }

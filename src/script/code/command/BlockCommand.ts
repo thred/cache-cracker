@@ -7,7 +7,7 @@ import * as Utils from "./../Utils";
 
 export class BlockCommand extends Command {
 
-    constructor(line: number, column: number, type: Type, impl: (scope: Scope) => any, describe: (language?: string) => string) {
+    constructor(line: number, column: number, type: Type, impl: (scope: Scope) => any, describe: (accent: string) => string) {
         super(line, column, type, impl, describe);
     }
 

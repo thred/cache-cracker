@@ -1,19 +1,21 @@
 import {Quantity} from "./Quantity"
 import {Unit} from "./Unit"
 
+import * as Verify from "./Verify";
+
 const SUPERSCRIPT_DIGITS: string = "\u2070\u2071\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079"
 
 export type Map = { [key: string]: any };
 
-export interface Descripted {
+export interface Scripted {
 
-    describe(language?: string): string;
+    toScript(accent: string): string;
 
 }
 
 export let precision = 8;
 
-export let language = "en-US";
+// export let language = "en-US";
 
 export function required<Any>(value: Any, message?: string): Any {
     if (value !== undefined) {
@@ -43,7 +45,7 @@ export function requiredNotNull<Any>(value: Any, message?: string): Any {
     throw new Error("Required value is null")
 }
 
-export function describe(object: any, language?: string): string {
+export function toScript(accent: string, object: any): string {
     if (object === undefined) {
         return "undefined";
     }
@@ -64,12 +66,12 @@ export function describe(object: any, language?: string): string {
         return toEscapedStringWithQuotes(object as string);
     }
 
-    if (typeof object["describe"] === "function") {
-        return (object as Descripted).describe(language);
+    if (typeof object["toScript"] === "function") {
+        return (object as Scripted).toScript(accent);
     }
 
     if (Array.isArray(object)) {
-        return `[${(object as any[]).map((item) => indent(describe(item, language))).join(", ")}]`;
+        return `[${(object as any[]).map((item) => indent(toScript(accent, item))).join(", ")}]`;
     }
 
     //return `{${(object as {[key: string]: any}).map((item) => indent(describe(item, language))).join(", ")}]`;
@@ -81,7 +83,7 @@ export function describe(object: any, language?: string): string {
         return "{}";
     }
 
-    return `{${Object.keys(map).map((key) => `\n\t${toEscapedStringWithQuotes(key)}: ${indent(describe(map[key], language))}`).join("")}\n}`;
+    return `{${Object.keys(map).map((key) => `\n\t${toEscapedStringWithQuotes(key)}: ${indent(toScript(accent, map[key]))}`).join("")}\n}`;
 }
 
 export function round(n: number, accuracy: number): number {
@@ -108,70 +110,12 @@ export function ceil(n: number, accuracy: number): number {
     return Math.ceil(n / accuracy) * accuracy;
 }
 
-export function isLetter(ch: string): boolean {
-    if (!ch) {
-        return false;
-    }
-
-    let code = ch.charCodeAt(0)
-
-    if ((code >= 65) && (code <= 90)) {
-        return true;
-    }
-
-    if ((code >= 97) && (code <= 122)) {
-        return true;
-    }
-
-    return "ÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð".indexOf(ch) >= 0;
-}
-
-export function isDigit(ch: string): boolean {
-    if (!ch) {
-        return false;
-    }
-
-    let code = ch.charCodeAt(0)
-
-    return ((code >= 48) && (code <= 57));
-}
-
-export function isIdentifier(s: string): boolean {
-    if ((s === undefined) || (s === null)) {
-        return false;
-    }
-
-    if (!s.length) {
-        return false;
-    }
-
-    for (let i = 0; i < s.length; i++) {
-        let ch = s.charAt(i);
-
-        if (isLetter(ch)) {
-            continue;
-        }
-
-        if ((isDigit(ch)) && (i > 0)) {
-            continue;
-        }
-
-        if (ch === "_") {
-            continue;
-        }
-
-        return false;
-    }
-
-    return true;
-}
-
 export function toKey(s: string): string {
     if ((s === undefined) || (s === null)) {
         return s;
     }
 
-    if (isIdentifier(s)) {
+    if (Verify.isIdentifier(s)) {
         return s;
     }
 

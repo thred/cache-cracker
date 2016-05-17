@@ -7,7 +7,7 @@ import * as Model from "./Model";
 
 import * as Command from "./../command/Command";
 
-import {msg} from "./../Msg";
+import {defMsg} from "./../Msg";
 import * as Utils from "./../Utils";
 
 interface Props {
@@ -25,7 +25,7 @@ export class Component extends React.Component<Props, State> {
 
         this.state = {
             sheet: props.defaultSheet || {
-                name: msg("Sheet.defaultName"),
+                name: defMsg("en-US", "Sheet.defaultName"),
                 lines: []
             }
         };
@@ -96,7 +96,7 @@ class TitleComponent extends React.Component<TitleProps, {}> {
     render() {
         let sheet = this.props.sheet;
         let image = sheet.image || "media/sheet-title-schober.jpg";
-        let comment = sheet.comment || msg("Sheet.defaultComment");
+        let comment = sheet.comment || defMsg("en-US", "Sheet.defaultComment");
 
         return <Card header={
             <CardTitle image={image}>{sheet.name}</CardTitle>
@@ -207,17 +207,17 @@ class InstructionSelectComponent extends React.Component<InstructionComponentPro
         for (let categoryKey in categories) {
             options.push(
                 <optgroup key={`category-${categoryKey}`}
-                    label={msg(`Command.category.${categoryKey}.title`) }>
+                    label={defMsg("en-US", `Command.category.${categoryKey}.title`) }>
                     {categories[categoryKey].map((definition) => {
                         return <option key={`definition-${definition.key}`} value={definition.key}>
-                            {msg(`Command.${definition.key}.title`) }
+                            {defMsg("en-US", `Command.${definition.key}.title`) }
                         </option>;
                     }) }
                 </optgroup>);
         }
 
         return <Row>
-            <Input s={10} type="select" label={msg("Instruction.function") } onChange={(event) => this.onChange(event) }>
+            <Input s={10} type="select" label={defMsg("en-US", "Instruction.function") } onChange={(event) => this.onChange(event) }>
                 {options}
             </Input>
         </Row>;

@@ -1,6 +1,8 @@
 import {Command} from "./../Command";
+import {Msg, msg, defMsg} from "./../Msg";
 import {Types} from "./../Type";
 
+import * as Globals from "./../Globals";
 import * as Utils from "./../Utils";
 
 export class MapCommand extends Command {
@@ -16,8 +18,7 @@ export class MapCommand extends Command {
                     let key = command.key.execute(scope);
 
                     if ((key === undefined) || (key === null)) {
-                        throw new Error(Utils.formatError(command.key.line, command.key.column,
-                            `Invalid key: ${key}`));
+                        throw new Error(Utils.formatError(command.key.line, command.key.column, `Invalid key: ${key}`));
                     }
 
                     map[key] = command.value.execute(scope);
@@ -25,20 +26,12 @@ export class MapCommand extends Command {
 
                 return map;
             },
-            () => {
+            (accent) => {
                 if (!this.commands.length) {
                     return "{}";
                 }
 
-                let description = "{";
-
-                for (let command of commands) {
-                    description += "\n\t" + Utils.indent(command.key.describe()) + ": " + Utils.indent(command.value.describe());
-                }
-
-                description += "\n}";
-
-                return description;
+                return `{\n${commands.map((command) => `\t${Utils.indent(Utils.toScript(accent, command.key))}: ${Utils.indent(Utils.toScript(accent, command.value))}${msg(accent, Globals.SEPARATOR)}`).join("\n")}\n}`;
             });
     }
 

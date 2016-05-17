@@ -4,31 +4,32 @@ import {Token, CommandTokenizer} from "./CommandTokenizer";
 import {Command} from "./../Command";
 import {Context} from "./../Context";
 import {Definition} from "./../Definition";
+import {msg} from "./../Msg";
 import {Procedure} from "./../Procedure";
 import {Quantity} from "./../Quantity";
 import {Types} from "./../Type";
 import {Unit} from "./../Unit";
 
+import * as Globals from "./../Globals";
 import * as Units from "./../Units";
 import * as Utils from "./../Utils";
+import * as Verify from "./../Verify";
 
 import {AccessCommand} from "./../command/AccessCommand";
-import {ArrayCommand} from "./../command/ArrayCommand";
 import {AssignmentCommand} from "./../command/AssignmentCommand";
 import {BinaryOperationCommand} from "./../command/BinaryOperationCommand";
 import {CallCommand} from "./../command/CallCommand";
-import {ChainOperationCommand} from "./../command/ChainOperationCommand";
 import {ConvertCommand} from "./../command/ConvertCommand";
 import {IdentifierCommand} from "./../command/IdentifierCommand";
+import {LinkCommand} from "./../command/LinkCommand";
+import {ListCommand} from "./../command/ListCommand";
 import {MapCommand} from "./../command/MapCommand";
 import {QuantityCommand} from "./../command/QuantityCommand";
-import {ReferenceCommand} from "./../command/ReferenceCommand";
 import {TextCommand, TextCommandReferenceSegment, TextCommandPlaceholderSegment, TextCommandStringSegment} from "./../command/TextCommand";
 import {TupleCommand} from "./../command/TupleCommand";
 import {UnaryOperationCommand} from "./../command/UnaryOperationCommand";
 import {UnitCommand} from "./../command/UnitCommand";
 
-import {msg} from "./../../Msg";
 
 enum Precedence {
     Undefined,
@@ -84,10 +85,16 @@ export class CommandParser {
             let arg = this.parseExpressionChain(context);
 
             if (token.s === "+") {
-                expression = new UnaryOperationCommand(token.line, token.column, context.required("positiveOf", Types.PROCEDURE), token.s, arg);
+                let name = msg(context.accent, Globals.PROCEDURE_NOP);
+                let definition = context.required(name, Types.PROCEDURE);
+
+                expression = new UnaryOperationCommand(token.line, token.column, definition.type.toDistinctType().param, name, token.s, arg);
             }
             else if (token.s === "-") {
-                expression = new UnaryOperationCommand(token.line, token.column, context.required("negativeOf", Types.PROCEDURE), token.s, arg);
+                let name = msg(context.accent, Globals.PROCEDURE_NEGATE);
+                let definition = context.required(name, Types.PROCEDURE);
+
+                expression = new UnaryOperationCommand(token.line, token.column, definition.type.toDistinctType().param, name, token.s, arg);
             }
             else {
                 throw new Error(Utils.formatError(token.line, token.column, `Unsupported unary operation: ${token.s}`));
@@ -109,33 +116,33 @@ export class CommandParser {
 
             switch (token.s) {
                 case "+":
-                    name = "add";
+                    name = msg(context.accent, Globals.PROCEDURE_ADD);
                     precedence = Precedence.Addition;
                     break;
 
                 case "-":
-                    name = "subtract";
+                    name = msg(context.accent, Globals.PROCEDURE_SUBTRACT);
                     precedence = Precedence.Addition;
                     break;
 
                 case "*":
-                    name = "multiply";
+                    name = msg(context.accent, Globals.PROCEDURE_MULTIPLY);
                     precedence = Precedence.Multiplication;
                     break;
 
                 case "/":
-                    name = "divide";
+                    name = msg(context.accent, Globals.PROCEDURE_DIVIDE);
                     precedence = Precedence.Multiplication;
                     break;
 
                 case "^":
-                    name = "power";
+                    name = msg(context.accent, Globals.PROCEDURE_EXPONENTIATE);
                     precedence = Precedence.Power;
                     leftAssociative = false;
                     break;
 
                 case "mod":
-                    name = "modulo";
+                    name = msg(context.accent, Globals.PROCEDURE_MODULO);
                     precedence = Precedence.Multiplication;
                     break;
 
@@ -153,7 +160,10 @@ export class CommandParser {
 
             this.tokenizer.next();
 
-            expression = new BinaryOperationCommand(token.line, token.column, context.required(name, Types.PROCEDURE), symbol, expression, this.parseStatement(context, precedence, null));
+            let definition = context.required(name, Types.PROCEDURE);
+
+            expression = new BinaryOperationCommand(token.line, token.column, definition.type.toDistinctType().param,
+                name, symbol, expression, this.parseStatement(context, precedence, null));
 
             token = this.tokenizer.get();
         }
@@ -190,7 +200,7 @@ export class CommandParser {
             token = this.tokenizer.get();
 
             if (this.isExpressionChain(context, token)) {
-                command = new ChainOperationCommand(startToken.line, startToken.column, [command, this.parseExpressionChain(context, leadingUnit)]);
+                command = new LinkCommand(startToken.line, startToken.column, [command, this.parseExpressionChain(context, leadingUnit)]);
 
                 token = this.tokenizer.get();
             }
@@ -325,7 +335,7 @@ export class CommandParser {
 
         this.tokenizer.next();
 
-        return new ArrayCommand(startToken.line, startToken.column, commands);
+        return new ListCommand(startToken.line, startToken.column, commands);
     }
 
     isMap(context: Context, token: Token): boolean {
@@ -444,10 +454,10 @@ export class CommandParser {
         if (Types.PROCEDURE.accepts(definition.type)) {
             let args = this.parseStatement(context);
 
-            return new CallCommand(startToken.line, startToken.column, definition, args);
+            return new CallCommand(startToken.line, startToken.column, definition.type.toDistinctType().param, name, args);
         }
 
-        return new AccessCommand(startToken.line, startToken.column, definition);
+        return new AccessCommand(startToken.line, startToken.column, definition.type, name);
     }
 
     isAssignment(context: Context, token: Token): boolean {
@@ -474,10 +484,10 @@ export class CommandParser {
             context.register(definition);
         }
         else if (!definition.type.accepts(command.type)) {
-            throw new Error(Utils.formatError(line, column, `Incompatible assignment: "${Utils.describe(command.type)}" cannot be assigned to definition of type "${definition.type}"`));
+            throw new Error(Utils.formatError(line, column, `Incompatible assignment: "${Utils.toScript(context.accent, command.type)}" cannot be assigned to definition of type "${definition.type}"`));
         }
 
-        return new AssignmentCommand(line, column, definition.name, command);
+        return new AssignmentCommand(line, column, name, command);
     }
 
     isConstant(context: Context, token: Token): boolean {
@@ -674,7 +684,7 @@ export class CommandParser {
             return false;
         }
 
-        return Utils.isIdentifier(token.s);
+        return Verify.isIdentifier(token.s);
     }
 
     /**

@@ -1,4 +1,50 @@
-let msgs: { [key: string]: { [language: string]: string } } =
+export type Msg = string | { [language: string]: string };
+
+export function msg(language: string, message: Msg, ...args: any[]): string {
+    if (!message) {
+        return null;
+    }
+
+    if (typeof message !== "string") {
+        let l = language;
+
+        while (true) {
+            let s = (message as { [language: string]: string })[l];
+
+            if (s) {
+                message = s;
+                break;
+            }
+
+            if (language === "") {
+                throw new Error(`Default message is missing: ${JSON.stringify(message)}`);
+            }
+
+            let index = language.indexOf("-");
+
+            if (index >= 0) {
+                language = language.substring(0, index);
+            }
+            else {
+                language = "";
+            }
+        }
+    }
+
+    // TODO implement replaceing arguments
+
+    return message as string;
+}
+
+export function defMsg(language: string, key: string, ...args: any[]): string {
+    let message = defMsgs[key];
+
+    if (!message) {
+        return `DefMsg missing: ${key}`;
+    }
+}
+
+let defMsgs: { [key: string]: { [language: string]: string } } =
     {
         "Global.decimalSeparators": {
             "": ".",
@@ -77,38 +123,3 @@ function getLanguage() {
     return "en-US";
 }
 
-export function msg(languageOrKey: string, key?: string) {
-    if (!key) {
-        key = languageOrKey;
-        languageOrKey = getLanguage();
-    }
-
-    let translations = msgs[key];
-
-    if (!translations) {
-        return key;
-    }
-
-    let language = languageOrKey;
-
-    while (true) {
-        let msg = translations[language];
-
-        if (msg) {
-            return msg;
-        }
-
-        if (language === "") {
-            return key;
-        }
-
-        let index = language.indexOf("-");
-
-        if (index >= 0) {
-            language = language.substring(0, index);
-        }
-        else {
-            language = "";
-        }
-    }
-}

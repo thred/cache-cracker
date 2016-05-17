@@ -2,13 +2,14 @@ import {Procedure} from "./Procedure";
 import {Quantity} from "./Quantity";
 import {Unit} from "./Unit";
 
+import * as Globals from "./Globals";
 import * as Utils from "./Utils";
 
 import {TypeParser} from "./parser/TypeParser";
 
 export type TypeName = "Any" | "Bool" | "List" | "Map" | "Procedure" | "Quantity" | "Text" | "Type" | "Unit" | "Void";
 
-export abstract class Type implements Utils.Descripted {
+export abstract class Type implements Utils.Scripted {
 
     static of(value: any): Type {
         if ((value === undefined) || (value === null)) {
@@ -44,7 +45,7 @@ export abstract class Type implements Utils.Descripted {
         }
 
         if (isProcedure(value)) {
-            return new DistinctType("Procedure", (value as Procedure).result.type);
+            return new DistinctType("Procedure", (value as Procedure).resultType);
         }
 
         throw new Error(`Failed to detect type: ${value} (${typeof value})`);
@@ -93,11 +94,11 @@ export abstract class Type implements Utils.Descripted {
 
     abstract isVoid(): boolean;
 
-    abstract describe(language?: string): string;
-
     toDistinctType(): DistinctType {
-        throw new Error(`Type is not distinct: ${this.describe()}`);
+        throw new Error(`Type is not distinct: ${this.toScript(Globals.DEFAULT_ACCENT)}`);
     }
+
+    abstract toScript(accent: string): string;
 
     abstract toString(): string;
 }
@@ -128,7 +129,7 @@ export class AnyType extends Type {
         return false;
     }
 
-    describe(language: string = Utils.language): string {
+    toScript(accent: string): string {
         return "?";
     }
 
@@ -231,18 +232,18 @@ export class DistinctType extends Type {
         return false;
     }
 
-    describe(language: string = Utils.language): string {
+    toDistinctType(): DistinctType {
+        return this;
+    }
+
+    toScript(accent: string): string {
         let description: string = this._name;
 
         if (this._param) {
-            description += `<${this._param.describe(language)}>`
+            description += `<${Utils.toScript(accent, this._param)}>`
         }
 
         return description;
-    }
-
-    toDistinctType(): DistinctType {
-        return this;
     }
 
     toString(): string {
@@ -284,8 +285,8 @@ export class OrType extends Type {
         return this._types.every((type) => type.isVoid());
     }
 
-    describe(language: string = Utils.language): string {
-        return this._types.join(" | ");
+    toScript(accent: string): string {
+        return this._types.map((type) => Utils.toScript(accent, type)).join(" | ");
     }
 
     toString(): string {
@@ -320,7 +321,7 @@ export class VoidType extends Type {
         return true;
     }
 
-    describe(language: string = Utils.language): string {
+    toScript(accent: string): string {
         return "Void";
     }
 
@@ -333,21 +334,21 @@ export class VoidType extends Type {
 export class Types {
     static ANY: Type = new AnyType();
 
-    static BOOL: Type = new DistinctType("Bool");
+    static BOOL: DistinctType = new DistinctType("Bool");
 
-    static LIST: Type = new DistinctType("List", Types.ANY);
+    static LIST: DistinctType = new DistinctType("List", Types.ANY);
 
-    static MAP: Type = new DistinctType("Map", Types.ANY);
+    static MAP: DistinctType = new DistinctType("Map", Types.ANY);
 
-    static PROCEDURE: Type = new DistinctType("Procedure", Types.ANY);
+    static PROCEDURE: DistinctType = new DistinctType("Procedure", Types.ANY);
 
-    static QUANTITY: Type = new DistinctType("Quantity");
+    static QUANTITY: DistinctType = new DistinctType("Quantity");
 
-    static TEXT: Type = new DistinctType("Text");
+    static TEXT: DistinctType = new DistinctType("Text");
 
-    static TYPE: Type = new DistinctType("Type");
+    static TYPE: DistinctType = new DistinctType("Type");
 
-    static UNIT: Type = new DistinctType("Unit");
+    static UNIT: DistinctType = new DistinctType("Unit");
 
     static VOID: Type = new VoidType();
 

@@ -3,6 +3,7 @@
 import {Context} from "../../script/code/Context";
 import {Definition} from "../../script/code/Definition";
 import {Environment} from "../../script/code/Environment";
+import {Msg, msg, defMsg} from "../../script/code/Msg";
 import {Scope} from "../../script/code/Scope";
 
 import * as Utils from "../../script/code/Utils";
@@ -14,7 +15,8 @@ const con = ReadLine.createInterface({
     output: process.stdout
 });
 
-let context: Context = Environment.DEFAULT.createContext();
+let environment: Environment = Environment.DEFAULT;
+let context: Context = environment.createContext();
 let scope: Scope = context.createScope();
 
 function consume() {
@@ -41,7 +43,7 @@ function parse(input: string) {
         let script = context.parse(input);
 
         // console.log("Reading: " + script.describe());
-        console.log(Utils.describe(script.execute(scope)));
+        console.log(Utils.toScript(environment.accent, script.execute(scope)));
     }
     catch (error) {
         console.log(error.message);
@@ -53,7 +55,7 @@ function help(args: string[]) {
     let definition = context.get(q);
 
     if (definition) {
-        console.log(definition.describe());
+        console.log(definition.toScript(environment.accent));
     }
     else {
         list(q);
@@ -74,11 +76,11 @@ function list(q: string) {
         ctx = ctx.parent;
     }
 
-    definitions.sort((a, b) => a.name.localeCompare(b.name));
+    definitions.sort((a, b) => a.getName(environment.accent).localeCompare(b.getName(environment.accent)));
 
     console.log("List of definitions:\n");
     for (let definition of definitions) {
-        console.log(definition.name);
+        console.log(definition.getName(environment.accent));
     }
 }
 

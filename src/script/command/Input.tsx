@@ -6,7 +6,7 @@ import * as Command from "./Command";
 
 import * as SheetModel from "./../sheet/Model";
 
-import {msg} from "./../Msg";
+import {defMsg} from "./../Msg";
 
 export function initialize() {
     Command.register({
@@ -49,7 +49,7 @@ export class StringComponent extends React.Component<StringProps, {}> {
     render() {
         return <div className="command">
             <Row>
-                <Input s={12} type="text" label={msg("Command.String.label") } defaultValue={this.props.instruction["stringValue"]} onChange={(event) => this.onChange(event) }/>
+                <Input s={12} type="text" label={defMsg("en-US", "Command.String.label") } defaultValue={this.props.instruction["stringValue"]} onChange={(event) => this.onChange(event) }/>
             </Row>
         </div>;
     }
@@ -73,7 +73,7 @@ export class NumberComponent extends React.Component<NumberProps, {}> {
     render() {
         return <div className="command">
             <Row>
-                <Input s={12} type="number" label={msg("Command.Number.label") } defaultValue={this.props.instruction["numberValue"]} onChange={(event) => this.onChange(event) }/>
+                <Input s={12} type="number" label={defMsg("en-US", "Command.Number.label") } defaultValue={this.props.instruction["numberValue"]} onChange={(event) => this.onChange(event) }/>
             </Row>
         </div>;
     }
@@ -97,7 +97,7 @@ export class BooleanComponent extends React.Component<BooleanProps, {}> {
     render() {
         return <div className="command">
             <Row>
-                <Input s={12} type="checkbox" label={msg("Command.Boolean.label") } checked={this.props.instruction["booleanValue"]} onChange={(event) => this.onChange(event) }/>
+                <Input s={12} type="checkbox" label={defMsg("en-US", "Command.Boolean.label") } checked={this.props.instruction["booleanValue"]} onChange={(event) => this.onChange(event) }/>
             </Row>
         </div>;
     }

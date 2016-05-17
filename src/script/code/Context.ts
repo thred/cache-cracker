@@ -1,4 +1,5 @@
 import {Definition} from "./Definition";
+import {Msg, msg, defMsg} from "./Msg";
 import {Scope} from "./Scope";
 import {Script} from "./Script";
 import {Type, Types} from "./Type";
@@ -18,9 +19,24 @@ import {Scanner} from "./parser/Scanner";
  */
 export class Context {
 
+    private _accent: string;
+    private _parent: Context;
     private _definitions: { [name: string]: Definition } = {};
 
-    constructor(private _parent: Context) {
+    /**
+     * Creates a new `Context`. With a root `Context`, an accent has to be set, otherwise a parent has to be linked.
+     * 
+     * @param accentOrParent either an accent or a parent
+     */
+    constructor(accentOrParent: string | Context) {
+        if (typeof accentOrParent === "string") {
+            this._accent = accentOrParent as string;
+            this._parent = null;
+        }
+        else {
+            this._parent = accentOrParent as Context;
+            this._accent = this._parent._accent;
+        }
     }
 
     /**
@@ -30,9 +46,16 @@ export class Context {
      * @returns the `Context` itself
      */
     register(...definitions: Definition[]): this {
-        definitions.forEach((definition) => this._definitions[definition.name] = definition);
+        definitions.forEach((definition) => this._definitions[definition.getName(this.accent)] = definition);
 
         return this;
+    }
+
+    /**
+     * @returns the accent of this `Context`.
+     */
+    get accent() {
+        return this._accent;
     }
 
     /**
@@ -71,14 +94,19 @@ export class Context {
      * @returns a new `Scope` 
      */
     createScope(parentScope?: Scope): Scope {
+        let scope: Scope;
+
         if (parentScope) {
             this.verifyScope(parentScope);
+
+            scope = new Scope(parentScope);
         }
         else if (this.parent) {
-            parentScope = this.parent.createScope();
+            scope = new Scope(this.parent.createScope());
         }
-
-        let scope = new Scope(parentScope);
+        else {
+            scope = new Scope(this.accent);
+        }
 
         for (let name in this._definitions) {
             scope.set(name, this._definitions[name].createInitialValue(scope) || null);
@@ -88,13 +116,17 @@ export class Context {
     }
 
     /**
-     * Verifies the `scope`; it must contain all the variables that are defined by this `Context`
-     * and the variables must be of an acceptable type.
+     * Verifies the `scope`; the accent must match with the context and it must contain all the variables 
+     * that are defined by this `Context` and the variables must be of an acceptable type. 
      * Throws an error if this is not the case.
      * 
      * @param scope the `Scope` to be verify.
      */
     verifyScope(scope: Scope): void {
+        if (this.accent !== scope.accent) {
+            throw new Error(`Failed to verify scope. Accents do not match: ${this.accent} != ${scope.accent}`)
+        }
+
         for (let name in this._definitions) {
             let definition = this._definitions[name];
             let variable = scope.get(name);
@@ -137,6 +169,7 @@ export class Context {
     }
 
     /**
+     * Ensures, that the `Definition` with the specified name exists, and (optionally) is accepted by the specified `Type`.
      * 
      * @param name the name of the `Definition`
      * @param type an optional `Type` to verify the `Definition` 
@@ -147,7 +180,7 @@ export class Context {
         let definition = Utils.required(this.get(name), `Required definition is not defined: ${name}`);
 
         if ((type) && (!type.accepts(definition.type))) {
-            throw new Error(`Required definition does not match type "${type.describe()}": ${definition.describe()}`)
+            throw new Error(`Required definition does not match type "${Utils.toScript(this._accent, type)}": ${Utils.toScript(this._accent, definition)}`)
         }
 
         return definition;

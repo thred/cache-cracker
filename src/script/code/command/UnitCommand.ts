@@ -2,14 +2,16 @@ import {Command} from "./../Command";
 import {Types} from "./../Type";
 import {Unit} from "./../Unit";
 
+import * as Utils from "./../Utils";
+
 export class UnitCommand extends Command {
     constructor(line: number, column: number, private unit: Unit) {
         super(line, column, Types.UNIT,
             (scope) => unit,
-            () => `${unit.symbols[0]}`);
+            (accent) => `${Utils.toScript(accent, unit)}`);
     }
 
     toString(): string {
-        return `UnitCommand(${this.unit.symbols[0]})`;
+        return `UnitCommand(${this.unit})`;
     }
 }

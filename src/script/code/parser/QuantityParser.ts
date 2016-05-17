@@ -4,19 +4,20 @@ import {Token, QuantityTokenizer} from "./QuantityTokenizer";
 
 import {Quantity} from "./../Quantity";
 import {Unit} from "./../Unit";
+import {msg} from "./../Msg";
 
+import * as Globals from "./../Globals";
 import * as Units from "./../Units";
 import * as Utils from "./../Utils";
 
-import {msg} from "./../../Msg";
 
 export class QuantityParser {
 
     private tokenizer: QuantityTokenizer;
 
     constructor(private language: string, source: Scanner | string) {
-        let decimalSeparators = msg(language, "Global.decimalSeparators");
-        let digitSeparators = msg(language, "Global.digitSeparators");
+        let decimalSeparators = msg(language, Globals.DECIMAL_SEPARATOR);
+        let digitSeparators = msg(language, Globals.DIGIT_SEPARATORS);
 
         this.tokenizer = new QuantityTokenizer(source).decimalSeparators(decimalSeparators).digitSeparators(digitSeparators);
 

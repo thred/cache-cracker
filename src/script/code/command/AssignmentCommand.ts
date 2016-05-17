@@ -1,6 +1,7 @@
 import {Command} from "./../Command";
 import {Definition} from "./../Definition";
 
+import * as Globals from "./../Globals";
 import * as Utils from "./../Utils";
 
 export class AssignmentCommand extends Command {
@@ -11,11 +12,11 @@ export class AssignmentCommand extends Command {
             scope.set(name, value);
 
             return value;
-        }, (language?: string) => `${name} := ${Utils.describe(arg, language)}`);
+        }, (accent) => `${name} := ${Utils.toScript(accent, arg)}`);
     };
 
     toString(): string {
-        return `AssignmentCommand(${Utils.toEscapedStringWithQuotes(this.name)}, ${this.arg.toString()})`;
+        return `AssignmentCommand(${Utils.toEscapedStringWithQuotes(this.name)}, ${this.arg})`;
     }
 }
 

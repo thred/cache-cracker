@@ -1,12 +1,13 @@
 import {Scope} from "./Scope";
 import {Type} from "./Type";
 
+import * as Globals from "./Globals";
 import * as Utils from "./Utils";
 
-export abstract class Command implements Utils.Descripted {
+export abstract class Command implements Utils.Scripted {
 
     constructor(private _line: number, private _column: number, private _type: Type,
-        private _impl: (scope: Scope) => any, private _describe: (language?: string) => string) {
+        private _impl: (scope: Scope) => any, private _toScript: (accent: string) => string) {
     }
 
     get line(): number {
@@ -26,15 +27,15 @@ export abstract class Command implements Utils.Descripted {
             return this._impl(scope);
         }
         catch (error) {
-            throw new Error(Utils.formatError(this._line, this._column, `Invocation failed: ${this.describe()}`, error));
+            throw new Error(Utils.formatError(this._line, this._column, `Invocation failed: ${this.toScript(scope.accent)}`, error));
         }
     }
 
-    describe(language: string = Utils.language): string {
-        return this._describe(language);
+    toScript(accent: string): string {
+        return this._toScript(accent);
     }
 
     toString(): string {
-        return this.describe();
+        return this.toScript(Globals.DEFAULT_ACCENT);
     }
 }

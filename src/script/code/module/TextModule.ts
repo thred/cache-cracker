@@ -1,7 +1,9 @@
 import {Definition} from "./../Definition";
 import {Module} from "./../Module";
+import {Quantity} from "./../Quantity";
 import {Scope} from "./../Scope";
 
+import * as Globals from "./../Globals";
 import * as Utils from "./../Utils";
 
 class TextModule extends Module {
@@ -9,17 +11,26 @@ class TextModule extends Module {
     constructor() {
         super();
 
-        this.register(Definition.procedure("concat", "Concatenates the specified list as texts.", [
-            Definition.any("values", "A list of values"),
-            Definition.any("separator", "An optional separator", "")
-        ], Definition.text("text", "The concatenated values"), (scope: Scope) => {
-            let values = scope.requiredAsList("values")
+        this.register(Definition.procedure(Globals.PROCEDURE_CONCAT, {
+            "": "Concatenates the items of the list as text.",
+            "de": "Verkettet die Elemente der Liste zu einem Text."
+        }, [Definition.any(Globals.VAR_LIST, {
+            "": "The list of values.",
+            "de": "Die Liste der Werte."
+        }), Definition.any(Globals.VAR_SEPARATOR, {
+            "": "A text used as separator (optional, empty by default)",
+            "de": "Ein Text als Separator (optional, leer, im Standardfall)"
+        }, "")], Definition.text(Globals.VAR_RESULT, {
+            "": "The concatenated values.",
+            "de": "Die verketteten Werte."
+        }), (scope: Scope) => {
+            let list = scope.requiredAsList(Globals.VAR_LIST)
 
-            if (values === null) {
+            if (list === null) {
                 return null;
             }
 
-            return values.join(scope.getAsText("separator"));
+            return list.join(scope.getAsText(Globals.VAR_SEPARATOR));
         }));
     }
 }
