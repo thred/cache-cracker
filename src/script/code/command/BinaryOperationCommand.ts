@@ -1,5 +1,6 @@
 import {Command} from "./../Command";
 import {Definition} from "./../Definition";
+import {Msg, msg, defMsg} from "./../Msg";
 import {Procedure} from "./../Procedure";
 import {Type} from "./../Type";
 
@@ -11,10 +12,12 @@ export class BinaryOperationCommand extends Command {
         super(line, column, type,
             (scope) => {
                 try {
-                    return scope.requiredAsProcedure(name).invoke({
-                        leftValue: leftArg.execute(scope),
-                        rightValue: rightArg.execute(scope)
-                    });
+                    let args: Utils.Map = {};
+
+                    args[msg(scope.accent, Globals.VAR_LEFT_VALUE)] = leftArg.execute(scope);
+                    args[msg(scope.accent, Globals.VAR_RIGHT_VALUE)] = rightArg.execute(scope);
+
+                    return scope.requiredAsProcedure(name).invoke(args);
                 }
                 catch (error) {
                     throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${name}`, error));
@@ -24,8 +27,8 @@ export class BinaryOperationCommand extends Command {
 
     toString(): string {
         return `BinaryOperation(${Utils.toEscapedStringWithQuotes(this.name)}, ${{
-            left: this.leftArg,
-            right: this.rightArg
+            leftValue: this.leftArg,
+            rightValue: this.rightArg
         }})`;
     }
 }

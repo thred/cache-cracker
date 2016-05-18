@@ -11,10 +11,12 @@ export class ConvertCommand extends Command {
         super(line, column, Types.QUANTITY,
             (scope) => {
                 try {
-                    return scope.requiredAsProcedure(Globals.PROCEDURE_CONVERT).invoke({
-                        value: valueArg.execute(scope),
-                        unit: unit
-                    });
+                    let args: Utils.Map = {};
+
+                    args[msg(scope.accent, Globals.VAR_VALUE)] = valueArg.execute(scope);
+                    args[msg(scope.accent, Globals.VAR_UNIT)] = unit;
+
+                    return scope.requiredAsProcedure(Globals.PROCEDURE_CONVERT).invoke(args);
                 }
                 catch (error) {
                     throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${msg(scope.accent, Globals.PROCEDURE_CONVERT)}`, error));

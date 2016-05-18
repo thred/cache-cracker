@@ -101,6 +101,11 @@ export const PROCEDURE_TRANSFORM: Msg = {
     "de": "verwandeln"
 };
 
+export const VAR_ACCENT: Msg = {
+    "": "accent",
+    "de": "Akzent"
+};
+
 export const VAR_ACCURACY: Msg = {
     "": "accuracy",
     "de": "Genauigkeit"
@@ -115,7 +120,6 @@ export const VAR_DEFAULT_LANGUAGE: Msg = {
     "": "defaultLanguage",
     "de": "Standardsprache"
 };
-
 
 export const VAR_LANGUAGE: Msg = {
     "": "language",

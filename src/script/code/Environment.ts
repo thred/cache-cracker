@@ -17,8 +17,12 @@ import {Scanner} from "./parser/Scanner";
 
 export class Environment {
 
-    static DEFAULT: Environment = new Environment(Globals.DEFAULT_ACCENT).include(DefaultModule.MODULE, MathModule.MODULE, TextAnalysisModule.MODULE,
-        TextModule.MODULE, TransformationModule.MODULE);
+    static createDefault(accent: string): Environment {
+        return new Environment(accent).include(DefaultModule.MODULE, MathModule.MODULE, TextAnalysisModule.MODULE,
+            TextModule.MODULE, TransformationModule.MODULE);
+    }
+
+    static DEFAULT: Environment = Environment.createDefault(Globals.DEFAULT_ACCENT);
 
     private context: Context;
 

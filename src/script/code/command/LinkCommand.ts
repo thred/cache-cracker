@@ -10,9 +10,11 @@ export class LinkCommand extends Command {
         super(line, column, Types.QUANTITY,
             (scope) => {
                 try {
-                    return scope.requiredAsProcedure(Globals.PROCEDURE_LINK).invoke({
-                        list: segments.map((segment) => segment.execute(scope))
-                    });
+                    let args: Utils.Map = {};
+
+                    args[msg(scope.accent, Globals.VAR_LIST)] = segments.map((segment) => segment.execute(scope));
+
+                    return scope.requiredAsProcedure(Globals.PROCEDURE_LINK).invoke(args);
                 }
                 catch (error) {
                     throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${msg(scope.accent, Globals.PROCEDURE_LINK)}`, error));
