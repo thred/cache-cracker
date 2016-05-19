@@ -120,7 +120,7 @@ gulp.task("test", ["build:typescript"], function() {
         }));
 });
 
-gulp.task("watch", ["build", "server"], function() {
+gulp.task("watch", ["build", "lib", "server"], function() {
     gulp.watch("./src/**/*.html", ["build:static"]);
     gulp.watch("./src/style/*.css", ["build:css"]);
     gulp.watch(["./src/script/**/*.ts", "./src/script/**/*.tsx"], ["build:webpack"]);

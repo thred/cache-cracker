@@ -29,5 +29,9 @@ describe("Parser (Math)", () => {
     Test.script("ceil 1.5", "2");
 
     Test.script("random 1", "1");
+    
+    Test.germanScript("-2", "-2");
+    Test.germanScript("1 + 2", "3");
+    Test.germanScript("würfeln 1", "1");
 
 });

@@ -21,39 +21,44 @@ export function quantity(language: string, s: string, result: string): void {
 
 export function script(source: string, expected: string, verify?: (value: any, error?: any) => boolean): void {
     it(`${Utils.indent(source, "      ")} => ${Utils.indent(expected, "      ")}`, () => {
-        let description = source;
-
-        if (source.indexOf(":") >= 0) {
-            description = source.substring(source.indexOf(":") + 1).trim();
-            source = source.substring(0, source.indexOf(":")).trim();
-        }
-
-        let environment: Environment = Environment.DEFAULT;
-        let context: Context = environment.createContext();
-        let scope: Scope = context.createScope();
-        let script: Script = context.parse(source);
-
-        assert.equal(script.toScript(environment.accent), description);
-
-        try {
-            let result = script.execute();
-
-            if (verify) {
-                assert.isTrue(verify(result, null), `Verify failed for result ${result.toString()}`);
-            }
-            else {
-                assert.equal(Utils.toScript(environment.accent, result), expected);
-            }
-        }
-        catch (error) {
-            if (verify) {
-                assert.isTrue(verify(null, error), `Verify failed for error ${error}`);
-            }
-            else {
-                throw error;
-            }
-        }
+        executeScript("", source, expected, verify);
     });
+}
+
+export function germanScript(source: string, expected: string, verify?: (value: any, error?: any) => boolean): void {
+    it(`${Utils.indent(source, "      ")} => ${Utils.indent(expected, "      ")}`, () => {
+        executeScript("de", source, expected, verify);
+    });
+}
+
+function executeScript(accent: string, source: string, expected: string, verify?: (value: any, error?: any) => boolean): void {
+    let description = source;
+    let environment: Environment = Environment.createDefault(accent);
+    let context: Context = environment.createContext();
+    let scope: Scope = context.createScope();
+    let script: Script = context.parse(source);
+
+    assert.equal(script.toScript(environment.accent), description);
+
+    try {
+        let result = script.execute();
+
+        if (verify) {
+            assert.isTrue(verify(result, null), `Verify failed for result ${result.toString()}`);
+        }
+        else {
+            assert.equal(Utils.toScript(environment.accent, result), expected);
+        }
+    }
+    catch (error) {
+        if (verify) {
+            assert.isTrue(verify(null, error), `Verify failed for error ${error}`);
+        }
+        else {
+            throw error;
+        }
+    }
+
 }
 
 
