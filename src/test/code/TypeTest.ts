@@ -41,9 +41,9 @@ describe("Type", () => {
     testOf(null, Types.VOID);
     testOf(null, "Void");
 
-    testOf(true, Types.BOOL);
-    testOf(true, "Bool");
-    testOf(false, "Bool");
+    testOf(true, Types.LOGICAL_VALUE);
+    testOf(true, "LogicalValue");
+    testOf(false, "LogicalValue");
 
     testOf(["one", "two", "three"], Types.LIST);
     testOf([Quantity.of(1), Quantity.of(2), Quantity.of(3)], "List<?>");
@@ -52,10 +52,10 @@ describe("Type", () => {
     testOf({ one: Quantity.of(1), two: Quantity.of(2), three: Quantity.of(3) }, Types.MAP);
     testOf({ one: Quantity.of(1), two: Quantity.of(2), three: Quantity.of(3) }, "Map<?>");
 
-    testOf(new Procedure(null, [], Types.BOOL, () => null), "Procedure<Bool>");
+    testOf(new Procedure(null, [], Types.LOGICAL_VALUE, () => null), "Procedure<LogicalValue>");
     testOf(new Procedure(null, [], Types.LIST, () => null), "Procedure<List<?>>");
     testOf(new Procedure(null, [], Types.MAP, () => null), "Procedure<Map<?>>");
-    testOf(new Procedure(null, [], Type.parse("Procedure<Bool>"), () => null), "Procedure<Procedure<Bool>>");
+    testOf(new Procedure(null, [], Type.parse("Procedure<LogicalValue>"), () => null), "Procedure<Procedure<LogicalValue>>");
     testOf(new Procedure(null, [], Types.QUANTITY, () => null), "Procedure<Quantity>");
     testOf(new Procedure(null, [], Types.TEXT, () => null), "Procedure<Text>");
     testOf(new Procedure(null, [], Types.TYPE, () => null), "Procedure<Type>");
@@ -74,7 +74,7 @@ describe("Type", () => {
     testOf(Units.QUBIC_METER, "Unit");
 
     testAccept("Void", "Void", true);
-    testAccept("Void", "Bool", false);
+    testAccept("Void", "LogicalValue", false);
     testAccept("Void", "List<?>", false);
     testAccept("Void", "Map<?>", false);
     testAccept("Void", "Procedure<?>", false);
@@ -84,19 +84,19 @@ describe("Type", () => {
     testAccept("Void", "Unit", false);
     testAccept("Void", "?", false);
 
-    testAccept("Bool", "Void", true);
-    testAccept("Bool", "Bool", true);
-    testAccept("Bool", "List<?>", false);
-    testAccept("Bool", "Map<?>", false);
-    testAccept("Bool", "Procedure<?>", false);
-    testAccept("Bool", "Quantity", false);
-    testAccept("Bool", "Text", false);
-    testAccept("Bool", "Type", false);
-    testAccept("Bool", "Unit", false);
-    testAccept("Bool", "?", false);
+    testAccept("LogicalValue", "Void", true);
+    testAccept("LogicalValue", "LogicalValue", true);
+    testAccept("LogicalValue", "List<?>", false);
+    testAccept("LogicalValue", "Map<?>", false);
+    testAccept("LogicalValue", "Procedure<?>", false);
+    testAccept("LogicalValue", "Quantity", false);
+    testAccept("LogicalValue", "Text", false);
+    testAccept("LogicalValue", "Type", false);
+    testAccept("LogicalValue", "Unit", false);
+    testAccept("LogicalValue", "?", false);
 
     testAccept("List<?>", "Void", true);
-    testAccept("List<?>", "Bool", false);
+    testAccept("List<?>", "LogicalValue", false);
     testAccept("List<?>", "List<?>", true);
     testAccept("List<?>", "Map<?>", false);
     testAccept("List<?>", "Procedure<?>", false);
@@ -107,7 +107,7 @@ describe("Type", () => {
     testAccept("List<?>", "?", false);
 
     testAccept("Map<?>", "Void", true);
-    testAccept("Map<?>", "Bool", false);
+    testAccept("Map<?>", "LogicalValue", false);
     testAccept("Map<?>", "List<?>", false);
     testAccept("Map<?>", "Map<?>", true);
     testAccept("Map<?>", "Procedure<?>", false);
@@ -118,7 +118,7 @@ describe("Type", () => {
     testAccept("Map<?>", "?", false);
 
     testAccept("Procedure<?>", "Void", true);
-    testAccept("Procedure<?>", "Bool", false);
+    testAccept("Procedure<?>", "LogicalValue", false);
     testAccept("Procedure<?>", "List<?>", false);
     testAccept("Procedure<?>", "Map<?>", false);
     testAccept("Procedure<?>", "Procedure<?>", true);
@@ -129,7 +129,7 @@ describe("Type", () => {
     testAccept("Procedure<?>", "?", false);
 
     testAccept("Quantity", "Void", true);
-    testAccept("Quantity", "Bool", false);
+    testAccept("Quantity", "LogicalValue", false);
     testAccept("Quantity", "List<?>", false);
     testAccept("Quantity", "Map<?>", false);
     testAccept("Quantity", "Procedure<?>", false);
@@ -140,7 +140,7 @@ describe("Type", () => {
     testAccept("Quantity", "?", false);
 
     testAccept("Text", "Void", true);
-    testAccept("Text", "Bool", false);
+    testAccept("Text", "LogicalValue", false);
     testAccept("Text", "List<?>", false);
     testAccept("Text", "Map<?>", false);
     testAccept("Text", "Procedure<?>", false);
@@ -151,7 +151,7 @@ describe("Type", () => {
     testAccept("Text", "?", false);
 
     testAccept("Type", "Void", true);
-    testAccept("Type", "Bool", false);
+    testAccept("Type", "LogicalValue", false);
     testAccept("Type", "List<?>", false);
     testAccept("Type", "Map<?>", false);
     testAccept("Type", "Procedure<?>", false);
@@ -162,7 +162,7 @@ describe("Type", () => {
     testAccept("Type", "?", false);
 
     testAccept("Unit", "Void", true);
-    testAccept("Unit", "Bool", false);
+    testAccept("Unit", "LogicalValue", false);
     testAccept("Unit", "List<?>", false);
     testAccept("Unit", "Map<?>", false);
     testAccept("Unit", "Procedure<?>", false);
@@ -173,7 +173,7 @@ describe("Type", () => {
     testAccept("Unit", "?", false);
 
     testAccept("?", "Void", true);
-    testAccept("?", "Bool", true);
+    testAccept("?", "LogicalValue", true);
     testAccept("?", "List<?>", true);
     testAccept("?", "Map<?>", true);
     testAccept("?", "Procedure<?>", true);

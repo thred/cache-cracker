@@ -21,11 +21,11 @@ export function to(accent: string, language: string, type: Type, value: any): an
     let distinctType: DistinctType = type.toDistinctType();
 
     switch (distinctType.name) {
-        case "Bool":
-            return toBool(accent, language, value, type);
-
         case "List":
             return toList(accent, language, value, type);
+
+        case "LogicalValue":
+            return toLogicalValue(accent, language, value, type);
 
         case "Map":
             return toMap(accent, language, value, type);
@@ -50,16 +50,16 @@ export function to(accent: string, language: string, type: Type, value: any): an
     }
 }
 
-export function toBool(accent: string, language: string, value: any, typeParam?: Type): boolean {
+export function toLogicalValue(accent: string, language: string, value: any, typeParam?: Type): boolean {
     if ((value === undefined) || (value === null)) {
         return value;
     }
 
-    if (Types.BOOL.acceptsValue(value)) {
+    if (Types.LOGICAL_VALUE.acceptsValue(value)) {
         return value;
     }
 
-    throw new Error(`Conversion to Bool failed: ${Utils.toScript(accent, value)}`);
+    throw new Error(`Conversion to LogicalValue failed: ${Utils.toScript(accent, value)}`);
 }
 
 export function toList(accent: string, language: string, value: any, typeParam?: Type): any[] {

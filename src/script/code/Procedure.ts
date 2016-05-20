@@ -37,7 +37,7 @@ export class Procedure implements Utils.Scripted {
         let map: Utils.Map;
         let type: Type = Type.of(arg);
 
-        if ((Types.BOOL.accepts(type)) || (Types.PROCEDURE.accepts(type)) || (Types.QUANTITY.accepts(type)) ||
+        if ((Types.LOGICAL_VALUE.accepts(type)) || (Types.PROCEDURE.accepts(type)) || (Types.QUANTITY.accepts(type)) ||
             (Types.TEXT.accepts(type)) || (Types.TYPE.accepts(type)) || (Types.UNIT.accepts(type))) {
 
             if (1 > this._params.length) {

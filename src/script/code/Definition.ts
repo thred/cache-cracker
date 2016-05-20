@@ -24,7 +24,7 @@ export class Definition implements Utils.Scripted {
     }
 
     static bool(name: Msg, description: Msg, initialValue?: boolean) {
-        return new Definition(name, Types.BOOL, description, (scope: Scope) => initialValue);
+        return new Definition(name, Types.LOGICAL_VALUE, description, (scope: Scope) => initialValue);
     }
 
     static list(name: Msg, description: Msg, initialValue?: any[]) {

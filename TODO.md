@@ -6,7 +6,6 @@
 * Print more characters without \u0000. Implement the simplifyCharacters test. Implement parsing the \u0000 definitions. Use the AbstratTokenizer.parseCharacter method in other tokenizers, too.
 * Use accent for command parser separator (, or ;)
 * Use accent for number parsing
-* Rename Bool to LogicalValue
 * Add Type: RegularExpression
 * Use accent for Type names
 * ? should be called Any instead

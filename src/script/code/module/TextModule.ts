@@ -87,7 +87,7 @@ export const COUNT_CHARACTERS: ProcedureDefinition = Definition.procedure({
     }), (scope: Scope) => {
         let text = scope.requiredAsText(Globals.VAR_TEXT);
         let characters = scope.requiredAsText(Globals.VAR_CHARACTERS);
-        let sensitive = scope.requiredAsBool(Globals.VAR_SENSITIVE);
+        let sensitive = scope.requiredAsLogicalValue(Globals.VAR_SENSITIVE);
 
         return Quantity.of(countCharacters(text, characters, sensitive));
     });
@@ -113,12 +113,12 @@ export const CHARACTER_VALUES: ProcedureDefinition = Definition.procedure({
     }), (scope: Scope) => {
         let text = scope.requiredAsText(Globals.VAR_TEXT);
         let rules = scope.requiredAsText(Globals.VAR_RULES);
-        let sensitive = scope.requiredAsBool(Globals.VAR_SENSITIVE);
+        let sensitive = scope.requiredAsLogicalValue(Globals.VAR_SENSITIVE);
 
         return characterValues(text, rules, "", sensitive); // FIXME where to get the language from
     });
 
-export const MODULE = new Module().register(JOIN_TEXTS, SIMPLIFY_CHARACTERS, COUNT_CHARACTERS, CHARACTER_VALUES);
+export const MODULE: Module = new Module(JOIN_TEXTS, SIMPLIFY_CHARACTERS, COUNT_CHARACTERS, CHARACTER_VALUES);
 
 function simplifyCharacters(text: string, additionalDiacritics?: { [character: string]: string }): string {
     if ((text === undefined) || (text === null)) {

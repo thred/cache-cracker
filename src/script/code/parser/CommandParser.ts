@@ -85,7 +85,7 @@ export class CommandParser {
             let arg = this.parseExpressionChain(context);
 
             if (token.s === "+") {
-                let name = msg(context.accent, Globals.PROCEDURE_LEAVE);
+                let name = msg(context.accent, Globals.PROCEDURE_UNCHANGED);
                 let definition = context.required(name, Types.PROCEDURE);
 
                 expression = new UnaryOperationCommand(token.line, token.column, definition.type.toDistinctType().param, name, token.s, arg);

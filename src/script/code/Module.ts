@@ -8,6 +8,10 @@ export class Module {
 
     private _definitions: Definition[] = [];
 
+    constructor(...definitions: Definition[]) {
+        this.register(...definitions);
+    }
+    
     /**
      * Register one or more new `Definition`s this `Module`. These `Definition`s will be later used
      * for populating `Context`s used for parsing scipts.

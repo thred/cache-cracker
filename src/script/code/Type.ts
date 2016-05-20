@@ -7,7 +7,7 @@ import * as Utils from "./Utils";
 
 import {TypeParser} from "./parser/TypeParser";
 
-export type TypeName = "Any" | "Bool" | "List" | "Map" | "Procedure" | "Quantity" | "Text" | "Type" | "Unit" | "Void";
+export type TypeName = "Any" | "LogicalValue" | "List" | "Map" | "Procedure" | "Quantity" | "Text" | "Type" | "Unit" | "Void";
 
 export abstract class Type implements Utils.Scripted {
 
@@ -16,8 +16,8 @@ export abstract class Type implements Utils.Scripted {
             return Types.VOID;
         }
 
-        if (isBool(value)) {
-            return Types.BOOL;
+        if (isLogicalValue(value)) {
+            return Types.LOGICAL_VALUE;
         }
 
         if (isQuantity(value)) {
@@ -334,9 +334,9 @@ export class VoidType extends Type {
 export class Types {
     static ANY: Type = new AnyType();
 
-    static BOOL: DistinctType = new DistinctType("Bool");
-
     static LIST: DistinctType = new DistinctType("List", Types.ANY);
+
+    static LOGICAL_VALUE: DistinctType = new DistinctType("LogicalValue");
 
     static MAP: DistinctType = new DistinctType("Map", Types.ANY);
 
@@ -358,13 +358,13 @@ export class Types {
             hasParams: boolean
         }
     } = {
-        "Bool": {
-            type: Types.BOOL,
-            hasParams: false
-        },
         "List": {
             type: Types.LIST,
             hasParams: true
+        },
+        "LogicalValue": {
+            type: Types.LOGICAL_VALUE,
+            hasParams: false
         },
         "Map": {
             type: Types.MAP,
@@ -393,7 +393,7 @@ export class Types {
     };
 }
 
-function isBool(value: any) {
+function isLogicalValue(value: any) {
     return typeof value === "boolean";
 }
 

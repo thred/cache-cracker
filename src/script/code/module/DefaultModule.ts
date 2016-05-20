@@ -7,35 +7,37 @@ import {Unit} from "./../Unit";
 import * as Globals from "./../Globals";
 import * as Utils from "./../Utils";
 
-class DefaultModule extends Module {
+export const TRUE = Definition.bool(Globals.CONST_TRUE, {
+    "": "The logical value: true",
+    "de": "Der Wahrheitswert: wahr"
+}, true);
 
-    constructor() {
-        super();
+export const FALSE = Definition.bool(Globals.CONST_FALSE, {
+    "": "The logical value: false",
+    "de": "Der Wahrheitswert: falsch"
+}, false);
 
-        this.register(Definition.bool(Globals.CONST_TRUE, {
-            "": "The logical value: true",
-            "de": "Der Wahrheitswert: wahr"
-        }, true));
+export const YES = Definition.bool(Globals.CONST_YES, {
+    "": "An alternative logical value for: true",
+    "de": "Ein alternativer Wahrheitswert für: wahr"
+}, true);
 
-        this.register(Definition.bool(Globals.CONST_FALSE, {
-            "": "The logical value: false",
-            "de": "Der Wahrheitswert: unwahr"
-        }, false));
+export const NO = Definition.bool(Globals.CONST_NO, {
+    "": "An alternative logical value for: false",
+    "de": "Ein alternativer Wahrheitswert für: falsch"
+}, false);
 
-        this.register(Definition.procedure(Globals.PROCEDURE_LEAVE, {
-            "": "Returns the specified value unmodified.",
-            "de": "Gibt den angegebenen Wert unmodifiziert zurück."
-        }, [Definition.any(Globals.VAR_VALUE, {
-            "": "The value.",
-            "de": "Der Wert."
-        })], Definition.quantity(Globals.VAR_RESULT, {
-            "": "The value.",
-            "de": "Der Wert."
-        }), (scope: Scope) => {
-            return scope.required(Globals.VAR_VALUE);
-        }));
+export const UNCHANGED = Definition.procedure(Globals.PROCEDURE_UNCHANGED, {
+    "": "Returns the specified value unmodified.",
+    "de": "Gibt den angegebenen Wert unmodifiziert zurück."
+}, [Definition.any(Globals.VAR_VALUE, {
+    "": "The value.",
+    "de": "Der Wert."
+})], Definition.quantity(Globals.VAR_RESULT, {
+    "": "The value.",
+    "de": "Der Wert."
+}), (scope: Scope) => {
+    return scope.required(Globals.VAR_VALUE);
+});
 
-    }
-}
-
-export const MODULE = new DefaultModule();
+export const MODULE: Module = new Module(TRUE, FALSE, YES, NO, UNCHANGED);

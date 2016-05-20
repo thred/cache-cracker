@@ -86,12 +86,12 @@ export class Scope {
         return this.as(type, this.get(name, defaultValue));
     }
 
-    getAsBool(name: Msg, defaultValue?: boolean): boolean {
-        return this.getAs(name, Types.BOOL, defaultValue);
-    }
-
     getAsList(name: Msg, defaultValue?: any[]): any[] {
         return this.getAs(name, Types.LIST, defaultValue);
+    }
+
+    getAsLogicalValue(name: Msg, defaultValue?: boolean): boolean {
+        return this.getAs(name, Types.LOGICAL_VALUE, defaultValue);
     }
 
     getAsMap(name: Msg, defaultValue?: Object): Object {
@@ -126,12 +126,12 @@ export class Scope {
         return Utils.required(this.getAs(name, type), `Required ${type} is not defined: ${this.toName(name)}`);
     }
 
-    requiredAsBool(name: Msg): boolean {
-        return this.requiredAs(name, Types.BOOL);
-    }
-
     requiredAsList(name: Msg): any[] {
         return this.requiredAs(name, Types.LIST);
+    }
+
+    requiredAsLogicalValue(name: Msg): boolean {
+        return this.requiredAs(name, Types.LOGICAL_VALUE);
     }
 
     requiredAsMap(name: Msg): Object {
@@ -189,12 +189,12 @@ export class Scope {
         }
     }
 
-    asBool(value: any): boolean {
-        return this.as(Types.BOOL, value);
-    }
-
     asList(value: any): any[] {
         return this.as(Types.LIST, value);
+    }
+
+    asLogicalValue(value: any): boolean {
+        return this.as(Types.LOGICAL_VALUE, value);
     }
 
     asMap(value: any): Utils.Map {

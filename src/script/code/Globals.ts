@@ -22,17 +22,27 @@ export const EXPRESSION_SEPARATOR: Msg = {
     "de": ";"
 };
 
-export const CONST_TRUE: Msg = {
-    "": "yes",
-    "de": "ja"
+export const CONST_FALSE: Msg = {
+    "": "false",
+    "de": "falsch"
 };
 
-export const CONST_FALSE: Msg = {
+export const CONST_NO: Msg = {
     "": "no",
     "de": "nein"
 };
 
-export const PROCEDURE_ABS: Msg = {
+export const CONST_TRUE: Msg = {
+    "": "true",
+    "de": "wahr"
+};
+
+export const CONST_YES: Msg = {
+    "": "yes",
+    "de": "ja"
+};
+
+export const PROCEDURE_ABSOLUTE: Msg = {
     "": "abs",
     "de": "abs"
 };
@@ -92,11 +102,6 @@ export const PROCEDURE_NEGATE: Msg = {
     "de": "negiere"
 };
 
-export const PROCEDURE_LEAVE: Msg = {
-    "": "leave",
-    "de": "belasse"
-};
-
 export const PROCEDURE_RANDOM: Msg = {
     "": "random",
     "de": "würfle"
@@ -114,6 +119,11 @@ export const PROCEDURE_SUBTRACT: Msg = {
 export const PROCEDURE_TRANSFORM: Msg = {
     "": "transform",
     "de": "verwandle"
+};
+
+export const PROCEDURE_UNCHANGED: Msg = {
+    "": "unchanged",
+    "de": "unverändert"
 };
 
 export const VAR_ACCENT: Msg = {
