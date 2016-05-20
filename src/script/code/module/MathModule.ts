@@ -28,7 +28,7 @@ class MathModule extends Module {
             return scope.requiredAsQuantity(Globals.VAR_VALUE).convert(scope.requiredAsUnit(Globals.VAR_UNIT));
         }));
 
-        this.register(Definition.procedure(Globals.PROCEDURE_LINK, {
+        this.register(Definition.procedure(Globals.PROCEDURE_JOIN_QUANTITIES, {
             "": "Links the values in the list (e.g. 4 ft 2 in). This is the default procedure used for linking quantities.",
             "de": "Verbindet die Werte in der Liste. Dies ist die Standardprozedur zum Verbinden von Quantitäten."
         }, [Definition.any(Globals.VAR_LIST, {
@@ -51,7 +51,7 @@ class MathModule extends Module {
                     }
 
                     if (leadingUnit.subUnit) {
-                        value = scope.requiredAsProcedure("convert").invoke({
+                        value = scope.requiredAsProcedure(Globals.PROCEDURE_CONVERT).invoke({
                             value: value,
                             unit: leadingUnit.subUnit
                         });

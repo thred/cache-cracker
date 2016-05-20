@@ -21,7 +21,7 @@ import {BinaryOperationCommand} from "./../command/BinaryOperationCommand";
 import {CallCommand} from "./../command/CallCommand";
 import {ConvertCommand} from "./../command/ConvertCommand";
 import {IdentifierCommand} from "./../command/IdentifierCommand";
-import {LinkCommand} from "./../command/LinkCommand";
+import {JoinQuantitiesCommand} from "./../command/JoinQuantitiesCommand";
 import {ListCommand} from "./../command/ListCommand";
 import {MapCommand} from "./../command/MapCommand";
 import {QuantityCommand} from "./../command/QuantityCommand";
@@ -85,7 +85,7 @@ export class CommandParser {
             let arg = this.parseExpressionChain(context);
 
             if (token.s === "+") {
-                let name = msg(context.accent, Globals.PROCEDURE_NOP);
+                let name = msg(context.accent, Globals.PROCEDURE_LEAVE);
                 let definition = context.required(name, Types.PROCEDURE);
 
                 expression = new UnaryOperationCommand(token.line, token.column, definition.type.toDistinctType().param, name, token.s, arg);
@@ -200,7 +200,7 @@ export class CommandParser {
             token = this.tokenizer.get();
 
             if (this.isExpressionChain(context, token)) {
-                command = new LinkCommand(startToken.line, startToken.column, [command, this.parseExpressionChain(context, leadingUnit)]);
+                command = new JoinQuantitiesCommand(startToken.line, startToken.column, [command, this.parseExpressionChain(context, leadingUnit)]);
 
                 token = this.tokenizer.get();
             }

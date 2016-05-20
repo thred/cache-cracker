@@ -17,6 +17,21 @@ export const DIGIT_SEPARATORS: Msg = {
     "de": ".\u00a0 "
 };
 
+export const EXPRESSION_SEPARATOR: Msg = {
+    "": ",",
+    "de": ";"
+};
+
+export const CONST_TRUE: Msg = {
+    "": "yes",
+    "de": "ja"
+};
+
+export const CONST_FALSE: Msg = {
+    "": "no",
+    "de": "nein"
+};
+
 export const PROCEDURE_ABS: Msg = {
     "": "abs",
     "de": "abs"
@@ -24,42 +39,42 @@ export const PROCEDURE_ABS: Msg = {
 
 export const PROCEDURE_ADD: Msg = {
     "": "add",
-    "de": "addieren"
+    "de": "addiere"
 };
 
 export const PROCEDURE_CEIL: Msg = {
     "": "ceil",
-    "de": "aufrunden"
-};
-
-export const PROCEDURE_CONCAT: Msg = {
-    "": "concat",
-    "de": "verketten"
+    "de": "rundeAuf"
 };
 
 export const PROCEDURE_CONVERT: Msg = {
     "": "convert",
-    "de": "umrechnen"
+    "de": "rechneUm"
 };
 
 export const PROCEDURE_DIVIDE: Msg = {
     "": "divide",
-    "de": "dividieren"
+    "de": "dividiere"
 };
 
 export const PROCEDURE_EXPONENTIATE: Msg = {
     "": "exponentiate",
-    "de": "potenzieren"
+    "de": "potenziere"
 };
 
 export const PROCEDURE_FLOOR: Msg = {
     "": "floor",
-    "de": "abrunden"
+    "de": "rundeAb"
 };
 
-export const PROCEDURE_LINK: Msg = {
-    "": "link",
-    "de": "verbinden"
+export const PROCEDURE_JOIN_TEXTS: Msg = {
+    "": "joinTexts",
+    "de": "verbindeTexte"
+};
+
+export const PROCEDURE_JOIN_QUANTITIES: Msg = {
+    "": "joinQuantities",
+    "de": "verbindeQuantiäten"
 };
 
 export const PROCEDURE_MODULO: Msg = {
@@ -69,36 +84,36 @@ export const PROCEDURE_MODULO: Msg = {
 
 export const PROCEDURE_MULTIPLY: Msg = {
     "": "multiply",
-    "de": "multiplizieren"
+    "de": "multipliziere"
 };
 
 export const PROCEDURE_NEGATE: Msg = {
     "": "negate",
-    "de": "negieren"
+    "de": "negiere"
 };
 
-export const PROCEDURE_NOP: Msg = {
-    "": "nop",
-    "de": "NullOp"
+export const PROCEDURE_LEAVE: Msg = {
+    "": "leave",
+    "de": "belasse"
 };
 
 export const PROCEDURE_RANDOM: Msg = {
     "": "random",
-    "de": "würfeln"
+    "de": "würfle"
 };
 export const PROCEDURE_ROUND: Msg = {
     "": "round",
-    "de": "runden"
+    "de": "runde"
 };
 
 export const PROCEDURE_SUBTRACT: Msg = {
     "": "subtract",
-    "de": "subtrahieren"
+    "de": "subtrahiere"
 };
 
 export const PROCEDURE_TRANSFORM: Msg = {
     "": "transform",
-    "de": "verwandeln"
+    "de": "verwandle"
 };
 
 export const VAR_ACCENT: Msg = {
@@ -155,6 +170,16 @@ export const VAR_RESULT: Msg = {
 export const VAR_RIGHT_VALUE: Msg = {
     "": "rightValue",
     "de": "rechterWert"
+};
+
+export const VAR_RULES: Msg = {
+    "": "rules",
+    "de": "Regeln"
+};
+
+export const VAR_SENSITIVE: Msg = {
+    "": "sensitive",
+    "de": "sensitiv"
 };
 
 export const VAR_SEPARATOR: Msg = {

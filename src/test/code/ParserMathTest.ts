@@ -32,6 +32,6 @@ describe("Parser (Math)", () => {
     
     Test.germanScript("-2", "-2");
     Test.germanScript("1 + 2", "3");
-    Test.germanScript("würfeln 1", "1");
+    Test.germanScript("würfle 1", "1");
 
 });

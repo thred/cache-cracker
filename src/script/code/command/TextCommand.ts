@@ -14,10 +14,10 @@ export class TextCommand extends Command {
 
                     args[msg(scope.accent, Globals.VAR_LIST)] = segments.map((segment) => segment.execute(scope));
 
-                    return scope.requiredAsProcedure(Globals.PROCEDURE_CONCAT).invoke(args);
+                    return scope.requiredAsProcedure(Globals.PROCEDURE_JOIN_TEXTS).invoke(args);
                 }
                 catch (error) {
-                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${msg(scope.accent, Globals.PROCEDURE_CONCAT)}`, error));
+                    throw new Error(Utils.formatError(line, column, `Failed to invoke procedure: ${msg(scope.accent, Globals.PROCEDURE_JOIN_TEXTS)}`, error));
                 }
             },
             (accent) => `"${segments.map((segment) => Utils.toScript(accent, segment)).join("")}"`);

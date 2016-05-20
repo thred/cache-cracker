@@ -61,11 +61,11 @@ export abstract class AbstractTokenizer<AnyToken extends { n?: number, s: string
 
     protected abstract read(): AnyToken;
 
-    protected isSignedNumber(ch: string): boolean {
-        return (this.isUnaryOperator(ch)) || (this.isNumber(ch));
+    protected isSignedNumber(ch: string, integerOnly: boolean = false): boolean {
+        return (this.isUnaryOperator(ch)) || (this.isNumber(ch, integerOnly));
     }
 
-    protected readSignedNumber(token: AnyToken): void {
+    protected readSignedNumber(token: AnyToken, integerOnly: boolean = false): void {
         let ch = this.scanner.get();
 
         if (!this.isSignedNumber(ch)) {
@@ -80,7 +80,7 @@ export abstract class AbstractTokenizer<AnyToken extends { n?: number, s: string
             ch = this.scanner.next();
         }
 
-        this.readNumber(token);
+        this.readNumber(token, integerOnly);
 
         if (unaryOperator) {
             token.s = unaryOperator + token.s;
@@ -99,11 +99,11 @@ export abstract class AbstractTokenizer<AnyToken extends { n?: number, s: string
         }
     }
 
-    protected isNumber(ch: string): boolean {
-        return (this.isDigit(ch)) || (this.isDecimalSeparator(ch));
+    protected isNumber(ch: string, integerOnly: boolean = false): boolean {
+        return (this.isDigit(ch)) || ((!integerOnly) && (this.isDecimalSeparator(ch)));
     }
 
-    protected readNumber(token: AnyToken): void {
+    protected readNumber(token: AnyToken, integerOnly: boolean = false): void {
         let ch = this.scanner.get();
 
         if (!this.isNumber(ch)) {
@@ -123,7 +123,7 @@ export abstract class AbstractTokenizer<AnyToken extends { n?: number, s: string
                 break;
             }
 
-            if (this.isDigitSeparator(ch)) {
+            if ((this.isDigitSeparator(ch)) && (this.isDigit(this.scanner.lookAhead()))) {
                 if (digitSeparatorCount > 0) {
                     break;
                 }
@@ -137,7 +137,7 @@ export abstract class AbstractTokenizer<AnyToken extends { n?: number, s: string
 
             digitSeparatorCount = 0;
 
-            if (this.isDecimalSeparator(ch)) {
+            if ((!integerOnly) && (this.isDecimalSeparator(ch))) {
                 if (foundDecimalSeparator) {
                     break;
                 }
@@ -322,6 +322,74 @@ export abstract class AbstractTokenizer<AnyToken extends { n?: number, s: string
                 break;
             }
         }
+    }
+
+    protected readCharacter(token: AnyToken): void {
+        let ch = this.scanner.get();
+
+        if (ch === "\\") {
+            ch = this.scanner.next();
+
+            if (!ch) {
+                // throw `[Ln ${line}, Col ${column}] Unclosed string`;
+
+                token.s += "\\";
+
+                return;
+            }
+
+            switch (ch) {
+                case "n":
+                    token.s += "\n";
+                    break;
+
+                case "r":
+                    token.s += "\r";
+                    break;
+
+                case "t":
+                    token.s += "\t";
+                    break;
+
+                case "\\":
+                    token.s += "\\";
+                    break;
+
+                case "\'":
+                    token.s += "\'";
+                    break;
+
+                case "\"":
+                    token.s += "\"";
+                    break;
+
+                case "\`":
+                    token.s += "\`";
+                    break;
+
+                case "b":
+                    token.s += "\b";
+                    break;
+
+                case "f":
+                    token.s += "\f";
+                    break;
+
+                // TODO add \uxxxx?
+
+                default:
+                    token.s += ch;
+                    break;
+            }
+
+            this.scanner.next();
+
+            return;
+        }
+
+        token.s += ch;
+
+        this.scanner.next();
     }
 
     whitespaces(whitespaces: string): this {

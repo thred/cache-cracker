@@ -35,7 +35,7 @@ export class Definition implements Utils.Scripted {
         return new Definition(name, Types.MAP, description, (scope: Scope) => initialValue);
     }
 
-    static procedure(name: Msg, description: Msg, params: Definition[], result: Definition, impl: (scope: Scope) => any): Definition {
+    static procedure(name: Msg, description: Msg, params: Definition[], result: Definition, impl: (scope: Scope) => any): ProcedureDefinition {
         result = result || Definition.of("void", Types.VOID, "Nothing");
 
         return new ProcedureDefinition(name, new DistinctType("Procedure", result.type), description, params, result, impl);
@@ -120,7 +120,7 @@ export class Definition implements Utils.Scripted {
     }
 }
 
-class ProcedureDefinition extends Definition {
+export class ProcedureDefinition extends Definition {
 
     constructor(name: Msg, type: Type | string, description: Msg, protected _params: Definition[], protected _result: Definition, protected _impl?: (scope: Scope) => any) {
         super(name, type, description, (scope: Scope) => {

@@ -8,7 +8,6 @@ import * as Globals from "./Globals";
 
 import * as DefaultModule from "./module/DefaultModule";
 import * as MathModule from "./module/MathModule";
-import * as TextAnalysisModule from "./module/TextAnalysisModule";
 import * as TextModule from "./module/TextModule";
 import * as TransformationModule from "./module/TransformationModule";
 
@@ -18,8 +17,7 @@ import {Scanner} from "./parser/Scanner";
 export class Environment {
 
     static createDefault(accent: string): Environment {
-        return new Environment(accent).include(DefaultModule.MODULE, MathModule.MODULE, TextAnalysisModule.MODULE,
-            TextModule.MODULE, TransformationModule.MODULE);
+        return new Environment(accent).include(DefaultModule.MODULE, MathModule.MODULE, TextModule.MODULE, TransformationModule.MODULE);
     }
 
     static DEFAULT: Environment = Environment.createDefault(Globals.DEFAULT_ACCENT);

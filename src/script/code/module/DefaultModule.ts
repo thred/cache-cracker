@@ -12,7 +12,17 @@ class DefaultModule extends Module {
     constructor() {
         super();
 
-        this.register(Definition.procedure(Globals.PROCEDURE_NOP, {
+        this.register(Definition.bool(Globals.CONST_TRUE, {
+            "": "The logical value: true",
+            "de": "Der Wahrheitswert: wahr"
+        }, true));
+
+        this.register(Definition.bool(Globals.CONST_FALSE, {
+            "": "The logical value: false",
+            "de": "Der Wahrheitswert: unwahr"
+        }, false));
+
+        this.register(Definition.procedure(Globals.PROCEDURE_LEAVE, {
             "": "Returns the specified value unmodified.",
             "de": "Gibt den angegebenen Wert unmodifiziert zurück."
         }, [Definition.any(Globals.VAR_VALUE, {
@@ -24,6 +34,7 @@ class DefaultModule extends Module {
         }), (scope: Scope) => {
             return scope.required(Globals.VAR_VALUE);
         }));
+
     }
 }
 

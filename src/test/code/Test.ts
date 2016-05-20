@@ -8,14 +8,24 @@ import {Script} from "../../script/code/Script";
 
 import * as Utils from "../../script/code/Utils";
 
+import {CharacterValueRuleParser} from "../../script/code/parser/CharacterValueRuleParser";
+
 import {assert} from "chai";
 
 
-export function quantity(language: string, s: string, result: string): void {
-    it(`${s} (${language}) => ${result}`, () => {
+export function characterValueRule(s: string, lowerCaseOnly: boolean, expected: { [character: string]: number }): void {
+    it(`${s}`, () => {
+        let result: { [character: string]: number } = new CharacterValueRuleParser("", s, lowerCaseOnly).parse();
+
+        assert.deepEqual(result, expected);
+    });
+}
+
+export function quantity(language: string, s: string, expected: string): void {
+    it(`${s} (${language}) => ${expected}`, () => {
         let quantity = Quantity.parse(language, s);
 
-        assert.equal(quantity.toString(), result);
+        assert.equal(quantity.toString(), expected);
     });
 }
 
