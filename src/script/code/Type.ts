@@ -334,13 +334,13 @@ export class VoidType extends Type {
 export class Types {
     static ANY: Type = new AnyType();
 
-    static LIST: DistinctType = new DistinctType("List", Types.ANY);
+    static LIST: DistinctType = new DistinctType("List");
 
     static LOGICAL_VALUE: DistinctType = new DistinctType("LogicalValue");
 
-    static MAP: DistinctType = new DistinctType("Map", Types.ANY);
+    static MAP: DistinctType = new DistinctType("Map");
 
-    static PROCEDURE: DistinctType = new DistinctType("Procedure", Types.ANY);
+    static PROCEDURE: DistinctType = new DistinctType("Procedure");
 
     static QUANTITY: DistinctType = new DistinctType("Quantity");
 

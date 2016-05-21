@@ -22,9 +22,19 @@ export const EXPRESSION_SEPARATOR: Msg = {
     "de": ";"
 };
 
+export const CONST_TRUE: Msg = {
+    "": "true",
+    "de": "wahr"
+};
+
 export const CONST_FALSE: Msg = {
     "": "false",
     "de": "falsch"
+};
+
+export const CONST_YES: Msg = {
+    "": "yes",
+    "de": "ja"
 };
 
 export const CONST_NO: Msg = {
@@ -32,14 +42,44 @@ export const CONST_NO: Msg = {
     "de": "nein"
 };
 
-export const CONST_TRUE: Msg = {
-    "": "true",
-    "de": "wahr"
+export const CONST_LIST: Msg = {
+    "": "List",
+    "de": "Liste"
 };
 
-export const CONST_YES: Msg = {
-    "": "yes",
-    "de": "ja"
+export const CONST_LOGICAL_VALUE: Msg = {
+    "": "LogicalValue",
+    "de": "Wahrheitswert"
+};
+
+export const CONST_MAP: Msg = {
+    "": "Map",
+    "de": "Map"
+};
+
+export const CONST_PROCEDURE: Msg = {
+    "": "Procedure",
+    "de": "Prozedur"
+};
+
+export const CONST_QUANTITY: Msg = {
+    "": "Quantity",
+    "de": "Quantität"
+};
+
+export const CONST_TEXT: Msg = {
+    "": "Text",
+    "de": "Text"
+};
+
+export const CONST_TYPE: Msg = {
+    "": "Type",
+    "de": "Typ"
+};
+
+export const CONST_UNIT: Msg = {
+    "": "Unit",
+    "de": "Einheit"
 };
 
 export const PROCEDURE_ABSOLUTE: Msg = {

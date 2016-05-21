@@ -2,7 +2,7 @@
 
 import * as Test from "./Test";
 
-describe("Parser (Basic)", () => {
+describe("Parser (TextModule)", () => {
 
     Test.script("simplifyCharacters \"abc\"", "\"abc\""); // FIXME this should be a useful test
 

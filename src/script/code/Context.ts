@@ -109,7 +109,7 @@ export class Context {
         }
 
         for (let name in this._definitions) {
-            scope.set(name, this._definitions[name].createInitialValue(scope) || null);
+            scope.set(name, this._definitions[name].createInitialValue(scope));
         }
 
         return scope;
