@@ -1,5 +1,7 @@
 import {Scanner} from "./Scanner";
 
+import * as Verify from "./../Verify";
+
 const DEFAULT_WHITESPACES: string = " \n\r\t\b\f\u00a0";
 const DEFAULT_OPERATORS: string = "+-*/^"
 const DEFAULT_OPERATOR_KEYWORDS: string[] = ["mod"];
@@ -187,7 +189,7 @@ export class Tokenizer {
             return true;
         }
 
-        return "ÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð".indexOf(ch) >= 0;
+        return Verify.ADDITIONAL_LETTERS.indexOf(ch) >= 0;
     }
 
     isDigit(ch: string): boolean {

@@ -1,6 +1,7 @@
 import {Msg, msg, defMsg} from "./Msg";
 
-const ADDITIONAL_IDENTIFIERS: string = "_§$#"
+export const ADDITIONAL_LETTERS: string = "ÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð";
+export const ADDITIONAL_IDENTIFIERS: string = "_§$#"
 
 export function isLetter(ch: string): boolean {
     if (!ch) {
@@ -17,7 +18,7 @@ export function isLetter(ch: string): boolean {
         return true;
     }
 
-    return "ÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð".indexOf(ch) >= 0;
+    return ADDITIONAL_LETTERS.indexOf(ch) >= 0;
 }
 
 export function isDigit(ch: string): boolean {

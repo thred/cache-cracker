@@ -1,14 +1,15 @@
 import {Scanner} from "./Scanner";
 
 import * as Utils from "./../Utils";
+import * as Verify from "./../Verify";
 
 const DEFAULT_WHITESPACES: string = " \n\r\t\b\f\u00a0";
-const DEFAULT_ADDITIONAL_LETTERS: string = "ÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð";
+const DEFAULT_ADDITIONAL_LETTERS: string = Verify.ADDITIONAL_LETTERS;
 const DEFAULT_UNARY_OPERATORS: string = "+-";
 const DEFAULT_UNARY_SUPERSCRIPT_OPERATORS: string = "\u207a\u207b";
 const DEFAULT_DECIMAL_SEPARATORS: string = ".";
 const DEFAULT_DIGIT_SEPARATORS: string = " \u00a0";
-const DEFAULT_ADDITIONAL_IDENTIFIERS: string = "_§$#";
+const DEFAULT_ADDITIONAL_IDENTIFIERS: string = Verify.ADDITIONAL_IDENTIFIERS;
 
 const SUPERSCRIPT_DIGITS: string = "\u2070\u2071\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079";
 

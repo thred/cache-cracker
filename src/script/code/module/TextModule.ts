@@ -5,12 +5,13 @@ import {Scope} from "./../Scope";
 
 import * as Globals from "./../Globals";
 import * as Utils from "./../Utils";
+import * as Verify from "./../Verify";
 
 import {CharacterValueRuleParser} from "./../parser/CharacterValueRuleParser";
 
 const DIACRITICS: { [character: string]: string } = {
     "À": "A", "È": "E", "Ì": "I", "Ò": "O", "Ù": "U",
-    "à": "a", "è": "e", "ì": "i", "ò": "i", "ù": "u",
+    "à": "a", "è": "e", "ì": "i", "ò": "o", "ù": "u",
     "Á": "A", "É": "E", "Í": "I", "Ó": "O", "Ú": "U", "Ý": "Y",
     "á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "ý": "y",
     "Â": "A", "Ê": "E", "Î": "I", "Ô": "O", "Û": "U",
@@ -78,7 +79,7 @@ export const COUNT_CHARACTERS: ProcedureDefinition = Definition.procedure({
     }), Definition.any(Globals.VAR_CHARACTERS, {
         "": "A text containing all characters, that should be counted (optional).",
         "de": "Ein Text der alle zu Zeichen enthält, die mitgezählt werden sollen (optional)."
-    }, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð"), Definition.any(Globals.VAR_SENSITIVE, {
+    }, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + Verify.ADDITIONAL_LETTERS), Definition.any(Globals.VAR_SENSITIVE, {
         "": "If true, the procedure respects the type case (default value is false).",
         "de": "Wenn wahr repektiert die Prozedur die Groß-/Kleinschreibung (unwahr im Standardfall)."
     }, false)], Definition.quantity(Globals.VAR_RESULT, {

@@ -180,7 +180,10 @@ export function toEscapedString(s: string): string {
             default:
                 let code = ch.charCodeAt(0);
 
-                if ((code < 32) || (code > 127)) {
+                if (((code >= 32) && (code <= 126)) || (code >= 161)) {
+                    result += ch;
+                }
+                else {
                     let hex = code.toString(16);
 
                     while (hex.length < 4) {
@@ -188,9 +191,6 @@ export function toEscapedString(s: string): string {
                     }
 
                     result += "\\u" + hex;
-                }
-                else {
-                    result += ch;
                 }
         }
     }
