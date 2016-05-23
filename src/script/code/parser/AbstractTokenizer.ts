@@ -376,8 +376,27 @@ export abstract class AbstractTokenizer<AnyToken extends { n?: number, s: string
                     token.s += "\f";
                     break;
 
-                // TODO add \uxxxx?
+                case "u":
+                    ch = this.scanner.next();
 
+                    let s = "";
+                    let i = 0;
+
+                    while ((this.isHexDigit(ch)) && (i < 4)) {
+                        s += ch;
+
+                        ch = this.scanner.next();
+                        i++;
+                    }
+
+                    if (i < 4) {
+                        token.s += "\\u" + s;
+                    }
+                    else {
+                        token.s += String.fromCharCode(parseInt(s, 16));
+                    }
+                    break;
+                    
                 default:
                     token.s += ch;
                     break;
@@ -439,6 +458,16 @@ export abstract class AbstractTokenizer<AnyToken extends { n?: number, s: string
         let code = ch.charCodeAt(0)
 
         return ((code >= 48) && (code <= 57));
+    }
+
+    isHexDigit(ch: string): boolean {
+        if (!ch) {
+            return false;
+        }
+
+        let code = ch.charCodeAt(0)
+
+        return ((code >= 48) && (code <= 57)) || ((code >= 65) && (code <= 70)) || ((code >= 97) && (code <= 102));
     }
 
     isSuperscriptDigit(ch: string): boolean {

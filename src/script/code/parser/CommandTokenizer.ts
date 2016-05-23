@@ -270,69 +270,9 @@ export class CommandTokenizer extends AbstractTokenizer<Token> {
                 break;
             }
 
-            if (ch === "\\") {
-                ch = this.scanner.next();
+            this.readCharacter(token);
 
-                if (!ch) {
-                    // throw `[Ln ${line}, Col ${column}] Unclosed string`;
-
-                    token.s += "\\";
-
-                    break;
-                }
-
-                switch (ch) {
-                    case "n":
-                        token.s += "\n";
-                        break;
-
-                    case "r":
-                        token.s += "\r";
-                        break;
-
-                    case "t":
-                        token.s += "\t";
-                        break;
-
-                    case "\\":
-                        token.s += "\\";
-                        break;
-
-                    case "\'":
-                        token.s += "\'";
-                        break;
-
-                    case "\"":
-                        token.s += "\"";
-                        break;
-
-                    case "\`":
-                        token.s += "\`";
-                        break;
-
-                    case "b":
-                        token.s += "\b";
-                        break;
-
-                    case "f":
-                        token.s += "\f";
-                        break;
-
-                    // TODO add \uxxxx?
-
-                    default:
-                        token.s += ch;
-                        break;
-                }
-
-                ch = this.scanner.next();
-
-                continue;
-            }
-
-            token.s += ch;
-
-            ch = this.scanner.next();
+            ch = this.scanner.get();
         }
 
         return token;

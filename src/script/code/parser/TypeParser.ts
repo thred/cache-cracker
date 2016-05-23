@@ -118,7 +118,7 @@ export class TypeParser {
 
         token = this.tokenizer.next();
 
-        if (definition.type.toDistinctType().param.matches(param)) {
+        if (definition.type.toDistinctType().paramOrAny.matches(param)) {
             return definition.type;
         }
 

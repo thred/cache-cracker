@@ -154,6 +154,10 @@ export class DistinctType extends Type {
     get param() {
         return this._param;
     }
+    
+    get paramOrAny() {
+        return this._param || Types.ANY;
+    }
 
     accepts(type: Type): boolean {
         Utils.requiredNotNull(type, "Type is null");
